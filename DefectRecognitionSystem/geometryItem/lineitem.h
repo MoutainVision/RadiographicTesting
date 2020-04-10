@@ -1,9 +1,9 @@
-#ifndef LINEITEM_H
+﻿#ifndef LINEITEM_H
 #define LINEITEM_H
 
 #include <qmath.h>
 
-#include "scanglobal.h"
+#include "appconfig.h"
 #include "geometryitembase.h"
 #include "linedragitemdata.h"
 

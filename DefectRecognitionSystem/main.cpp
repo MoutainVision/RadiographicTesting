@@ -4,9 +4,7 @@
 
 #include "appconfig.h"
 
-
-#include "ximage.h"
-
+#include "logindlg.h"
 
 int main(int argc, char *argv[])
 {
@@ -19,8 +17,15 @@ int main(int argc, char *argv[])
     Appconfig::loadConfigFile();
 
 
+    LoginDlg dlg;
     MainWindow w;
-    w.showMaximized();
+
+    if (dlg.exec() == QDialog::Accepted)
+    {
+        w.showMaximized();
+    }
+
+
 
     return a.exec();
 }

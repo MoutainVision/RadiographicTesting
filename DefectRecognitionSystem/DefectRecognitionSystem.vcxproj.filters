@@ -35,6 +35,12 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
+    <Filter Include="Header Files\geometryItem">
+      <UniqueIdentifier>{8bec15b3-7600-4389-8c30-48a9eb460030}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\geometryItem">
+      <UniqueIdentifier>{77ecf782-407c-49b4-bc64-959928127199}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Base\FunctionTransfer.cpp">
@@ -58,6 +64,36 @@
     <ClCompile Include="recognizewdg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="geometryItem\dragitem.cpp">
+      <Filter>Source Files\geometryItem</Filter>
+    </ClCompile>
+    <ClCompile Include="geometryItem\ellipseitem.cpp">
+      <Filter>Source Files\geometryItem</Filter>
+    </ClCompile>
+    <ClCompile Include="geometryItem\geometryitembase.cpp">
+      <Filter>Source Files\geometryItem</Filter>
+    </ClCompile>
+    <ClCompile Include="geometryItem\linedragitemdata.cpp">
+      <Filter>Source Files\geometryItem</Filter>
+    </ClCompile>
+    <ClCompile Include="geometryItem\lineitem.cpp">
+      <Filter>Source Files\geometryItem</Filter>
+    </ClCompile>
+    <ClCompile Include="geometryItem\polygonitem.cpp">
+      <Filter>Source Files\geometryItem</Filter>
+    </ClCompile>
+    <ClCompile Include="geometryItem\rectdragitemdata.cpp">
+      <Filter>Source Files\geometryItem</Filter>
+    </ClCompile>
+    <ClCompile Include="geometryItem\rectitem.cpp">
+      <Filter>Source Files\geometryItem</Filter>
+    </ClCompile>
+    <ClCompile Include="geometryItem\textitem.cpp">
+      <Filter>Source Files\geometryItem</Filter>
+    </ClCompile>
+    <ClCompile Include="logindlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Base\FunctionTransfer.h">
@@ -78,18 +114,14 @@
     <QtMoc Include="recognizewdg.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="logindlg.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
-    
-    
     <CustomBuild Include="obj\Moc\moc_predefs.h.cbt">
       <Filter>Generated Files</Filter>
     </CustomBuild>
-    
-    
-    
-    
-    
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="mainwindow.ui">
@@ -101,5 +133,37 @@
     <QtUic Include="recognizewdg.ui">
       <Filter>Form Files</Filter>
     </QtUic>
+    <QtUic Include="logindlg.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="geometryItem\rectdragitemdata.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geometryItem\dragitem.h">
+      <Filter>Header Files\geometryItem</Filter>
+    </ClInclude>
+    <ClInclude Include="geometryItem\ellipseitem.h">
+      <Filter>Header Files\geometryItem</Filter>
+    </ClInclude>
+    <ClInclude Include="geometryItem\geometryitembase.h">
+      <Filter>Header Files\geometryItem</Filter>
+    </ClInclude>
+    <ClInclude Include="geometryItem\linedragitemdata.h">
+      <Filter>Header Files\geometryItem</Filter>
+    </ClInclude>
+    <ClInclude Include="geometryItem\lineitem.h">
+      <Filter>Header Files\geometryItem</Filter>
+    </ClInclude>
+    <ClInclude Include="geometryItem\polygonitem.h">
+      <Filter>Header Files\geometryItem</Filter>
+    </ClInclude>
+    <ClInclude Include="geometryItem\rectitem.h">
+      <Filter>Header Files\geometryItem</Filter>
+    </ClInclude>
+    <ClInclude Include="geometryItem\textitem.h">
+      <Filter>Header Files\geometryItem</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

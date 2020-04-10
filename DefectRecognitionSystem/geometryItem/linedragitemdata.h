@@ -1,9 +1,10 @@
-#ifndef LINEDRAGITEMDATA_H
+﻿#ifndef LINEDRAGITEMDATA_H
 #define LINEDRAGITEMDATA_H
 
 #include <QPoint>
 #include <QRect>
 #include <QList>
+#include <QLineF>
 
 #include "dragitem.h"
 

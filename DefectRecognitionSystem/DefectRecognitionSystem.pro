@@ -27,7 +27,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-DEFINES += UNICODE
+#DEFINES -= UNICODE
+
+DEFINES -= _UNICODE
 
 CONFIG(release, debug | release){
     DESTDIR = $$PWD/../Bins/Release
@@ -50,7 +52,17 @@ SOURCES += \
     recheckwdg.cpp \
     readdcmfile.cpp \
     Base/FunctionTransfer.cpp \
-    appconfig.cpp
+    appconfig.cpp \
+    geometryItem/dragitem.cpp \
+    geometryItem/ellipseitem.cpp \
+    geometryItem/geometryitembase.cpp \
+    geometryItem/linedragitemdata.cpp \
+    geometryItem/lineitem.cpp \
+    geometryItem/polygonitem.cpp \
+    geometryItem/rectdragitemdata.cpp \
+    geometryItem/rectitem.cpp \
+    geometryItem/textitem.cpp \
+    logindlg.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -58,12 +70,23 @@ HEADERS += \
     recheckwdg.h \
     readdcmfile.h \
     Base/FunctionTransfer.h \
-    appconfig.h
+    appconfig.h \
+    geometryItem/dragitem.h \
+    geometryItem/ellipseitem.h \
+    geometryItem/geometryitembase.h \
+    geometryItem/linedragitemdata.h \
+    geometryItem/lineitem.h \
+    geometryItem/polygonitem.h \
+    geometryItem/rectdragitemdata.h \
+    geometryItem/rectitem.h \
+    geometryItem/textitem.h \
+    logindlg.h
 
 FORMS += \
     mainwindow.ui \
     recognizewdg.ui \
-    recheckwdg.ui
+    recheckwdg.ui \
+    logindlg.ui
 
 CONFIG(release, debug|release) {
     LIBS += -L"..\Dependencies\dcmtk-3.6.5\lib\Release" -ldcmtk

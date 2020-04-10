@@ -1,8 +1,8 @@
-#ifndef ELLIPSEITEM_H
+﻿#ifndef ELLIPSEITEM_H
 #define ELLIPSEITEM_H
 
 #include "rectdragitemdata.h"
-#include "scanglobal.h"
+#include "appconfig.h"
 #include "geometryitembase.h"
 
 class EllipseItem : public GeometryItemBase

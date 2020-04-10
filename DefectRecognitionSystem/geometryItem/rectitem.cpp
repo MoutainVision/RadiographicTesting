@@ -1,4 +1,4 @@
-#include "rectitem.h"
+﻿#include "rectitem.h"
 
 #include <QDebug>
 

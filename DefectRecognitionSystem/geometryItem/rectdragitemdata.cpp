@@ -1,4 +1,4 @@
-#include "rectdragitemdata.h"
+﻿#include "rectdragitemdata.h"
 
 RectDragItemData::RectDragItemData()
 {

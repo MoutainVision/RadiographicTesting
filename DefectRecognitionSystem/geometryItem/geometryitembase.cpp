@@ -1,4 +1,4 @@
-#include "geometryitembase.h"
+﻿#include "geometryitembase.h"
 
 GeometryItemBase::GeometryItemBase()
 {

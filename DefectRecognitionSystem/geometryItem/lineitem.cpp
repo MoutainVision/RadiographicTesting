@@ -1,4 +1,4 @@
-#include "lineitem.h"
+﻿#include "lineitem.h"
 #include <QPolygonF>
 
 LineItem::LineItem()

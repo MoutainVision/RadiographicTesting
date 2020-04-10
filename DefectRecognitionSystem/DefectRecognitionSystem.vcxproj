@@ -79,7 +79,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;..\Dependencies\dcmtk-3.6.5\dcmdata\include;..\Dependencies\cximage\include;$(QTDIR)\include;obj\Moc;obj\Gui;C:\VulkanSDK\1.0.51.0\include;$(QTDIR)\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;..\Dependencies\dcmtk-3.6.5\dcmdata\include;..\Dependencies\cximage\include;$(QTDIR)\include;obj\Moc;obj\Gui;$(QTDIR)\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -std:c++17 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>obj\Obj\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
@@ -190,6 +190,16 @@
   <ItemGroup>
     <ClCompile Include="Base\FunctionTransfer.cpp" />
     <ClCompile Include="appconfig.cpp" />
+    <ClCompile Include="geometryItem\dragitem.cpp" />
+    <ClCompile Include="geometryItem\ellipseitem.cpp" />
+    <ClCompile Include="geometryItem\geometryitembase.cpp" />
+    <ClCompile Include="geometryItem\linedragitemdata.cpp" />
+    <ClCompile Include="geometryItem\lineitem.cpp" />
+    <ClCompile Include="geometryItem\polygonitem.cpp" />
+    <ClCompile Include="geometryItem\rectdragitemdata.cpp" />
+    <ClCompile Include="geometryItem\rectitem.cpp" />
+    <ClCompile Include="geometryItem\textitem.cpp" />
+    <ClCompile Include="logindlg.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mainwindow.cpp" />
     <ClCompile Include="readdcmfile.cpp" />
@@ -202,6 +212,16 @@
     <ClInclude Include="appconfig.h" />
     <QtMoc Include="mainwindow.h">
     </QtMoc>
+    <ClInclude Include="geometryItem\dragitem.h" />
+    <ClInclude Include="geometryItem\ellipseitem.h" />
+    <ClInclude Include="geometryItem\geometryitembase.h" />
+    <ClInclude Include="geometryItem\linedragitemdata.h" />
+    <ClInclude Include="geometryItem\lineitem.h" />
+    <ClInclude Include="geometryItem\polygonitem.h" />
+    <ClInclude Include="geometryItem\rectdragitemdata.h" />
+    <ClInclude Include="geometryItem\rectitem.h" />
+    <ClInclude Include="geometryItem\textitem.h" />
+    <QtMoc Include="logindlg.h" />
     <ClInclude Include="readdcmfile.h" />
     <QtMoc Include="recheckwdg.h">
     </QtMoc>
@@ -222,6 +242,7 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <QtUic Include="logindlg.ui" />
     <QtUic Include="mainwindow.ui">
     </QtUic>
     <QtUic Include="recheckwdg.ui">

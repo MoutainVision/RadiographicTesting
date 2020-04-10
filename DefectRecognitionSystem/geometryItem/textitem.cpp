@@ -1,4 +1,4 @@
-#include "textitem.h"
+﻿#include "textitem.h"
 
 #include <QDebug>
 

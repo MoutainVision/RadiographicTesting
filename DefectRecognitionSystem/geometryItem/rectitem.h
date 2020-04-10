@@ -1,8 +1,8 @@
-#ifndef RECTITEM_H
+﻿#ifndef RECTITEM_H
 #define RECTITEM_H
 
 #include "rectdragitemdata.h"
-#include "scanglobal.h"
+#include "appconfig.h"
 #include "geometryitembase.h"
 
 class RectItem : public GeometryItemBase

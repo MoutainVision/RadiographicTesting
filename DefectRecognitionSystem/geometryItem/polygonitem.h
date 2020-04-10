@@ -1,14 +1,14 @@
-#ifndef TEXTITEM_H
+﻿#ifndef TEXTITEM_H
 #define TEXTITEM_H
 
 #include "rectdragitemdata.h"
-#include "scanglobal.h"
+#include "appconfig.h"
 #include "geometryitembase.h"
 
 #include <QPolygonF>
 
 
-#include "messagedlg.h"
+//#include "messagedlg.h"
 
 class PolygonItem : public GeometryItemBase
 {

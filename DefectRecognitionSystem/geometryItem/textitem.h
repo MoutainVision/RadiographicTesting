@@ -1,8 +1,8 @@
-#ifndef TEXTITEM_H
+﻿#ifndef TEXTITEM_H
 #define TEXTITEM_H
 
 #include "rectdragitemdata.h"
-#include "scanglobal.h"
+#include "appconfig.h"
 #include "geometryitembase.h"
 
 class TextItem : public GeometryItemBase

@@ -1,10 +1,11 @@
-#ifndef DRAGITEM_H
+﻿#ifndef DRAGITEM_H
 #define DRAGITEM_H
+
+#include "appconfig.h"
 
 #include <QPoint>
 #include <QRect>
 
-#include "scanglobal.h"
 
 class DragItem
 {
@@ -12,7 +13,7 @@ public:
     explicit DragItem();
     ~DragItem();
 
-    void setDragPt(QPoint &pt);
+    void setDragPt(QPoint pt);
     void setDragDirection(DragDirection direction);
 
     DragDirection getDragDirection();

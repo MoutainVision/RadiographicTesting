@@ -1,7 +1,7 @@
-#ifndef GEOMETRYITEMBASE_H
+﻿#ifndef GEOMETRYITEMBASE_H
 #define GEOMETRYITEMBASE_H
 
-#include "scanglobal.h"
+#include "appconfig.h"
 
 //class GeometryItemBase : public QObject
 class GeometryItemBase

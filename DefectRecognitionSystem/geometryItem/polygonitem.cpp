@@ -1,4 +1,4 @@
-#include "polygonitem.h"
+﻿#include "polygonitem.h"
 
 #include <QDebug>
 

@@ -19,7 +19,7 @@
      <property name="currentIndex">
       <number>0</number>
      </property>
-     <widget class="QWidget" name="tab">
+     <widget class="QWidget" name="tab_del">
       <attribute name="title">
        <string>预处理</string>
       </attribute>
@@ -34,28 +34,28 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_5">
           <item>
-           <widget class="QPushButton" name="pushButton">
+           <widget class="QPushButton" name="pushButton_noise">
             <property name="text">
              <string>去噪</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton_2">
+           <widget class="QPushButton" name="pushButton_invert">
             <property name="text">
              <string>反相</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton_4">
+           <widget class="QPushButton" name="pushButton_contrast">
             <property name="text">
              <string>对比度增强</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton_5">
+           <widget class="QPushButton" name="pushButton_defects">
             <property name="text">
              <string>缺陷增强</string>
             </property>
@@ -191,14 +191,14 @@
            </layout>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton_6">
+           <widget class="QPushButton" name="pushButton_reset">
             <property name="text">
              <string>恢复图像</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton_13">
+           <widget class="QPushButton" name="pushButton_measure">
             <property name="text">
              <string>测量</string>
             </property>
@@ -224,7 +224,7 @@
         <widget class="QWidget" name="widget_right" native="true">
          <layout class="QVBoxLayout" name="verticalLayout_11" stretch="1,0">
           <item>
-           <widget class="QWidget" name="widget_2" native="true">
+           <widget class="QWidget" name="widget_img" native="true">
             <property name="styleSheet">
              <string notr="true">background-color: rgb(222, 255, 160);</string>
             </property>
@@ -246,7 +246,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_14">
+             <widget class="QPushButton" name="pushButton_next">
               <property name="text">
                <string>下一步</string>
               </property>
@@ -259,7 +259,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_2">
+     <widget class="QWidget" name="tab_recognize">
       <attribute name="title">
        <string>识别</string>
       </attribute>

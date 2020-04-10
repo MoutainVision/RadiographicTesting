@@ -1,4 +1,4 @@
-#ifndef RECTDRAGITEMDATA_H
+﻿#ifndef RECTDRAGITEMDATA_H
 #define RECTDRAGITEMDATA_H
 
 #include <QPoint>
@@ -6,8 +6,6 @@
 #include <QList>
 
 #include "dragitem.h"
-
-#include "messagedlg.h"
 
 class RectDragItemData
 {

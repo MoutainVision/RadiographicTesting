@@ -1,4 +1,4 @@
-#include "linedragitemdata.h"
+﻿#include "linedragitemdata.h"
 
 LineDragItemData::LineDragItemData()
 {
