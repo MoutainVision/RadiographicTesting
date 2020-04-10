@@ -45,14 +45,76 @@ bool ReadDCMFile::readDCMFile(std::string filePath, string outFileName, string e
 
          std::cout << outFileName << std::endl;
 
-         //save
-         avs::xImage *img = new avs::xImage();
-         img->create(m_width, m_height, true, avs::PIXEL_FORMAT_MONO8);
-         img->copyData((const unsigned char *)(pixData16), img->getImageSize());
-         bool isSuc = img->save(outFileName.c_str());
 
-         if (!isSuc)
-             return false;
+		 Uint16 min = 65535, max = 0;
+		 for (int y = 0; y < m_height; y++)
+			 for (int x = 0; x < m_width; x++)
+			 {
+				 if (pixData16[y*m_width + x] > max)
+				 {
+					 max = pixData16[y*m_width + x];
+				 }
+
+				 if (pixData16[y*m_width + x] < min)
+				 {
+					 min = pixData16[y*m_width + x];
+				 }
+			 }
+
+		 std::cout << min << "\t" << max << std::endl;
+
+		 CxImage img;
+		 img.Create(m_width, m_height, 8);
+		 RGBQUAD rgb[256];
+		 for (int k = 0; k < 256; k++)
+		 {
+			 rgb[k].rgbBlue = rgb[k].rgbGreen = rgb[k].rgbRed = k;
+		 }
+
+		 img.SetPalette(rgb, 256);
+		 if (img.IsValid())
+		 {
+			 std::cout << img.GetWidth() << std::endl;
+			 std::cout << img.GetHeight() << std::endl;
+			 std::cout << img.GetEffWidth() << std::endl;
+			 std::cout << img.GetSize() << std::endl;
+
+			 unsigned char *pimg = img.GetBits();
+			 int p = img.GetEffWidth();
+			 for (int y = 0; y < m_height; y++)
+				 for (int x = 0; x < m_width; x++)
+				 {
+					 int g = (int)((double)(pixData16[y*m_width + x] - min) / (max - min)*255.0);
+					 if (g > 255)
+					 {
+						 std::cout << g << std::endl;
+					 }
+
+					 pimg[y*p + x] = g;
+					 //img.SetPixelColor(x, y, RGB(g, g, g));
+				 }
+
+			 img.Flip();
+		//	 img.Save("ddada.jpg", CXIMAGE_FORMAT_JPG);
+
+			 //const TCHAR * encodedName = reinterpret_cast<const TCHAR *>(outFileName.c_str());
+			 
+			 //img.Save(encodedName, CXIMAGE_FORMAT_JPG);
+
+
+		 }
+
+
+//		 memset(pixData16, 0, element->getLength() / 2);
+
+         //save
+         //CxImage *img = new CxImage();
+         //img->create(m_width, m_height, true, PIXEL_FORMAT_MONO8);
+         //img->copyData((const unsigned char *)(pixData16), img->getImageSize());
+         //bool isSuc = img->save(outFileName.c_str());
+
+         //if (!isSuc)
+         //    return false;
 
      }
      else {

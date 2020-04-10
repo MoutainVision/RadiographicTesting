@@ -103,7 +103,7 @@ inline
 Logger
 macros_get_logger (tchar const * logger)
 {
-    return Logger::getInstance (logger);
+//    return Logger::getInstance (logger);
 }
 
 

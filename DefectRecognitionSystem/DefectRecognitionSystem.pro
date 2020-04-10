@@ -27,20 +27,20 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-DEFINES -= UNICODE
+DEFINES += UNICODE
 
 CONFIG(release, debug | release){
-    DESTDIR = $$PWD/../../Bins/Release
+    DESTDIR = $$PWD/../Bins/Release
 }else {
-    DESTDIR = $$PWD/../../Bins/Debug
+    DESTDIR = $$PWD/../Bins/Debug
 }
 
 
 CONFIG += c++17
 
-INCLUDEPATH += ..\..\Dependencies\dcmtk-3.6.5\dcmdata\include
+INCLUDEPATH += ..\Dependencies\dcmtk-3.6.5\dcmdata\include
 
-INCLUDEPATH += ..\..\Dlls\LibCore
+INCLUDEPATH += ..\Dependencies\cximage\include
 
 
 SOURCES += \
@@ -66,10 +66,10 @@ FORMS += \
     recheckwdg.ui
 
 CONFIG(release, debug|release) {
-    LIBS += -L"..\..\Dependencies\dcmtk-3.6.5\lib\Release" -ldcmtk
-    LIBS += -L"..\..\Bins\Release" -lLibCore
+    LIBS += -L"..\Dependencies\dcmtk-3.6.5\lib\Release" -ldcmtk
+    LIBS += -L"..\Dependencies\cximage\lib\Release" -lcximagecrt
 }
 else {
-    LIBS += -L"..\..\Dependencies\dcmtk-3.6.5\lib\Debug" -ldcmtk
-    LIBS += -L"..\..\Bins\Debug" -lLibCore -lLibDistortionCorrection -lLibTinyXML
+    LIBS += -L"..\Dependencies\dcmtk-3.6.5\lib\Debug" -ldcmtk
+    LIBS += -L"..\Dependencies\cximage\lib\Debug" -lcximagecrt
 }

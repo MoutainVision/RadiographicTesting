@@ -4,8 +4,14 @@
 #include <iostream>
 #include <string>
 
+//#ifdef UNICODE
+//typedef wchar_t TCHAR;
+//#else
+//typedef char TCHAR;
+//#endif
+
 #include "dcmtk\dcmdata\dctk.h"
-#include "LibCore.h"
+#include "ximage.h"
 
 using namespace std;
 

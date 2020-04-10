@@ -1,0 +1,11 @@
+
+build-DefectRecognitionSystem-Desktop_Qt_5_12_1_MSVC2017_32bit-Release
+DefectRecognitionSystem/DefectRecognitionSystem.pro.user
+DefectRecognitionSystem/obj
+DefectRecognitionSystem/Win32
+LibImgProc/LibImgProc.vcxproj.user
+LibImgIO/LibImgIO.vcxproj.user
+DefectRecognitionSystem/debug
+.vs
+DefectRecognitionSystem/release
+DefectRecognitionSystem/.qmake.stash
