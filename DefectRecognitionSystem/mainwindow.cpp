@@ -58,7 +58,7 @@ void MainWindow::doubleClicked(QModelIndex index)
     QString dateTimeStr = QDateTime::currentDateTime().toString("MM-dd hh-mm-ss-zzz");
     QString outFileName = QString(QStringLiteral("%1/%2.jpg")).arg(Appconfig::AppDataPath_Tmp).arg(dateTimeStr);
 
-
+//    QString outFileName = "";
     std::thread([=] {
         std::string errorStr;
         ReadDCMFile::readDCMFile(filePath.toLocal8Bit().toStdString(), outFileName.toLocal8Bit().toStdString(), errorStr);

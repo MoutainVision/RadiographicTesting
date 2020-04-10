@@ -95,7 +95,7 @@ bool ReadDCMFile::readDCMFile(std::string filePath, string outFileName, string e
 				 }
 
 			 img.Flip();
-		//	 img.Save("ddada.jpg", CXIMAGE_FORMAT_JPG);
+			 img.Save(outFileName.c_str(), CXIMAGE_FORMAT_JPG);
 
 			 //const TCHAR * encodedName = reinterpret_cast<const TCHAR *>(outFileName.c_str());
 			 
