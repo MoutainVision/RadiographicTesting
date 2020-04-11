@@ -23,9 +23,8 @@ int main(int argc, char *argv[])
     if (dlg.exec() == QDialog::Accepted)
     {
         w.showMaximized();
+        return a.exec();
     }
 
-
-
-    return a.exec();
+    return 0;
 }

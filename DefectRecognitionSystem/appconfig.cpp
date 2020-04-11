@@ -58,6 +58,8 @@ QString Appconfig::AppDataPath_TmpFile;
 QString Appconfig::AppFilePath_Log;
 QString Appconfig::AppFilePath_LogFile;
 QString Appconfig::AppFilePath_OpenFile;
+QString Appconfig::AppFilePath_Open_Pre_File;
+
 
 bool Appconfig::gVideoKeepAspectRatio = true; //按比例显示
 
@@ -142,6 +144,7 @@ void Appconfig::InitAllDataPath()
     AppDataPath_TmpFile = AppDataPath_Tmp + "/tmp.txt";
 
     AppFilePath_OpenFile = "";
+    AppFilePath_Open_Pre_File = "";
 
     MakeDir(AppDataPath_Data);
     MakeDir(AppFilePath_Log);
@@ -176,6 +179,12 @@ void Appconfig::loadConfigFile()
                 str.replace("/","\\\\");
                 Appconfig::AppFilePath_OpenFile = str;
             }
+            else if (str.contains("openpredir="))
+            {
+                str = str.remove("openpredir=");
+                str.replace("/","\\\\");
+                Appconfig::AppFilePath_Open_Pre_File = str;
+            }
 
         }
 
@@ -192,6 +201,10 @@ void Appconfig::saveConfigFile()
         fileOut.setCodec("GBK");  //unicode UTF-8  ANSI
 
         QString fileStr = QString("opendir=%1").arg(Appconfig::AppFilePath_OpenFile);
+        fileOut<<fileStr;
+        fileOut<<"\n";
+
+        fileStr = QString("openpredir=%1").arg(Appconfig::AppFilePath_Open_Pre_File);
         fileOut<<fileStr;
         fileOut<<"\n";
 
@@ -215,12 +228,12 @@ QStringList Appconfig::getDirList(const QDir &dir)
         }
         else if (fileInfo.isDir())
         {
-            qDebug()<<fileInfo.filePath();
-            filePathList.append(getDirList(QDir(fileInfo.filePath())));
+//            qDebug()<<fileInfo.filePath();
+//            filePathList.append(getDirList(QDir(fileInfo.filePath())));
         }
         else
         {
-            if (fileInfo.suffix().toLower() == "mp4" || fileInfo.suffix().toLower() == "flv")
+            if (fileInfo.suffix().toLower() == "dcm")
             {
                 filePathList.append(fileInfo.filePath());
             }

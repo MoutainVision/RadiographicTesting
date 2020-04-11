@@ -1,6 +1,8 @@
 #include "prewdg.h"
 #include "ui_prewdg.h"
 
+#include <QDebug>
+
 PreWdg::PreWdg(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::PreWdg)
@@ -22,6 +24,15 @@ void PreWdg::setDCMFileInfo(DcmFileNode info)
     mPreviewPixImg.load(info.transFilePath);
 
     update();
+}
+
+void PreWdg::reLoad()
+{
+    if (mPreviewPixImg.isNull())
+    {
+        qDebug() << mInfo.transFilePath;
+//        mPreviewPixImg.load(mInfo.transFilePath);
+    }
 }
 
 bool PreWdg::eventFilter(QObject *obj, QEvent *e)
@@ -60,6 +71,11 @@ bool PreWdg::eventFilter(QObject *obj, QEvent *e)
 
                 return true;
             }
+        }
+        else if (e->type() == QEvent::Resize)
+        {
+            reLoad();
+            update();
         }
     }
 

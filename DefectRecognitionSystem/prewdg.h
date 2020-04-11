@@ -25,6 +25,8 @@ public:
 
     DcmFileNode getDCMFileNode(){return mInfo;}
 
+    void reLoad();
+
 signals:
     void sig_clickItem();
 

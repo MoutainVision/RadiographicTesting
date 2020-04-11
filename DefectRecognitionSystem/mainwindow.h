@@ -26,9 +26,11 @@
 
 #include "appconfig.h"
 
+#include "prewdg.h"
 
-#define MAX_PRE_WIDGET_WIDTH 95
-#define MIN_PRE_WIDGET_WIDTH 75
+
+#define MAX_PRE_WIDGET_WIDTH 100
+#define MIN_PRE_WIDGET_WIDTH 50
 
 
 namespace Ui {
@@ -44,6 +46,8 @@ public:
     ~MainWindow();
 
     void setPreviewImg(QString filePath);
+
+    void calcPreWdgPos();
 
 private slots:
     void slotBtnClick(bool bClick);
@@ -68,6 +72,9 @@ private:
 
     QImage mPreviewImg;
     QPixmap mPreviewPixImg;
+
+
+    QList<PreWdg *> mPreWdgList;
 };
 
 #endif // MAINWINDOW_H

@@ -410,6 +410,7 @@ public:
     static QString AppFilePath_LogFile; //日志文件
     static QString AppFilePath_EtcFile; //配置信息
     static QString AppFilePath_OpenFile; //默认路径
+    static QString AppFilePath_Open_Pre_File; //默认路径
 
 
     //--
