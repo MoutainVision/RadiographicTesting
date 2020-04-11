@@ -35,11 +35,11 @@ public:
 	//判斷是否有效
 	bool IsValid();
 
-	//加載
-	bool Load(const CString& sFile);
+	////加載
+	//bool Load(const CString& sFile);
 
-	//保存
-	bool Save(const CString &sFile);
+	////保存
+	//bool Save(const CString &sFile);
 
 	//拷貝
 	bool CopyFrom(RawImage &imgSrc);
@@ -58,6 +58,12 @@ public:
 
 	//獲取給定像素點的亮度值
 	bool GetIntensity(unsigned short &nInt, unsigned x, unsigned y);
+
+	//獲取給定像素行的灰度曲線
+	bool GetRowIntensityCurve(vector<unsigned short> &aIntensity, int iRow);
+
+	//獲取給定像素列的灰度曲線
+	bool GetColumnIntensityCurve(vector<unsigned short> &aIntensity, int iCol);
 
 	//縮放
 	bool Zoom(double dFactor = 2);
@@ -87,6 +93,9 @@ public:
 	bool ConvertToMono8(unsigned char *pDst, int nW, int nP, int nH);
 
 	//中值濾波
-	bool Median(int nFilterRadius = 3);
+	bool Median(int nFilterRadius = 3, ImageRect *pROI=NULL);
+
+	//高斯濾波
+	bool Gaussian(ImageRect *aoi=NULL);
 
 };

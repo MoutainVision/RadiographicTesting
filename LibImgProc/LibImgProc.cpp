@@ -362,10 +362,33 @@ T Median(T *pArray, int begin, int end)
 	return m;
 }
 
-bool MedianFiltering(unsigned short *pImg, int nW, int nH, int nFilterRadius)
+bool MedianFiltering(unsigned short *pImg, int nW, int nH, int nFilterRadius, ImageRect *aoi)
 {
 	if (NULL == pImg || nW < 0 || nH < 0 || nFilterRadius < 0)
 		return false;
+
+	int xmin, xmax, ymin, ymax;
+	if (nullptr == aoi)
+	{
+		xmin = 0;
+		xmax = nW - 1;
+		ymin = 0;
+		ymax = nH - 1;
+	}
+	else
+	{
+		xmin = aoi->xs;
+		xmax = aoi->xe;
+		ymin = aoi->ys;
+		ymax = aoi->ye;
+	}
+
+	if (nullptr == pImg ||
+		xmin < 0 || xmin > xmax || xmax > nW - 1 ||
+		ymin < 0 || ymin > ymax || ymax > nH - 1)
+	{
+		return false;
+	}
 
 	if (0 == nFilterRadius)
 		return true;
@@ -373,12 +396,6 @@ bool MedianFiltering(unsigned short *pImg, int nW, int nH, int nFilterRadius)
 	//备份源图像
 	unsigned short *pBuf = new unsigned short[nW*nH];
 	memcpy(pBuf, pImg, nW*nH * sizeof(unsigned short));
-
-	//将屏幕坐标转换为图像坐标（原点在左下角），得到图像矩形
-	int xmin = 0;
-	int xmax = nW - 1;
-	int ymin = 0;
-	int ymax = nH - 1;
 
 	//对图像中的矩形区域进行中值滤波
 	for (int y = ymin; y < ymax; y++)
@@ -409,6 +426,58 @@ bool MedianFiltering(unsigned short *pImg, int nW, int nH, int nFilterRadius)
 	return true;
 }
 
+
+bool GaussianFiltering(unsigned short *pImg, int nWidth, int nHeight, ImageRect *aoi)
+{
+	//3*3 kernel
+	//1  2  1
+	//2  4  2  
+	//1  2  1
+	//
+	int xs, xe, ys, ye;
+	if (nullptr == aoi)
+	{
+		xs = 0;
+		xe = nWidth - 1;
+		ys = 0;
+		ye = nHeight - 1;
+	}
+	else
+	{
+		xs = aoi->xs;
+		xe = aoi->xe;
+		ys = aoi->ys;
+		ye = aoi->ye;
+	}
+
+	if (nullptr == pImg ||
+		xs < 0 || xs > xe || xe > nWidth - 1 ||
+		ys < 0 || ys > ye || ye > nHeight - 1)
+	{
+		return false;
+	}
+	
+	unsigned short *pTmp = new unsigned short[nWidth*nHeight];
+	memcpy(pTmp, pImg, nWidth*nHeight * sizeof(unsigned short));
+
+	for (int y = ys + 1; y <= ye - 1; y++)
+	{
+		for (int x = xs + 1; x <= xe - 1; x++)
+		{
+			int pos = y * nWidth + x;
+
+			int sum = (pTmp[pos] << 2)
+				+ (pTmp[pos - 1] << 1) + (pTmp[pos + 1] << 1) + (pTmp[pos - nWidth] << 1) + (pTmp[pos + nWidth] << 1)
+				+ pTmp[pos + nWidth + 1] + pTmp[pos + nWidth - 1] + pTmp[pos - nWidth + 1] + pTmp[pos - nWidth - 1];
+		
+			pImg[pos] = sum >> 4;
+		}
+	}
+
+	delete[]pTmp;
+
+	return true;
+}
 
 bool WindowLevelTransform(unsigned short *pImg, int nW, int nH, int nWinCentre, int nWindWidth)
 {
@@ -950,6 +1019,38 @@ bool GetSNR(double &dMean, double &dStd, double &dSNR, unsigned short *pImg, int
 	{
 		dSNR = dMean / dStd;
 	}
+
+	return true;
+}
+
+
+bool GammaCorrection(unsigned short *pImg, int nW, int nH, double dGamma, 
+	unsigned short nDark, unsigned short nBright)
+{
+	if (NULL == pImg || nW < 0 || nH < 0)
+		return false;
+
+	long i;
+
+	long N = nW * nH;
+
+	double *pGammaVal = new double[65536];
+	for (int k = 0; k < 65536; k++)
+	{
+		pGammaVal[k] = pow((double)(k) / 65535.0, dGamma);
+	}
+
+	for (i = 0; i < N; i++)
+	{
+		pImg[i] = (unsigned short)(pGammaVal[pImg[i]]*(nBright - nDark) + nDark);
+
+		if (pImg[i] < 0)
+			pImg[i] = 0;
+		if (pImg[i] > 65535)
+			pImg[i] = 65535;
+	}
+
+	delete[]pGammaVal;
 
 	return true;
 }

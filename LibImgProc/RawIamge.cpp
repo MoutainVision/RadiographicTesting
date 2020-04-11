@@ -57,62 +57,62 @@ RawImage::~RawImage(void)
 		m_pData = NULL;
 	}
 }
-
-bool RawImage::Load(const CString& sFile)
-{
-	if (!IsValid())
-		return false;
-
-	CString strExt = sFile.Right(3);
-	strExt.MakeLower();
-	// 如果是RAW格式的图像，则以下打开处理
-	if (strExt == "raw")
-	{
-		CFile rawfile;
-		if (rawfile.Open(sFile, CFile::modeRead))
-		{//打开文件
-			unsigned short *pBuf = new unsigned short[m_nHeight*m_nWidth];
-			UINT nByte = rawfile.Read(pBuf, m_nHeight*m_nWidth * sizeof(unsigned short)); // 读取文件
-			rawfile.Close();
-
-			if (nByte == m_nHeight * m_nWidth * sizeof(unsigned short))
-			{
-				memcpy(m_pData, pBuf, nByte);
-
-				delete[]pBuf;
-
-				return true;
-			}
-
-			delete[]pBuf;
-		}
-	}
-
-	return false;
-}
-
-bool RawImage::Save(const CString &sFile)
-{
-	if (!IsValid())
-		return false;
-
-	CString strExt = sFile.Right(3);
-	strExt.MakeLower();
-	// 如果是RAW格式的图像，则以下打开处理
-	if (strExt == "raw")
-	{
-		CFile rawfile;
-		if (rawfile.Open(sFile, CFile::modeCreate | CFile::modeWrite | CFile::typeBinary))
-		{// 打开文件
-			rawfile.Write(m_pData, m_nHeight*m_nWidth * sizeof(unsigned short)); // 寫文件
-			rawfile.Close();
-
-			return true;
-		}
-	}
-
-	return false;
-}
+//
+//bool RawImage::Load(const CString& sFile)
+//{
+//	if (!IsValid())
+//		return false;
+//
+//	CString strExt = sFile.Right(3);
+//	strExt.MakeLower();
+//	// 如果是RAW格式的图像，则以下打开处理
+//	if (strExt == "raw")
+//	{
+//		CFile rawfile;
+//		if (rawfile.Open(sFile, CFile::modeRead))
+//		{//打开文件
+//			unsigned short *pBuf = new unsigned short[m_nHeight*m_nWidth];
+//			UINT nByte = rawfile.Read(pBuf, m_nHeight*m_nWidth * sizeof(unsigned short)); // 读取文件
+//			rawfile.Close();
+//
+//			if (nByte == m_nHeight * m_nWidth * sizeof(unsigned short))
+//			{
+//				memcpy(m_pData, pBuf, nByte);
+//
+//				delete[]pBuf;
+//
+//				return true;
+//			}
+//
+//			delete[]pBuf;
+//		}
+//	}
+//
+//	return false;
+//}
+//
+//bool RawImage::Save(const CString &sFile)
+//{
+//	if (!IsValid())
+//		return false;
+//
+//	CString strExt = sFile.Right(3);
+//	strExt.MakeLower();
+//	// 如果是RAW格式的图像，则以下打开处理
+//	if (strExt == "raw")
+//	{
+//		CFile rawfile;
+//		if (rawfile.Open(sFile, CFile::modeCreate | CFile::modeWrite | CFile::typeBinary))
+//		{// 打开文件
+//			rawfile.Write(m_pData, m_nHeight*m_nWidth * sizeof(unsigned short)); // 寫文件
+//			rawfile.Close();
+//
+//			return true;
+//		}
+//	}
+//
+//	return false;
+//}
 
 bool RawImage::IsValid()
 {
@@ -199,9 +199,14 @@ bool RawImage::Window_Level_Transform(int nWinCentre, int nWinWidth)
 	return WindowLevelTransform(m_pData, m_nWidth, m_nHeight, nWinCentre, nWinWidth);
 }
 
-bool RawImage::Median(int nFilterRadius)
+bool RawImage::Median(int nFilterRadius, ImageRect *pROI)
 {
-	return MedianFiltering(m_pData, m_nWidth, m_nHeight, nFilterRadius);
+	return MedianFiltering(m_pData, m_nWidth, m_nHeight, nFilterRadius, pROI);
+}
+
+bool RawImage::Gaussian(ImageRect *aoi)
+{
+	return GaussianFiltering(m_pData, m_nWidth, m_nHeight, aoi);
 }
 
 bool RawImage::Emboss_Transform(EEmbOp eop)
@@ -242,4 +247,55 @@ bool RawImage::GetIntensity(unsigned short &nInt, unsigned x, unsigned y)
 	nInt = m_pData[y*m_nWidth + x];
 
 	return true;
+}
+
+bool RawImage::GetRowIntensityCurve(vector<unsigned short> &aIntensity, int iRow)
+{
+	if (iRow < 0 || iRow >= m_nHeight)
+	{
+		return false;
+	}
+
+	if (!IsValid())
+	{
+		return false;
+	}
+
+	aIntensity.clear();
+
+	unsigned short *pRow = m_pData + iRow * m_nWidth;
+
+	for (int x = 0; x < m_nWidth; x++)
+	{
+		aIntensity.push_back(pRow[0]);
+	}
+
+	return true;
+}
+
+bool RawImage::GetColumnIntensityCurve(vector<unsigned short> &aIntensity, int iCol)
+{
+	if (iCol < 0 || iCol >= m_nWidth)
+	{
+		return false;
+	}
+
+	if (!IsValid())
+	{
+		return false;
+	}
+
+	aIntensity.clear();
+
+	int pos = iCol;
+
+	for (int x = 0; x < m_nHeight; x++)
+	{
+		aIntensity.push_back(m_pData[pos]);
+
+		pos += m_nWidth;
+	}
+
+	return true;
+
 }

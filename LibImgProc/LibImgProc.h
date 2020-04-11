@@ -10,6 +10,28 @@
 
 using std::vector;
 
+
+struct LIBIMGPROC_API ImageRect
+{
+	int xs, xe, ys, ye;
+
+	ImageRect()
+		: xs(0)
+		, xe(0)
+		, ys(0)
+		, ye(0)
+	{
+	}
+
+	ImageRect(int xxs, int xxe, int yys, int yye)
+		: xs(xxs)
+		, xe(xxe)
+		, ys(yys)
+		, ye(yye)
+	{
+	}
+};
+
 typedef enum LIBIMGPROC_API EEmbossOperator
 {
 	EMB_IMAGE_GRADIENT_SOUTH_DETECT,	//梯度检测, 南（垂直）
@@ -67,8 +89,16 @@ LIBIMGPROC_API bool Convert(unsigned short *pDst,	//輸出的16位灰度圖像
 LIBIMGPROC_API bool MedianFiltering(unsigned short *pImg,	//圖像數據指針，既為輸入亦為輸出
 	int nW,					//輸入圖像的寬度
 	int nH,					//輸入圖像的高度
-	int nFilterRadius		//濾波半徑
+	int nFilterRadius,		//濾波半徑
+	ImageRect *aoi=NULL
 );
+
+//高斯濾波
+LIBIMGPROC_API bool GaussianFiltering(unsigned short *pImg, //圖像數據指針，既為輸入亦為輸出
+									int nWidth, 	//輸入圖像的寬度
+									int nHeight, //輸入圖像的高度
+									ImageRect *aoi = NULL); //濾波範圍
+
 
 //窗寬窗位變換
 LIBIMGPROC_API bool WindowLevelTransform(unsigned short *pImg,	//圖像數據指針，既為輸入亦為輸出
@@ -173,3 +203,7 @@ LIBIMGPROC_API void GetHist(unsigned aF[256],		//直方圖
 	int nP,					//輸入圖像字節寬度
 	int nH					//輸入圖像高度
 );
+
+//伽馬校正
+LIBIMGPROC_API bool GammaCorrection(unsigned short *pImg, int nW, int nH, double dGamma,
+	unsigned short nDark = 0, unsigned short nBright = 65535);

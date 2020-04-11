@@ -9,3 +9,15 @@ DefectRecognitionSystem/debug
 .vs
 DefectRecognitionSystem/release
 DefectRecognitionSystem/.qmake.stash
+LibDefectRecognition/Release
+LibImgIO/Release
+LibImgProc/Release
+Bins/Release/LibDefectRecognition.exp
+Bins/Release/LibDefectRecognition.iobj
+Bins/Release/LibDefectRecognition.ipdb
+Bins/Release/LibImgIO.exp
+Bins/Release/LibImgIO.iobj
+Bins/Release/LibImgIO.ipdb
+Bins/Release/LibImgProc.exp
+Bins/Release/LibImgProc.iobj
+Bins/Release/LibImgProc.ipdb
