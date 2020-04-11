@@ -51,6 +51,8 @@ public:
 
     void calcPreWdgPos();
 
+    void deletePreWdgList();
+
 private slots:
     void slotBtnClick(bool bClick);
 

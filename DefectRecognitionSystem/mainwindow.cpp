@@ -156,6 +156,12 @@ void MainWindow::slotBtnClick(bool bClick)
         if (!s.isEmpty())
         {
             ui->lineEdit_open_pre->setText(s);
+
+            if (Appconfig::AppFilePath_Open_Pre_File != s)
+            {
+                deletePreWdgList();
+            }
+
             Appconfig::AppFilePath_Open_Pre_File = s;
 
             QDir dir(s);
@@ -218,6 +224,18 @@ void MainWindow::slotBtnClick(bool bClick)
 
         }
     }
+}
+
+void MainWindow::deletePreWdgList()
+{
+    for (int i=0; i<mPreWdgList.size(); i++)
+    {
+        PreWdg *preWdg = mPreWdgList.at(i);
+        delete preWdg;
+        preWdg = NULL;
+    }
+
+    mPreWdgList.clear();
 }
 
 void MainWindow::calcPreWdgPos()
