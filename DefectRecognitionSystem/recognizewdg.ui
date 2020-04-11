@@ -37,16 +37,16 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_5">
           <item>
-           <widget class="QPushButton" name="pushButton_noise">
+           <widget class="QPushButton" name="pushButton_invert">
             <property name="text">
-             <string>去噪</string>
+             <string>反相</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton_invert">
+           <widget class="QPushButton" name="pushButton_rotate">
             <property name="text">
-             <string>反相</string>
+             <string> 旋转</string>
             </property>
            </widget>
           </item>
@@ -204,6 +204,9 @@
            <widget class="QPushButton" name="pushButton_measure">
             <property name="text">
              <string>测量</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
             </property>
            </widget>
           </item>

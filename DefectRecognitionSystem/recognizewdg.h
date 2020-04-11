@@ -15,6 +15,10 @@ public:
     explicit RecognizeWdg(QWidget *parent = nullptr);
     ~RecognizeWdg();
 
+private slots:
+    void slotBtnClick(bool bClick);
+
+
 private:
     Ui::RecognizeWdg *ui;
 };

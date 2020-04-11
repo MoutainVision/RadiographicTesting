@@ -9,20 +9,23 @@ RecognizeWdg::RecognizeWdg(QWidget *parent) :
 {
     ui->setupUi(this);
 
-//    QString fileName = ":/qss/main_view.qss";
-
-//    QFile file(fileName);
-
-//    if(file.open(QIODevice::ReadOnly))
-//    {
-//        ui->widget_img->setStyleSheet(file.readAll());
-//        file.close();
-//    }
-
     ui->widget_measure->hide();
+    ui->widget_tool->hide();
+
+
+    connect(ui->pushButton_measure, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+    connect(ui->pushButton_invert, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
 }
 
 RecognizeWdg::~RecognizeWdg()
 {
     delete ui;
+}
+
+void RecognizeWdg::slotBtnClick(bool bClick)
+{
+    if (QObject::sender() == ui->pushButton_measure)
+    {
+        ui->widget_tool->setVisible(ui->pushButton_measure->isChecked());
+    }
 }
