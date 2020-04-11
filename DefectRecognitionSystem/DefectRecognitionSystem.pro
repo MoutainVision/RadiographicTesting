@@ -62,7 +62,8 @@ SOURCES += \
     geometryItem/rectdragitemdata.cpp \
     geometryItem/rectitem.cpp \
     geometryItem/textitem.cpp \
-    logindlg.cpp
+    logindlg.cpp \
+    prewdg.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -80,13 +81,15 @@ HEADERS += \
     geometryItem/rectdragitemdata.h \
     geometryItem/rectitem.h \
     geometryItem/textitem.h \
-    logindlg.h
+    logindlg.h \
+    prewdg.h
 
 FORMS += \
     mainwindow.ui \
     recognizewdg.ui \
     recheckwdg.ui \
-    logindlg.ui
+    logindlg.ui \
+    prewdg.ui
 
 CONFIG(release, debug|release) {
     LIBS += -L"..\Dependencies\dcmtk-3.6.5\lib\Release" -ldcmtk
@@ -96,3 +99,7 @@ else {
     LIBS += -L"..\Dependencies\dcmtk-3.6.5\lib\Debug" -ldcmtk
     LIBS += -L"..\Dependencies\cximage\lib\Debug" -lcximagecrt
 }
+
+RESOURCES += \
+    imgs.qrc \
+    qss.qrc

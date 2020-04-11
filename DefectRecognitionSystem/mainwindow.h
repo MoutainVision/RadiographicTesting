@@ -16,6 +16,7 @@
 
 #include <QPaintEvent>
 #include <QPainter>
+#include <QSplitter>
 
 #include <thread>
 
@@ -24,6 +25,10 @@
 #include "readdcmfile.h"
 
 #include "appconfig.h"
+
+
+#define MAX_PRE_WIDGET_WIDTH 95
+#define MIN_PRE_WIDGET_WIDTH 75
 
 
 namespace Ui {
@@ -46,8 +51,6 @@ private slots:
     void textChanged(QString text);
 
     void doubleClicked(QModelIndex index);
-
-
 
 protected:
     void resizeEvent(QResizeEvent *e);

@@ -32,20 +32,21 @@ class RecordeHistory;
 class DbOperator;
 class VideoPlayer;
 
-#ifndef FILENODE_H
-#define FILENODE_H
-struct FileNode
+#ifndef DCM_FILENODE_H
+#define DCM_FILENODE_H
+struct DcmFileNode
 {
-    int id;
     QString fileName;
     QString filePath;
     QString timeStr;
 
+    QString patientName;
+
+    int width;
+    int height;
+
     QString transFilePath;
-
     QString md5Str;
-
-    int type;   //type = 0, online  type = 1, weike
 };
 #endif
 

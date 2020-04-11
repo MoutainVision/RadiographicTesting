@@ -16,7 +16,18 @@ MainWindow::MainWindow(QWidget *parent) :
 
     FunctionTransfer::init(QThread::currentThreadId());
 
+    //分割屏幕
+    mSplitter = new QSplitter(Qt::Orientation::Horizontal, ui->centralwidget);//水平
+    mSplitter->setStyleSheet("QSplitter:handle{border-right:2px solid #000000;}");
 
+    mSplitter->addWidget(ui->widget_left);
+    mSplitter->addWidget(ui->widget_right);
+
+    ui->centralwidget->layout()->addWidget(mSplitter);
+
+    mSplitter->setStretchFactor(1, 3);//左右宽度比为4：1
+
+    //资源树
     mModel  = new QDirModel;
 
     QStringList filters;
@@ -185,6 +196,12 @@ MainWindow::~MainWindow()
     {
         delete mModel;
         mModel = nullptr;
+    }
+
+    if (nullptr != mSplitter)
+    {
+        delete mSplitter;
+        mSplitter = nullptr;
     }
 
     //save config

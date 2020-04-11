@@ -32,13 +32,7 @@
    <item>
     <widget class="QWidget" name="widget_shadow" native="true">
      <property name="styleSheet">
-      <string notr="true">
-QWidget#widget_shadow
-{
-border-width:22px 22px 22px 22px;
-border-image: url(:/imgs/shadow.png) 22 22 22 22;
-
-}</string>
+      <string notr="true"/>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_4">
       <property name="spacing">
