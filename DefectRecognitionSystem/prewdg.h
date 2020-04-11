@@ -5,7 +5,15 @@
 #include <QPaintEvent>
 #include <QPainter>
 
+#include <thread>
+
+
 #include "appconfig.h"
+#include "readdcmfile.h"
+
+
+#include "Base/FunctionTransfer.h"
+
 
 namespace Ui {
 class PreWdg;

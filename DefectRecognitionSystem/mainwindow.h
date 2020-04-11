@@ -77,8 +77,6 @@ private:
 
 
     QList<PreWdg *> mPreWdgList;
-
-    QMutex m_lock;
 };
 
 #endif // MAINWINDOW_H

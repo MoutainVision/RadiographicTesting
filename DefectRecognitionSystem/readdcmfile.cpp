@@ -12,7 +12,10 @@ bool ReadDCMFile::readDCMFileLib(std::string filePath, std::string outFileName, 
 
 	CxImage img;
 	dmfile.Convert(img);
+    dmfile.Release();
 
+
+    img.Resample(img.GetWidth()/4, img.GetHeight()/4);
 	img.Save(outFileName.c_str(), CXIMAGE_FORMAT_JPG);
 
 	return true;

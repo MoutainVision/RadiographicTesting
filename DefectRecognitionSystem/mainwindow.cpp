@@ -165,11 +165,12 @@ void MainWindow::slotBtnClick(bool bClick)
 
                 for (int i=0; i<dcmFileList.size(); i++)
                 {
+                    qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));          //设置随机数种子
+                    int rand = qrand() % 10000;
+
                     QString filePath = dcmFileList.at(i);
                     QString dateTimeStr = QDateTime::currentDateTime().toString("MM-dd hh-mm-ss-zzz");
-                    QString outFileName = QString(QStringLiteral("%1/%2.jpg")).arg(Appconfig::AppDataPath_Tmp).arg(dateTimeStr);
-
-                    Appconfig::mSleep(10);
+                    QString outFileName = QString(QStringLiteral("%1/%2_%3.jpg")).arg(Appconfig::AppDataPath_Tmp).arg(dateTimeStr).arg(rand);
 
                     std::string errorStr;
                     ReadDCMFile::readDCMFileLib(filePath.toLocal8Bit().toStdString(), outFileName.toLocal8Bit().toStdString(), errorStr);
@@ -183,27 +184,44 @@ void MainWindow::slotBtnClick(bool bClick)
                         preWdg->setParent(ui->widget_pre);
                         preWdg->setDCMFileInfo(info);
 
-
-                         m_lock.lock();
                         mPreWdgList.push_back(preWdg);
-                         m_lock.unlock();
 
-                            calcPreWdgPos();
+                        calcPreWdgPos();
 
                     });
                 }
 
             }).detach();
 
+//            for (QString filePath : dcmFileList)
+//            {
+//                qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));          //设置随机数种子
+//                int rand = qrand() % 10000;
+
+//                QString dateTimeStr = QDateTime::currentDateTime().toString("MM-dd hh-mm-ss-zzz");
+//                QString outFileName = QString(QStringLiteral("%1/%2_%3.jpg")).arg(Appconfig::AppDataPath_Tmp).arg(dateTimeStr).arg(rand);
+
+//                DcmFileNode info;
+//                info.filePath = filePath;
+//                info.transFilePath = outFileName;
+
+//                PreWdg *preWdg = new PreWdg;
+//                preWdg->setParent(ui->widget_pre);
+//                preWdg->setDCMFileInfo(info);
+
+//                mPreWdgList.push_back(preWdg);
+
+//            }
+
 //            calcPreWdgPos();
+
+
         }
     }
 }
 
 void MainWindow::calcPreWdgPos()
 {
-    m_lock.lock();
-
     int conWidth = ui->widget_pre->width();
 //    int conHeight = ui->widget_pre->height();
 
@@ -249,9 +267,6 @@ void MainWindow::calcPreWdgPos()
     }
 
     ui->widget_pre->setFixedHeight(curRow*perHeight + 100);
-
-    m_lock.unlock();
-
 }
 
 void MainWindow::resizeEvent(QResizeEvent *e)

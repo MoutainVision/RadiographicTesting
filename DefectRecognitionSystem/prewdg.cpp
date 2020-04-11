@@ -9,6 +9,9 @@ PreWdg::PreWdg(QWidget *parent) :
 {
     ui->setupUi(this);
 
+//    FunctionTransfer::init(QThread::currentThreadId());
+
+
     ui->widget_img->installEventFilter(this);
 }
 
@@ -23,7 +26,19 @@ void PreWdg::setDCMFileInfo(DcmFileNode info)
 
     mPreviewPixImg.load(info.transFilePath);
 
-    update();
+//    std::thread([&] {
+//        std::string errorStr;
+
+//        ReadDCMFile::readDCMFileLib(mInfo.filePath.toLocal8Bit().toStdString(), mInfo.transFilePath.toLocal8Bit().toStdString(), errorStr);
+
+//        FunctionTransfer::runInMainThread([=]()
+//        {
+//            mPreviewPixImg.load(mInfo.transFilePath);
+
+//            update();
+//        });
+
+//    }).detach();
 }
 
 void PreWdg::reLoad()

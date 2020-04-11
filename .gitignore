@@ -21,3 +21,9 @@ Bins/Release/LibImgIO.ipdb
 Bins/Release/LibImgProc.exp
 Bins/Release/LibImgProc.iobj
 Bins/Release/LibImgProc.ipdb
+LibImgIO/Debug
+Bins/Debug/DefectRecognitionSystem.ilk
+Bins/Debug/LibImgIO.ilk
+Bins/Debug/LibImgIO.exp
+Bins/Debug/LibImgIO.pdb
+Bins/Debug/DefectRecognitionSystem.pdb

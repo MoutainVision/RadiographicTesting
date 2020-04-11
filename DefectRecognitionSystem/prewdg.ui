@@ -34,7 +34,7 @@
      <property name="styleSheet">
       <string notr="true">QWidget#widget_back
 {
-background-color: rgb(124, 124, 124);
+	background-color: rgb(199, 199, 199);
 }</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
