@@ -5,6 +5,19 @@ ReadDCMFile::ReadDCMFile()
 
 }
 
+bool ReadDCMFile::readDCMFileLib(std::string filePath, std::string outFileName, std::string errorStr)
+{
+	DCMFile dmfile;
+	dmfile.Load(filePath.c_str());
+
+	CxImage img;
+	dmfile.Convert(img);
+
+	img.Save(outFileName.c_str(), CXIMAGE_FORMAT_JPG);
+
+	return true;
+}
+
 bool ReadDCMFile::readDCMFile(std::string filePath, string outFileName, string errorStr)
 {
      DcmFileFormat fileformat;
@@ -100,8 +113,6 @@ bool ReadDCMFile::readDCMFile(std::string filePath, string outFileName, string e
 			 //const TCHAR * encodedName = reinterpret_cast<const TCHAR *>(outFileName.c_str());
 			 
 			 //img.Save(encodedName, CXIMAGE_FORMAT_JPG);
-
-
 		 }
 
 

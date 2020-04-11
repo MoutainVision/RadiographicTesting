@@ -14,6 +14,8 @@
 #include <qfileinfo.h>
 #include <QDateTime>
 
+#include <QMutex>
+
 #include <QPaintEvent>
 #include <QPainter>
 #include <QSplitter>
@@ -75,6 +77,8 @@ private:
 
 
     QList<PreWdg *> mPreWdgList;
+
+    QMutex m_lock;
 };
 
 #endif // MAINWINDOW_H

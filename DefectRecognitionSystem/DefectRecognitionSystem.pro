@@ -44,6 +44,10 @@ INCLUDEPATH += ..\Dependencies\dcmtk-3.6.5\dcmdata\include
 
 INCLUDEPATH += ..\Dependencies\cximage\include
 
+INCLUDEPATH += ..\LibImgIO
+
+
+
 
 SOURCES += \
         main.cpp \
@@ -93,11 +97,14 @@ FORMS += \
 
 CONFIG(release, debug|release) {
     LIBS += -L"..\Dependencies\dcmtk-3.6.5\lib\Release" -ldcmtk
-    LIBS += -L"..\Dependencies\cximage\lib\Release" -lcximagecrt
+   # LIBS += -L"..\Dependencies\cximage\lib\Release" -lcximagecrt
+    LIBS += -L"..\Bins\Release" -lLibImgIO
+
 }
 else {
     LIBS += -L"..\Dependencies\dcmtk-3.6.5\lib\Debug" -ldcmtk
-    LIBS += -L"..\Dependencies\cximage\lib\Debug" -lcximagecrt
+   # LIBS += -L"..\Dependencies\cximage\lib\Debug" -lcximagecrt
+    LIBS += -L"..\Bins\Debug" -lLibImgIO
 }
 
 RESOURCES += \

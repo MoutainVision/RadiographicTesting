@@ -11,7 +11,9 @@
 //#endif
 
 #include "dcmtk\dcmdata\dctk.h"
-#include "ximage.h"
+//#include "ximage.h"
+
+#include "LibImgIO.h"
 
 using namespace std;
 
@@ -21,6 +23,8 @@ public:
     ReadDCMFile();
 
     static bool readDCMFile(std::string filePath, std::string outFileName, std::string errorStr);
+
+	static bool readDCMFileLib(std::string filePath, std::string outFileName, std::string errorStr);
 };
 
 #endif // READDCMFILE_H

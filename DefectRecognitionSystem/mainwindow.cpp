@@ -76,7 +76,8 @@ void MainWindow::doubleClicked(QModelIndex index)
 //    QString outFileName = "";
     std::thread([=] {
         std::string errorStr;
-        ReadDCMFile::readDCMFile(filePath.toLocal8Bit().toStdString(), outFileName.toLocal8Bit().toStdString(), errorStr);
+        //ReadDCMFile::readDCMFile(filePath.toLocal8Bit().toStdString(), outFileName.toLocal8Bit().toStdString(), errorStr);
+        ReadDCMFile::readDCMFileLib(filePath.toLocal8Bit().toStdString(), outFileName.toLocal8Bit().toStdString(), errorStr);
 
         FunctionTransfer::runInMainThread([=]()
         {
@@ -158,20 +159,20 @@ void MainWindow::slotBtnClick(bool bClick)
             Appconfig::AppFilePath_Open_Pre_File = s;
 
             QDir dir(s);
-
             QStringList dcmFileList = Appconfig::getDirList(dir);
 
-            for (int i=0; i<dcmFileList.size(); i++)
-            {
-                QString filePath = dcmFileList.at(i);
-                QString dateTimeStr = QDateTime::currentDateTime().toString("MM-dd hh-mm-ss-zzz");
-                QString outFileName = QString(QStringLiteral("%1/%2.jpg")).arg(Appconfig::AppDataPath_Tmp).arg(dateTimeStr);
+            std::thread([=] {
 
-                Appconfig::mSleep(10);
+                for (int i=0; i<dcmFileList.size(); i++)
+                {
+                    QString filePath = dcmFileList.at(i);
+                    QString dateTimeStr = QDateTime::currentDateTime().toString("MM-dd hh-mm-ss-zzz");
+                    QString outFileName = QString(QStringLiteral("%1/%2.jpg")).arg(Appconfig::AppDataPath_Tmp).arg(dateTimeStr);
 
-                std::thread([=] {
+                    Appconfig::mSleep(10);
+
                     std::string errorStr;
-                    ReadDCMFile::readDCMFile(filePath.toLocal8Bit().toStdString(), outFileName.toLocal8Bit().toStdString(), errorStr);
+                    ReadDCMFile::readDCMFileLib(filePath.toLocal8Bit().toStdString(), outFileName.toLocal8Bit().toStdString(), errorStr);
 
                     FunctionTransfer::runInMainThread([=]()
                     {
@@ -181,23 +182,28 @@ void MainWindow::slotBtnClick(bool bClick)
                         PreWdg *preWdg = new PreWdg;
                         preWdg->setParent(ui->widget_pre);
                         preWdg->setDCMFileInfo(info);
-                        preWdg->show();
 
+
+                         m_lock.lock();
                         mPreWdgList.push_back(preWdg);
+                         m_lock.unlock();
+
+                            calcPreWdgPos();
+
                     });
+                }
 
-                    std::cout << errorStr << std::endl;
+            }).detach();
 
-                }).detach();
-            }
-
-            calcPreWdgPos();
+//            calcPreWdgPos();
         }
     }
 }
 
 void MainWindow::calcPreWdgPos()
 {
+    m_lock.lock();
+
     int conWidth = ui->widget_pre->width();
 //    int conHeight = ui->widget_pre->height();
 
@@ -217,6 +223,8 @@ void MainWindow::calcPreWdgPos()
 
     qDebug() << __FUNCTION__ << cnt;
 
+    int preWdgSize = mPreWdgList.size();
+
     for (int i=0; i<mPreWdgList.size(); i++)
     {
         PreWdg *preWdg = mPreWdgList.at(i);
@@ -229,6 +237,7 @@ void MainWindow::calcPreWdgPos()
 
         preWdg->setFixedSize(perWidth, perHeight);
         preWdg->setGeometry(posX, posY, perWidth, perHeight);
+        preWdg->show();
 
         curCol ++;
 
@@ -238,6 +247,11 @@ void MainWindow::calcPreWdgPos()
             curRow ++;
         }
     }
+
+    ui->widget_pre->setFixedHeight(curRow*perHeight + 100);
+
+    m_lock.unlock();
+
 }
 
 void MainWindow::resizeEvent(QResizeEvent *e)
@@ -280,8 +294,8 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
 
                 QRect imgRect(nX, nY, nWidth, nHeight);
 
-//                QBrush b(QColor("#FFFFFF"));
-//                p.setBrush(b);
+                QBrush b(QColor("#000000"));
+                p.setBrush(b);
                 p.drawRect(ui->widget_img->rect());
 
                 p.drawPixmap(imgRect, mPreviewPixImg);
