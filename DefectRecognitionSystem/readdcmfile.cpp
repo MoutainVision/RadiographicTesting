@@ -21,6 +21,31 @@ bool ReadDCMFile::readDCMFileLib(std::string filePath, std::string outFileName, 
 	return true;
 }
 
+bool ReadDCMFile::readDCMFileLib(std::string filePath, std::string outFileName, DcmFileNode &info)
+{
+    DCMFile dmfile;
+    dmfile.Load(filePath.c_str());
+
+
+    int w = dmfile.GetWidth();
+    int h = dmfile.GetHeight();
+
+    CxImage img;
+    dmfile.Convert(img);
+    dmfile.Release();
+
+
+    img.Resample(img.GetWidth()/4, img.GetHeight()/4);
+    img.Save(outFileName.c_str(), CXIMAGE_FORMAT_JPG);
+
+
+    info.width = w;
+    info.height = h;
+    info.transFilePath = outFileName.c_str();
+
+    return true;
+}
+
 bool ReadDCMFile::readDCMFile(std::string filePath, string outFileName, string errorStr)
 {
      DcmFileFormat fileformat;

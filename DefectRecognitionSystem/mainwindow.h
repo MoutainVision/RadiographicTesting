@@ -58,7 +58,10 @@ private slots:
 
     void textChanged(QString text);
 
-    void doubleClicked(QModelIndex index);
+    void clicked(QModelIndex index);
+
+    void  expanded(QModelIndex index);
+
 
 protected:
     void resizeEvent(QResizeEvent *e);
@@ -76,6 +79,12 @@ private:
 
     QImage mPreviewImg;
     QPixmap mPreviewPixImg;
+
+    QStringList   mDcmFileList;
+    int mCurIndex;
+    int mDcmCount;
+
+    DcmFileNode mCurDcmFileInfo;
 
 
     QList<PreWdg *> mPreWdgList;

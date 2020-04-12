@@ -41,34 +41,66 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->lineEdit_search->setText(Appconfig::AppFilePath_OpenFile);
 
+	mDcmFileList = Appconfig::getDirList(Appconfig::AppFilePath_OpenFile);
+	mDcmCount = mDcmFileList.size();
+
     ui->widget_img->installEventFilter(this);
     ui->widget_pre->installEventFilter(this);
 
 
+    ui->tabWidget->setCurrentIndex(0);
+
     mRecognizeWdg  = nullptr;
     mReCheckWdg = nullptr;
+
+    mCurIndex = 0;
+    mDcmCount = 0;
 
     connect(ui->pushButton_recognize, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_recheck, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_search, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+    connect(ui->pushButton_pre, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+    connect(ui->pushButton_next, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+
     connect(ui->lineEdit_search, SIGNAL(textChanged(QString)), this, SLOT(textChanged(QString)));
 
     connect(ui->pushButton_open_pre, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->lineEdit_open_pre, SIGNAL(textChanged(QString)), this, SLOT(textChanged(QString)));
 
-    connect(ui->treeView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(doubleClicked(QModelIndex)));
+
+    connect(ui->treeView, SIGNAL(clicked(QModelIndex)), this, SLOT(clicked(QModelIndex)));
+    connect(ui->treeView, SIGNAL(expanded(QModelIndex)), this, SLOT(expanded(QModelIndex)));
 }
 
-void MainWindow::doubleClicked(QModelIndex index)
+void  MainWindow::expanded(QModelIndex index)
 {
     QString filePath = mModel->filePath(index);
+
+//    mDcmFileList = Appconfig::getDirList(filePath);
+//    mDcmCount = mDcmFileList.size();
+}
+
+void MainWindow::clicked(QModelIndex index)
+{
+    QString filePath = mModel->filePath(index);
+
+    mCurIndex = index.row();
+
+    qDebug() << __FUNCTION__ << filePath;
 
     QFileInfo info;
     info.setFile(filePath);
 
-    if (info.isDir())
-        return ;
+	if (info.isDir())
+		return;
 
+    QString filePathParent = mModel->filePath(index.parent());
+
+    if (!filePathParent.isEmpty())
+    {
+        mDcmFileList = Appconfig::getDirList(filePathParent);
+        mDcmCount = mDcmFileList.size();
+    }
 
     QString dateTimeStr = QDateTime::currentDateTime().toString("MM-dd hh-mm-ss-zzz");
     QString outFileName = QString(QStringLiteral("%1/%2.jpg")).arg(Appconfig::AppDataPath_Tmp).arg(dateTimeStr);
@@ -77,10 +109,15 @@ void MainWindow::doubleClicked(QModelIndex index)
     std::thread([=] {
         std::string errorStr;
         //ReadDCMFile::readDCMFile(filePath.toLocal8Bit().toStdString(), outFileName.toLocal8Bit().toStdString(), errorStr);
-        ReadDCMFile::readDCMFileLib(filePath.toLocal8Bit().toStdString(), outFileName.toLocal8Bit().toStdString(), errorStr);
+        //ReadDCMFile::readDCMFileLib(filePath.toLocal8Bit().toStdString(), outFileName.toLocal8Bit().toStdString(), errorStr);
+
+        DcmFileNode info;
+        info.filePath = filePath;
+        ReadDCMFile::readDCMFileLib(filePath.toLocal8Bit().toStdString(), outFileName.toLocal8Bit().toStdString(), info);
 
         FunctionTransfer::runInMainThread([=]()
         {
+            mCurDcmFileInfo = info;
             this->setPreviewImg(QString("%1").arg(outFileName));
         });
 
@@ -100,10 +137,14 @@ void MainWindow::textChanged(QString text)
 
     if (QObject::sender() == ui->lineEdit_search)
     {
+        mDcmFileList.clear();
         ui->treeView->reset();
 
         QModelIndex index = mModel->index(text);
         ui->treeView->setRootIndex(index);
+
+        mDcmFileList = Appconfig::getDirList(text);
+        mDcmCount = mDcmFileList.size();
     }
     else if (QObject::sender() == ui->lineEdit_open_pre)
     {
@@ -122,6 +163,32 @@ void MainWindow::slotBtnClick(bool bClick)
         }
 
         mRecognizeWdg->showMaximized();
+    }
+    else if (QObject::sender() == ui->pushButton_next)
+    {
+        if (mModel->rowCount() > 0)
+        {
+            int preIn = mCurIndex + 1;
+
+            if (preIn < mDcmFileList.size())
+            {
+                QModelIndex preIndex = mModel->index(mDcmFileList.at(preIn));
+                clicked(preIndex);
+            }
+        }
+    }
+    else if (QObject::sender() == ui->pushButton_pre)
+    {
+        if (mModel->rowCount() > 0)
+        {
+            int preIn = mCurIndex - 1;
+
+            if (preIn >= 0 && preIn < mDcmFileList.size())
+            {
+                QModelIndex preIndex = mModel->index(mDcmFileList.at(preIn));
+                clicked(preIndex);
+            }
+        }
     }
     else if (QObject::sender() == ui->pushButton_recheck)
     {
@@ -309,6 +376,8 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
 
             if (!mPreviewPixImg.isNull())
             {
+
+
                 int nX = 0;
                 int nY = 0;
                 int nWidth = 0;
@@ -332,6 +401,14 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                 p.drawRect(ui->widget_img->rect());
 
                 p.drawPixmap(imgRect, mPreviewPixImg);
+
+
+
+                p.setPen(QColor("#ffff00"));
+                p.setFont(QFont("Microsoft YaHei UI", 20));
+                p.drawText(QPoint(20, 40), mCurDcmFileInfo.filePath);
+
+                p.drawText(QPoint(20, ui->widget_img->rect().bottom()-30), QString("[%1 x %2]").arg(mCurDcmFileInfo.width).arg(mCurDcmFileInfo.height));
 
                 return true;
             }

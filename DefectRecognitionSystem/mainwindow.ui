@@ -42,7 +42,7 @@
        <item>
         <widget class="QTabWidget" name="tabWidget">
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="tab">
           <attribute name="title">
@@ -153,7 +153,344 @@
      <widget class="QWidget" name="widget_right" native="true">
       <layout class="QVBoxLayout" name="verticalLayout" stretch="1,0">
        <item>
-        <widget class="QWidget" name="widget_img" native="true"/>
+        <widget class="QWidget" name="widget_img" native="true">
+         <property name="styleSheet">
+          <string notr="true">
+/*tab*/
+QTabWidget#tabWidget_main::tab-bar
+{
+    border-image:url(:/imgs/main_wnd_bg.png);
+}
+
+QWidget#widget_main
+{
+    border-top:1px solid rgb(212, 221, 236);
+    background-color:  rgb(64, 111, 191);
+}
+
+QWidget#widget_img
+{
+	border:1px solid rgb(0,0,0);
+    background-color: rgb(255, 255, 255);
+}
+
+/*十字*/
+QPushButton#pushButton_cross
+{
+        border-image:url(:/imgs/scale_normal.png);
+}
+
+QPushButton#pushButton_cross:hover
+{
+        border-image:url(:/imgs/scale_hover.png);
+}
+
+QPushButton#pushButton_cross:checked
+{
+        border-image:url(:/imgs/scale_active.png);
+}
+
+/*滑块*/
+QSlider#verticalSlider_diameter:vertical {
+    width: 18px;
+    border-width: 12px 0px 12px 0px;
+    border-image:url(:/imgs/Big_scrollbar_bg.png)12 0 12 0 repeat repeat;
+}
+
+QSlider#verticalSlider_diameter::groove:vertical
+{
+    subcontrol-origin:content;
+    width:18px;
+    background:transparent;
+}
+
+QSlider#verticalSlider_diameter::handle:vertical
+{
+    margin-top:-12px;
+    margin-bottom:-12px;
+    image:url(:/imgs/Big_scrollbar_chunk_normal.png);
+}
+
+QSlider#verticalSlider_diameter::handle:hover:vertical
+{
+    image:url(:/imgs/Big_scrollbar_chunk_hover.png);
+}
+
+QSlider#verticalSlider_diameter::handle:pressed:vertical
+{
+    image:url(:/imgs/Big_scrollbar_chunk_active.png);
+}
+
+QSlider::add-page:vertical {
+    background:transparent;
+ }
+
+/*滑块滑后*/
+ QSlider::sub-page:vertical {
+    background:transparent;
+ }
+
+
+
+QPushButton#pushButton_pre
+{
+        border-image:url(:/imgs/prev_normal.png);
+}
+
+QPushButton#pushButton_pre:hover
+{
+        border-image:url(:/imgs/prev_hover.png);
+}
+
+QPushButton#pushButton_pre:pressed
+{
+        border-image:url(:/imgs/prev_active.png);
+}
+
+QPushButton#pushButton_pre:!enabled
+{
+        border-image:url(:/imgs/prev_gray.png);
+}
+
+QPushButton#pushButton_next
+{
+        border-image:url(:/imgs/next_normal.png);
+}
+
+QPushButton#pushButton_next:hover
+{
+        border-image:url(:/imgs/next_hover.png);
+}
+
+QPushButton#pushButton_next:pressed
+{
+        border-image:url(:/imgs/next_active.png);
+}
+
+QPushButton#pushButton_next:!enabled
+{
+        border-image:url(:/imgs/next_gray.png);
+}
+
+/*全屏*/
+QPushButton#pushButton_full
+{
+border:none;
+    image:url(:/imgs/full_normal.png);
+}
+
+QPushButton#pushButton_full:hover
+{
+    image:url(:/imgs/full_hover.png);
+}
+
+QPushButton#pushButton_full:pressed
+{
+    image:url(:/imgs/full_active.png);
+}
+</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_11" stretch="1,0,0">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_2">
+              <property name="leftMargin">
+               <number>50</number>
+              </property>
+              <property name="rightMargin">
+               <number>50</number>
+              </property>
+              <item>
+               <widget class="QPushButton" name="pushButton_pre">
+                <property name="minimumSize">
+                 <size>
+                  <width>29</width>
+                  <height>29</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>29</width>
+                  <height>29</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_3">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_next">
+                <property name="minimumSize">
+                 <size>
+                  <width>29</width>
+                  <height>29</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>29</width>
+                  <height>29</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_15">
+              <property name="spacing">
+               <number>10</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <spacer name="verticalSpacer_3">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_cross">
+                <property name="minimumSize">
+                 <size>
+                  <width>31</width>
+                  <height>31</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>31</width>
+                  <height>31</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="checkable">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_7">
+                <property name="spacing">
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QSlider" name="verticalSlider_diameter">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>200</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>200</height>
+                   </size>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true"/>
+                  </property>
+                  <property name="value">
+                   <number>99</number>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="lineEdit_diameter">
+                <property name="minimumSize">
+                 <size>
+                  <width>31</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>31</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_7">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Fixed</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>15</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
        </item>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_3">
