@@ -47,6 +47,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->widget_img->installEventFilter(this);
     ui->widget_pre->installEventFilter(this);
 
+    ui->verticalSlider_diameter->hide();
+    ui->lineEdit_diameter->hide();
+    ui->pushButton_cross->hide();
 
     ui->tabWidget->setCurrentIndex(0);
 

@@ -62,6 +62,8 @@ private slots:
 
     void slot_scrollAreaYChange(int value);
 
+    void slot_sliderReleased();
+
 protected:
     bool eventFilter(QObject *obj, QEvent *e);
 

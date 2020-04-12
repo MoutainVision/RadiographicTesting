@@ -15,9 +15,12 @@ RecognizeWdg::RecognizeWdg(QWidget *parent) :
 
     ui->widget_img_pre->installEventFilter(this);
 
+    mBInvert = false;
 
     mSourceX = 0;
     mSourceY = 0;
+
+    ui->verticalSlider_diameter->setRange(5, 100);
 
 
     connect(ui->pushButton_measure, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
@@ -26,6 +29,17 @@ RecognizeWdg::RecognizeWdg(QWidget *parent) :
     connect(ui->horizontalScrollBar, SIGNAL(valueChanged(int)), this, SLOT(slot_scrollAreaXChange(int)));
     connect(ui->verticalScrollBar, SIGNAL(valueChanged(int)), this, SLOT(slot_scrollAreaYChange(int)));
 
+    connect(ui->verticalSlider_diameter, SIGNAL(sliderReleased()), this, SLOT(slot_sliderReleased()));
+}
+
+void RecognizeWdg::slot_sliderReleased()
+{
+    int value = ui->verticalSlider_diameter->value();
+    mScale = (float)value / 100;
+
+    ui->lineEdit_diameter->setText(QString("%1").arg(value));
+
+    delImg();
 }
 
 RecognizeWdg::~RecognizeWdg()
@@ -102,6 +116,9 @@ void RecognizeWdg::showNomal()
     mCurImgHeight = dRat * mSrcImgHeight;
 
     mScale = dRat;
+
+    ui->verticalSlider_diameter->setValue((int)(mScale*100));
+    ui->lineEdit_diameter->setText(QString("%1").arg((int)(mScale*100)));
 
     int srcW = mSrcImgWidth;
     int srcH = mSrcImgHeight;
@@ -297,7 +314,7 @@ bool RecognizeWdg::eventFilter(QObject *obj, QEvent *e)
                 p.setBrush(b);
                 p.drawRect(ui->widget_img_pre->rect());
 
-                if (mPaintRect.width() <= nWidth && mPaintRect.height() <= nHeight)
+                if (mPaintRect.width() <= nWidth || mPaintRect.height() <= nHeight)
                 {
                     p.drawImage(QRect((nWidth-mPaintRect.width())/2,
                                       (nHeight-mPaintRect.height())/2,
