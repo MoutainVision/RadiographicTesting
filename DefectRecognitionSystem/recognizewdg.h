@@ -36,7 +36,12 @@ public:
 
     void reSize(float scale);
 
+    void showNomal();
+
+
     void showImg();
+
+    void showImg(unsigned short *pImg, int nW, int nH);
 
     void showScrollBar();
 
@@ -45,6 +50,10 @@ public:
     void setScrollRanges(int maxX, int maxY);
 
     void shortImgToImage(unsigned short *pImg, int nW, int nH, QImage &img);
+
+
+    //批处理图像
+    void delImg();
 
 private slots:
     void slotBtnClick(bool bClick);
@@ -63,12 +72,26 @@ private:
     DcmFileNode mCurDcmFileInfo;
     DCMFile dmfile;
 
+    DCMFile mSourceFile;
+
     int     mSourceX;
     int     mSourceY;
     QRect   mSourceRect;
     QImage  mPaintImg;
 
+    unsigned short *m_pImgPro;  //处理图像
+    unsigned short *m_pSrcImg;  //原始图像
+    int     mSrcImgWidth;       //原始图像宽
+    int     mSrcImgHeight;      //原始图像高
 
+    //当前图像大小
+    int     mCurImgWidth;
+    int     mCurImgHeight;
+
+    float   mScale;  //缩放
+
+    //
+    bool    mBInvert;  //反相
 
     QRect   mPaintRect;
 };

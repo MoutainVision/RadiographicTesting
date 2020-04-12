@@ -31,6 +31,10 @@ RecognizeWdg::RecognizeWdg(QWidget *parent) :
 RecognizeWdg::~RecognizeWdg()
 {
     dmfile.Release();
+
+    delete []m_pImgPro;
+    m_pImgPro = NULL;
+
     delete ui;
 }
 
@@ -42,10 +46,17 @@ void RecognizeWdg::setDcmFileInfo(DcmFileNode dcmInfo)
 
         dmfile.Load(dcmInfo.filePath.toLocal8Bit().toStdString().c_str());
 
+
         FunctionTransfer::runInMainThread([=]()
         {
-//            qDebug() << "1111";
-            this->showImg();
+            m_pSrcImg = dmfile.GetBuffer();
+            mSrcImgWidth = dmfile.GetWidth();
+            mSrcImgHeight = dmfile.GetHeight();
+
+            m_pImgPro = new unsigned short[mSrcImgWidth * mSrcImgHeight];
+            memcpy(m_pImgPro, m_pSrcImg, mSrcImgWidth*mSrcImgHeight*sizeof(unsigned short));
+
+            this->showNomal();
         });
 
     }).detach();
@@ -73,20 +84,59 @@ void RecognizeWdg::shortImgToImage(unsigned short *pImg, int nW, int nH, QImage 
     delete []pImgMono8;
 }
 
+void RecognizeWdg::showNomal()
+{
+    int wdgW = ui->widget_img_pre->width();
+    int wdgH = ui->widget_img_pre->height();
+
+    int nX = 0;
+    int nY = 0;
+    int nWidth = 0;
+    int nHeight = 0;
+
+    double dRatioW = (double)(wdgW) / (double)mSrcImgWidth;
+    double dRatioH = (double)(wdgH) / (double)mSrcImgHeight;
+    double dRat = dRatioW > dRatioH? dRatioH : dRatioW;
+
+    mCurImgWidth = dRat * mSrcImgWidth;
+    mCurImgHeight = dRat * mSrcImgHeight;
+
+    mScale = dRat;
+
+    int srcW = mSrcImgWidth;
+    int srcH = mSrcImgHeight;
+    Resize(m_pImgPro, srcW, srcH, mCurImgWidth, mCurImgHeight);
+
+    showImg(m_pImgPro, srcW, srcH);
+}
+
 void RecognizeWdg::reSize(int newW, int newH)
 {
-//    LIBIMGPROC_API bool Resize(unsigned short *&pImg,	//圖像數據指針，既為輸入也為輸出
-//        int &nW,					//圖像寬度，既為輸入也為輸出
-//        int &nH,					//圖像高度，既為輸入也為輸出
-//        int nNewW,				//輸出圖像寬度
-//        int nNewH);				//輸出圖像高度
+    mScale = mSrcImgWidth / newW;
 
-//    Resize(dmfile.GetBuffer())
+    int srcW = mCurImgWidth;
+    int srcH = mCurImgHeight;
+
+    Resize(m_pImgPro, srcW, srcH, newW, newH);
+
+    mCurImgWidth  = srcW;
+    mCurImgHeight = srcH;
 }
 
 void RecognizeWdg::reSize(float scale)
 {
+    mScale = scale;
 
+    mCurImgWidth = scale * mSrcImgWidth;
+    mCurImgHeight = scale * mSrcImgHeight;
+
+    int srcW = mSrcImgWidth;
+    int srcH = mSrcImgHeight;
+
+    Resize(m_pImgPro, srcW, srcH, mCurImgWidth, mCurImgHeight);
+
+    mCurImgWidth = srcW;
+    mCurImgHeight = srcH;
 }
 
 void RecognizeWdg::showImg()
@@ -94,10 +144,21 @@ void RecognizeWdg::showImg()
     int w = dmfile.GetWidth();
     int h = dmfile.GetHeight();
 
-    qDebug() << "3333";
+
     shortImgToImage(dmfile.GetBuffer(), w, h, mPaintImg);
 
     mPaintRect.setRect(0, 0, w, h);
+
+    showScrollBar();
+
+    update();
+}
+
+void RecognizeWdg::showImg(unsigned short *pImg, int nW, int nH)
+{
+    shortImgToImage(pImg, nW, nH, mPaintImg);
+
+    mPaintRect.setRect(0, 0, nW, nH);
 
     showScrollBar();
 
@@ -187,6 +248,36 @@ void RecognizeWdg::slotBtnClick(bool bClick)
     {
         ui->widget_tool->setVisible(ui->pushButton_measure->isChecked());
     }
+    else if (QObject::sender() == ui->pushButton_invert)
+    {
+        mBInvert = ui->pushButton_invert->isChecked();
+
+        delImg();
+    }
+}
+
+void RecognizeWdg::delImg()
+{
+    //删除
+    delete []m_pImgPro;
+    m_pImgPro = NULL;
+
+    //拷贝
+    m_pImgPro = new unsigned short[mSrcImgWidth * mSrcImgHeight];
+    memcpy(m_pImgPro, m_pSrcImg, mSrcImgWidth*mSrcImgHeight*sizeof(unsigned short));
+
+    mCurImgWidth  = mSrcImgWidth;
+    mCurImgHeight = mSrcImgHeight;
+
+    //反相
+    if (mBInvert)
+        Invert(m_pImgPro, mCurImgWidth, mCurImgHeight);
+
+    //resize
+    reSize(mScale);
+
+    //显示
+    showImg(m_pImgPro, mCurImgWidth, mCurImgHeight);
 }
 
 bool RecognizeWdg::eventFilter(QObject *obj, QEvent *e)
@@ -206,29 +297,25 @@ bool RecognizeWdg::eventFilter(QObject *obj, QEvent *e)
                 p.setBrush(b);
                 p.drawRect(ui->widget_img_pre->rect());
 
-
-
-//                QRectF target(10.0, 20.0, 80.0, 60.0);
-//                QRectF source(0.0, 0.0, 70.0, 40.0);
-//                QImage image(":/images/myImage.png");
-
-//                QPainter painter(this);
-//                painter.drawImage(target, image, source);
-
-                //p.drawImage(QRect(0,0,nWidth, nHeight), mPaintImg);
-
-//                QRect target()
-
-
-                p.drawImage(QRect(0, 0, nWidth, nHeight), mPaintImg, mSourceRect);
-
-
+                if (mPaintRect.width() <= nWidth && mPaintRect.height() <= nHeight)
+                {
+                    p.drawImage(QRect((nWidth-mPaintRect.width())/2,
+                                      (nHeight-mPaintRect.height())/2,
+                                      mPaintRect.width(),
+                                      mPaintRect.height()), mPaintImg);
+                }
+                else
+                    p.drawImage(QRect(0, 0, nWidth, nHeight), mPaintImg, mSourceRect);
 
                 p.setPen(QColor("#ffff00"));
                 p.setFont(QFont("Microsoft YaHei UI", 20));
                 p.drawText(QPoint(20, 40), mCurDcmFileInfo.filePath);
 
-                p.drawText(QPoint(20, ui->widget_img_pre->rect().bottom()-30), QString("[%1 x %2]").arg(mCurDcmFileInfo.width).arg(mCurDcmFileInfo.height));
+                p.drawText(QPoint(20, ui->widget_img_pre->rect().bottom()-30),
+                           QString("[%1 x %2]   %3%")
+                           .arg(mCurDcmFileInfo.width)
+                           .arg(mCurDcmFileInfo.height)
+                           .arg(QString::number(mScale*100,'f',1)));
 
                 return true;
             }
