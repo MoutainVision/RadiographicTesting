@@ -27,3 +27,9 @@ Bins/Debug/LibImgIO.ilk
 Bins/Debug/LibImgIO.exp
 Bins/Debug/LibImgIO.pdb
 Bins/Debug/DefectRecognitionSystem.pdb
+LibImgProc/Debug
+Bins/Debug/LibImgProc.exp
+Bins/Debug/LibImgProc.ilk
+Bins/Debug/LibImgProc.pdb
+DefectRecognitionSystem/shortFreq.txt
+DefectRecognitionSystem/ucFreq.txt

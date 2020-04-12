@@ -5,6 +5,24 @@ ReadDCMFile::ReadDCMFile()
 
 }
 
+void ReadDCMFile::shortImgToCximage(unsigned short *pImg, int nW, int nH, CxImage &img)
+{
+    unsigned char *pImgMono8 = new unsigned char[nW*nH];
+    long maxI, minI;
+    if (Convert(pImgMono8, pImg, nW, nW, nH, maxI, minI))
+    {
+        img.Create(nW, nH, 24);
+
+        for (int y=0; y<nH; y++)
+            for (int x=0; x<nW; x++)
+            {
+                img.SetPixelColor(x, y, RGB(pImgMono8[y*nW+x],pImgMono8[y*nW+x],pImgMono8[y*nW+x]));
+            }
+    }
+
+    delete []pImgMono8;
+}
+
 bool ReadDCMFile::readDCMFileLib(std::string filePath, std::string outFileName, std::string errorStr)
 {
 	DCMFile dmfile;

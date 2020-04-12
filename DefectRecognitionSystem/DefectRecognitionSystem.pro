@@ -46,6 +46,8 @@ INCLUDEPATH += ..\Dependencies\cximage\include
 
 INCLUDEPATH += ..\LibImgIO
 
+INCLUDEPATH += ..\LibImgProc
+
 
 
 
@@ -99,12 +101,16 @@ CONFIG(release, debug|release) {
     LIBS += -L"..\Dependencies\dcmtk-3.6.5\lib\Release" -ldcmtk
    # LIBS += -L"..\Dependencies\cximage\lib\Release" -lcximagecrt
     LIBS += -L"..\Bins\Release" -lLibImgIO
+    LIBS += -L"..\Bins\Release" -lLibImgProc
+
 
 }
 else {
     LIBS += -L"..\Dependencies\dcmtk-3.6.5\lib\Debug" -ldcmtk
    # LIBS += -L"..\Dependencies\cximage\lib\Debug" -lcximagecrt
-    LIBS += -L"..\Bins\Debug" -lLibImgIO
+    LIBS += -L"..\Bins\Debug" -lLibImgIO.
+    LIBS += -L"..\Bins\Debug" -lLibImgProc
+
 }
 
 RESOURCES += \

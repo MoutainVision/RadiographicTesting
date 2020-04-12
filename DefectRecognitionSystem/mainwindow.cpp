@@ -162,6 +162,8 @@ void MainWindow::slotBtnClick(bool bClick)
             mRecognizeWdg = new RecognizeWdg;
         }
 
+        mRecognizeWdg->setDcmFileInfo(mCurDcmFileInfo);
+
         mRecognizeWdg->showMaximized();
     }
     else if (QObject::sender() == ui->pushButton_next)
@@ -401,8 +403,6 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                 p.drawRect(ui->widget_img->rect());
 
                 p.drawPixmap(imgRect, mPreviewPixImg);
-
-
 
                 p.setPen(QColor("#ffff00"));
                 p.setFont(QFont("Microsoft YaHei UI", 20));
