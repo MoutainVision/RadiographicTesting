@@ -21,7 +21,7 @@ bool GetBoundingBox(ImageRect &r, const vector<POINT> &aPt, size_t ns, size_t ne
 	return true;
 }
 
-bool getContourPointSet(vector<POINT> &aContourPt,
+bool GetContourPointSet(vector<POINT> &aContourPt,
 	const vector<POINT> &aPt,
 	size_t ns, size_t ne)
 {
@@ -91,7 +91,7 @@ bool GetContourPointSet(vector<POINT> &aContourPt, const vector<POINT> &aPt)
 		return false;
 	}
 
-	return getContourPointSet(aContourPt, aPt, 0, aPt.size() - 1);
+	return GetContourPointSet(aContourPt, aPt, 0, aPt.size() - 1);
 }
 
 

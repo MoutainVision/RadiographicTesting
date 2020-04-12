@@ -159,6 +159,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="DCMIndexingFile.h" />
     <ClInclude Include="DefectRecognition.h" />
     <ClInclude Include="ImageRetrieval.h" />
     <ClInclude Include="LibDefectRecognition.h" />
@@ -166,6 +167,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DCMIndexingFile.cpp" />
     <ClCompile Include="DefectRecognition.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="ImageRetrieval.cpp" />
