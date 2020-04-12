@@ -8,11 +8,12 @@
 
 #include "ximage.h"
 
-//#include "RawImageFile.h"
+#include"dcmtk\dcmdata\dctk.h"
 
-bool LIBIMGIO_API ReadDCMFile(const char *szDCMFile, unsigned short *pImgBuf, unsigned &nImgWidth, unsigned &nImgHeight);
+#include<string>
+#include<iostream>
 
-bool LIBIMGIO_API WriteDCMFile(const char *szDCMFile, unsigned short *pImgBuf, unsigned nImgWidth, unsigned nImgHeight);
+using std::string;
 
 struct LIBIMGIO_API DCMFileFeat
 {
@@ -21,9 +22,61 @@ struct LIBIMGIO_API DCMFileFeat
 	unsigned short nBpp;
 	unsigned short winC;
 	unsigned short winW;
+	unsigned short nSpp;
+	unsigned nLen;
+	string strPI;
 	unsigned short nAveG;
 	unsigned short nMinG;
+	unsigned short nNonZeroMinG;
 	unsigned short nMaxG;
+
+	DCMFileFeat()
+		: nW(0)
+		, nH(0)
+		, nBpp(0)
+		, winC(0)
+		, winW(0)
+		, nSpp(0)
+		, nLen(0)
+		, strPI("")
+		, nAveG(0)
+		, nMinG(0)
+		, nNonZeroMinG(0)
+		, nMaxG(0)
+	{
+	}
+
+	void Output()
+	{
+		std::cout << "ImgW=" << nW << "\t"
+				  << "ImgH=" << nH << "\t"
+				  << "BPP=" << nBpp << "\t"
+				  << "WinC=" << winC << "\t"
+				  << "WinW=" << winW << "\t"
+				  << "SPP=" << nSpp << "\t"
+				  << "Lens=" << nLen << "\t"
+				  << "PhtI=" << strPI << "\t"
+				  << "AveG=" << nAveG << "\t"
+				  << "MinG=" << nMinG << "\t"
+				  << "NZMinG=" << nNonZeroMinG << "\t"
+				  << "MaxG=" << nMaxG << std::endl;
+	}
+
+	void Output2()
+	{
+		std::cout << nW << "\t"
+				  << nH << "\t"
+				  << nBpp << "\t"
+				  << winC << "\t"
+				  << winW << "\t"
+				  << nSpp << "\t"
+				  << nLen << "\t"
+				  << strPI << "\t"
+				  << nAveG << "\t"
+				  << nMinG << "\t"
+				  << nNonZeroMinG << "\t"
+				  << nMaxG << std::endl;
+	}
 };
 
 class LIBIMGIO_API DCMFile
@@ -35,6 +88,11 @@ private:
 	unsigned short m_nImgBPP;
 	unsigned short m_nWinCentre;
 	unsigned short m_nWinWidth;
+	unsigned short m_nSamplesPerPixel;
+	unsigned m_nDataLength;
+	string m_strPhotoInterp;
+
+	DcmFileFormat m_dcmFileFmt;
 
 public:
 	DCMFile()
@@ -44,10 +102,28 @@ public:
 		, m_nImgBPP(0)
 		, m_nWinCentre(0)
 		, m_nWinWidth(0)
+		, m_nSamplesPerPixel(0)
+		, m_nDataLength(0)
+		, m_strPhotoInterp("")
 	{
 	}
 
-	void Release()
+	DCMFile(const char *szDCMFile)
+	{
+		m_pImgBuf = NULL;
+		m_nImgWidth = 0;
+		m_nImgHeight = 0;
+		m_nImgBPP = 0;
+		m_nWinCentre = 0;
+		m_nWinWidth = 0;
+		m_nSamplesPerPixel = 0;
+		m_nDataLength = 0;
+		m_strPhotoInterp = "";
+
+		Load(szDCMFile);
+	}
+
+	virtual void Release()
 	{
 		if (NULL != m_pImgBuf)
 		{
@@ -59,55 +135,73 @@ public:
 		m_nImgBPP = 0;
 		m_nWinCentre = 0;
 		m_nWinWidth = 0;
+		m_nSamplesPerPixel = 0;
+		m_nDataLength = 0;
+		m_strPhotoInterp = "";
 
 		return;
 	}
 
-	~DCMFile()
+	virtual ~DCMFile()
 	{
 		Release();
 	}
 
-	bool IsValid()
+	virtual bool IsValid()
 	{
 		return (NULL != m_pImgBuf && 0 < m_nImgWidth && 0 < m_nImgHeight);
 	}
 
-	bool Load(const char *szSrcFileName);
+	virtual bool Load(const char *szSrcFileName);
 
-	bool Save(const char *szDstFileName);
+	virtual bool Save(const char *szDstFileName);
 
-	unsigned short* GetBuffer()
+	virtual unsigned short* GetBuffer()
 	{
 		return m_pImgBuf;
 	}
 
-	unsigned short GetWidth()
+	virtual unsigned short GetWidth()
 	{
 		return m_nImgWidth;
 	}
 
-	unsigned short GetHeight()
+	virtual unsigned short GetHeight()
 	{
 		return m_nImgHeight;
 	}
 
-	unsigned short GetBPP()
+	virtual unsigned short GetBPP()
 	{
 		return m_nImgBPP;
 	}
 
-	unsigned short GetWindowCenter()
+	virtual unsigned short GetWindowCenter()
 	{
 		return m_nWinCentre;
 	}
 
-	unsigned short GetWindowWidth()
+	virtual unsigned short GetWindowWidth()
 	{
 		return m_nWinWidth;
 	}
 
-	bool Convert(CxImage &dstImg);
+	virtual string GetPhotometricInterpretation()
+	{
+		return m_strPhotoInterp;
+	}
 
-	DCMFileFeat getFileFeature();
+	virtual unsigned short GetSamplePerPixel()
+	{
+		return m_nSamplesPerPixel;
+	}
+
+	virtual unsigned GetDataLength()
+	{
+		return m_nDataLength;
+	}
+
+	virtual bool Convert(CxImage &dstImg);
+
+	virtual DCMFileFeat getFileFeature();
 };
