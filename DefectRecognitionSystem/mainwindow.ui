@@ -234,17 +234,17 @@ QSlider::add-page:vertical {
 
 QPushButton#pushButton_pre
 {
-        border-image:url(:/imgs/prev_normal.png);
+        border-image:url(:/imgs/prev_normal_big.png);
 }
 
 QPushButton#pushButton_pre:hover
 {
-        border-image:url(:/imgs/prev_hover.png);
+        border-image:url(:/imgs/prev_normal_big.png);
 }
 
 QPushButton#pushButton_pre:pressed
 {
-        border-image:url(:/imgs/prev_active.png);
+        border-image:url(:/imgs/prev_normal_big.png);
 }
 
 QPushButton#pushButton_pre:!enabled
@@ -254,17 +254,17 @@ QPushButton#pushButton_pre:!enabled
 
 QPushButton#pushButton_next
 {
-        border-image:url(:/imgs/next_normal.png);
+        border-image:url(:/imgs/next_normal_big.png);
 }
 
 QPushButton#pushButton_next:hover
 {
-        border-image:url(:/imgs/next_hover.png);
+        border-image:url(:/imgs/next_normal_big.png);
 }
 
 QPushButton#pushButton_next:pressed
 {
-        border-image:url(:/imgs/next_active.png);
+        border-image:url(:/imgs/next_normal_big.png);
 }
 
 QPushButton#pushButton_next:!enabled
@@ -314,23 +314,23 @@ QPushButton#pushButton_full:pressed
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_2">
               <property name="leftMargin">
-               <number>50</number>
+               <number>20</number>
               </property>
               <property name="rightMargin">
-               <number>50</number>
+               <number>20</number>
               </property>
               <item>
                <widget class="QPushButton" name="pushButton_pre">
                 <property name="minimumSize">
                  <size>
-                  <width>29</width>
-                  <height>29</height>
+                  <width>64</width>
+                  <height>64</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>29</width>
-                  <height>29</height>
+                  <width>64</width>
+                  <height>64</height>
                  </size>
                 </property>
                 <property name="text">
@@ -355,14 +355,14 @@ QPushButton#pushButton_full:pressed
                <widget class="QPushButton" name="pushButton_next">
                 <property name="minimumSize">
                  <size>
-                  <width>29</width>
-                  <height>29</height>
+                  <width>64</width>
+                  <height>64</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>29</width>
-                  <height>29</height>
+                  <width>64</width>
+                  <height>64</height>
                  </size>
                 </property>
                 <property name="text">

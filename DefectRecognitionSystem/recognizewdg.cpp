@@ -191,10 +191,14 @@ void RecognizeWdg::setScrollRanges(int maxX, int maxY)
 
 void RecognizeWdg::showScrollBar(bool status)
 {
+    mSourceX = 0;
+    mSourceY = 0;
+
     if (!status)
     {
         ui->horizontalScrollBar->hide();
         ui->verticalScrollBar->hide();
+
     }
     else
     {
@@ -206,7 +210,9 @@ void RecognizeWdg::showScrollBar(bool status)
             ui->horizontalScrollBar->setValue(mPaintRect.width() / 2);
         }
         else
+        {
             ui->horizontalScrollBar->hide();
+        }
 
         if (mPaintRect.height() > ui->widget_img_pre->height())
         {
@@ -214,8 +220,17 @@ void RecognizeWdg::showScrollBar(bool status)
             ui->verticalScrollBar->setValue(mPaintRect.height() / 2);
         }
         else
+        {
             ui->horizontalScrollBar->hide();
+        }
     }
+
+
+
+//    int nW = ui->widget_img_pre->width();
+//    int nH = ui->widget_img_pre->height();
+
+//    mSourceRect = QRect(mSourceX, mSourceY, nW, nH);
 }
 
 void RecognizeWdg::showScrollBar()
@@ -314,7 +329,20 @@ bool RecognizeWdg::eventFilter(QObject *obj, QEvent *e)
                 p.setBrush(b);
                 p.drawRect(ui->widget_img_pre->rect());
 
-                if (mPaintRect.width() <= nWidth || mPaintRect.height() <= nHeight)
+
+                if (mPaintRect.width() <= nWidth && mPaintRect.height() > nHeight)
+                {
+                    p.drawImage(QRect((nWidth-mPaintRect.width())/2,0 ,
+                                      mPaintRect.width(),
+                                      nHeight), mPaintImg, mSourceRect);
+                }
+                else if (mPaintRect.width() > nWidth && mPaintRect.height() <= nHeight)
+                {
+                    p.drawImage(QRect(0, (nHeight-mPaintRect.height())/2,
+                                      nWidth,
+                                      mPaintRect.height()), mPaintImg, mSourceRect);
+                }
+                else if (mPaintRect.width() <= nWidth && mPaintRect.height() <= nHeight)
                 {
                     p.drawImage(QRect((nWidth-mPaintRect.width())/2,
                                       (nHeight-mPaintRect.height())/2,

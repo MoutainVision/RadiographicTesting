@@ -461,5 +461,7 @@
         <file>imgs/redo_disable.png</file>
         <file>imgs/redo_hover.png</file>
         <file>imgs/redo_normal.png</file>
+        <file>imgs/next_normal_big.png</file>
+        <file>imgs/prev_normal_big.png</file>
     </qresource>
 </RCC>
