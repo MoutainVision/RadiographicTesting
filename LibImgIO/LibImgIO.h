@@ -123,6 +123,40 @@ public:
 		Load(szDCMFile);
 	}
 
+	bool CopyFrom(DCMFile &srcFile)
+	{
+		if (this == &srcFile)
+		{
+			return true;
+		}
+
+		if (srcFile.IsValid())
+		{
+			if (IsValid())
+			{
+				Release();
+			}
+
+			m_nImgWidth = srcFile.GetWidth();
+			m_nImgHeight = srcFile.GetHeight();
+			m_nImgBPP = srcFile.GetBPP();
+			m_nWinCentre = srcFile.GetWindowCenter();
+			m_nWinWidth = srcFile.GetWindowWidth();
+			m_nSamplesPerPixel = srcFile.GetSamplePerPixel();
+			m_nDataLength = srcFile.GetDataLength();
+			m_strPhotoInterp = srcFile.GetPhotometricInterpretation();
+
+			m_pImgBuf = new unsigned short[m_nImgWidth*m_nImgHeight];
+			memcpy(m_pImgBuf, srcFile.GetBuffer(), m_nImgWidth*m_nImgHeight * sizeof(unsigned short));
+
+			m_dcmFileFmt = srcFile.getDCMFileFormat();
+
+			return true;
+		}
+
+		return false;
+	}
+
 	virtual void Release()
 	{
 		if (NULL != m_pImgBuf)
@@ -138,6 +172,8 @@ public:
 		m_nSamplesPerPixel = 0;
 		m_nDataLength = 0;
 		m_strPhotoInterp = "";
+
+		m_dcmFileFmt.clear();
 
 		return;
 	}
@@ -155,6 +191,11 @@ public:
 	virtual bool Load(const char *szSrcFileName);
 
 	virtual bool Save(const char *szDstFileName);
+
+	virtual DcmFileFormat& getDCMFileFormat()
+	{
+		return m_dcmFileFmt;
+	}
 
 	virtual unsigned short* GetBuffer()
 	{
