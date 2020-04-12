@@ -6,7 +6,7 @@
 #define LIBIMGPROC_API __declspec(dllimport)
 #endif
 
-#include "LibImgProc.h"
+#include "ImgProc.h"
 
 class LIBIMGPROC_API RawImage
 {

@@ -151,6 +151,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ImgProc.h" />
     <ClInclude Include="LibImgProc.h" />
     <ClInclude Include="RawIamge.h" />
     <ClInclude Include="stdafx.h" />
@@ -158,7 +159,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="LibImgProc.cpp" />
+    <ClCompile Include="ImgProc.cpp" />
     <ClCompile Include="RawIamge.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
