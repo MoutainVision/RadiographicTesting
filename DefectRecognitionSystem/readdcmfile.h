@@ -15,6 +15,8 @@
 
 #include "LibImgIO.h"
 
+#include "appconfig.h"
+
 using namespace std;
 
 class ReadDCMFile
@@ -25,6 +27,8 @@ public:
     static bool readDCMFile(std::string filePath, std::string outFileName, std::string errorStr);
 
 	static bool readDCMFileLib(std::string filePath, std::string outFileName, std::string errorStr);
+
+    static bool readDCMFileLib(std::string filePath, string outFileName, DcmFileNode &info);
 };
 
 #endif // READDCMFILE_H
