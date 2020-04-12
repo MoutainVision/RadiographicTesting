@@ -14,6 +14,7 @@
 //#include "ximage.h"
 
 #include "LibImgIO.h"
+#include "LibImgProc.h"
 
 #include "appconfig.h"
 
@@ -23,6 +24,8 @@ class ReadDCMFile
 {
 public:
     ReadDCMFile();
+
+    void shortImgToCximage(unsigned short *pImg, int nW, int nH, CxImage &img);
 
     static bool readDCMFile(std::string filePath, std::string outFileName, std::string errorStr);
 
