@@ -123,6 +123,26 @@
               </widget>
              </item>
              <item>
+              <widget class="QPushButton" name="pushButton_Mirror">
+               <property name="text">
+                <string>  水平镜像</string>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pushButton_Flip">
+               <property name="text">
+                <string>   垂直镜像</string>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
               <widget class="QPushButton" name="pushButton_rotate">
                <property name="text">
                 <string> 旋转</string>

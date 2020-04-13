@@ -49,6 +49,8 @@ RecognizeWdg::RecognizeWdg(QWidget *parent) :
     //µ÷Õû
     connect(ui->pushButton_reset, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_invert, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+    connect(ui->pushButton_Mirror, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+    connect(ui->pushButton_Flip, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
 
 
     connect(ui->pushButton_next_step, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
