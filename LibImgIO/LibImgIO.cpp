@@ -271,7 +271,7 @@ DCMFileFeat DCMFile::getFileFeature()
 		ffeat.winW = m_nWinWidth;
 		ffeat.nSpp = m_nSamplesPerPixel;
 		ffeat.nLen = m_nDataLength;
-		ffeat.strPI = m_strPhotoInterp;
+		//ffeat.strPI = m_strPhotoInterp;
 
 		unsigned aHist[65536];
 		memset(aHist, 0, 65536 * sizeof(unsigned));
@@ -340,4 +340,9 @@ DCMFileFeat DCMFile::getFileFeature()
 
 
 	return ffeat;
+}
+
+bool DCMFile::Match(double &dSimilarity, DCMFile &file)
+{
+	return false;
 }

@@ -15,6 +15,7 @@
 
 using std::string;
 
+#pragma pack(1)
 struct LIBIMGIO_API DCMFileFeat
 {
 	unsigned short nW;
@@ -24,7 +25,7 @@ struct LIBIMGIO_API DCMFileFeat
 	unsigned short winW;
 	unsigned short nSpp;
 	unsigned nLen;
-	string strPI;
+	//string strPI;
 	unsigned short nAveG;
 	unsigned short nMinG;
 	unsigned short nNonZeroMinG;
@@ -38,7 +39,7 @@ struct LIBIMGIO_API DCMFileFeat
 		, winW(0)
 		, nSpp(0)
 		, nLen(0)
-		, strPI("")
+		//, strPI("")
 		, nAveG(0)
 		, nMinG(0)
 		, nNonZeroMinG(0)
@@ -55,7 +56,7 @@ struct LIBIMGIO_API DCMFileFeat
 				  << "WinW=" << winW << "\t"
 				  << "SPP=" << nSpp << "\t"
 				  << "Lens=" << nLen << "\t"
-				  << "PhtI=" << strPI << "\t"
+				  //<< "PhtI=" << strPI << "\t"
 				  << "AveG=" << nAveG << "\t"
 				  << "MinG=" << nMinG << "\t"
 				  << "NZMinG=" << nNonZeroMinG << "\t"
@@ -71,13 +72,14 @@ struct LIBIMGIO_API DCMFileFeat
 				  << winW << "\t"
 				  << nSpp << "\t"
 				  << nLen << "\t"
-				  << strPI << "\t"
+				  //<< strPI << "\t"
 				  << nAveG << "\t"
 				  << nMinG << "\t"
 				  << nNonZeroMinG << "\t"
 				  << nMaxG << std::endl;
 	}
 };
+#pragma pack()
 
 class LIBIMGIO_API DCMFile
 {
@@ -245,4 +247,6 @@ public:
 	virtual bool Convert(CxImage &dstImg);
 
 	virtual DCMFileFeat getFileFeature();
+
+	virtual bool Match(double &dSimilarity, DCMFile &file);
 };
