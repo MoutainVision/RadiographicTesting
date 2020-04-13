@@ -36,181 +36,249 @@
           </size>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_5">
+          <property name="spacing">
+           <number>15</number>
+          </property>
           <item>
-           <widget class="QPushButton" name="pushButton_invert">
-            <property name="text">
-             <string>反相</string>
+           <widget class="QGroupBox" name="groupBox">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>50</height>
+             </size>
             </property>
-            <property name="checkable">
-             <bool>true</bool>
+            <property name="title">
+             <string>常规</string>
             </property>
+            <layout class="QVBoxLayout" name="verticalLayout_17">
+             <item>
+              <widget class="QPushButton" name="pushButton_nomal">
+               <property name="text">
+                <string>1:1</string>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">buttonGroup_2</string>
+               </attribute>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pushButton_adapt">
+               <property name="text">
+                <string> 适应屏幕</string>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">buttonGroup_2</string>
+               </attribute>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pushButton_measure">
+               <property name="text">
+                <string>测量</string>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton_rotate">
-            <property name="text">
-             <string> 旋转</string>
+           <widget class="QGroupBox" name="groupBox_2">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>30</height>
+             </size>
             </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pushButton_contrast">
-            <property name="text">
-             <string>对比度增强</string>
+            <property name="title">
+             <string> 调整</string>
             </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pushButton_defects">
-            <property name="text">
-             <string>缺陷增强</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <layout class="QVBoxLayout" name="verticalLayout_2">
-            <item>
-             <widget class="QLabel" name="label">
-              <property name="text">
-               <string>窗宽窗位：</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout">
-              <item>
-               <layout class="QVBoxLayout" name="verticalLayout_4">
-                <property name="topMargin">
-                 <number>0</number>
-                </property>
-                <item>
-                 <widget class="QLabel" name="label_4">
-                  <property name="text">
-                   <string>0</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_3">
-                  <property name="spacing">
-                   <number>0</number>
-                  </property>
-                  <item>
-                   <spacer name="horizontalSpacer_3">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                  <item>
-                   <widget class="QSlider" name="verticalSlider_3">
-                    <property name="orientation">
-                     <enum>Qt::Vertical</enum>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <spacer name="horizontalSpacer_4">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                 </layout>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QVBoxLayout" name="verticalLayout_3">
-                <property name="topMargin">
-                 <number>0</number>
-                </property>
-                <item>
-                 <widget class="QLabel" name="label_3">
-                  <property name="text">
-                   <string>0</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_2">
-                  <property name="spacing">
-                   <number>0</number>
-                  </property>
-                  <item>
-                   <spacer name="horizontalSpacer_2">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                  <item>
-                   <widget class="QSlider" name="verticalSlider_2">
-                    <property name="orientation">
-                     <enum>Qt::Vertical</enum>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <spacer name="horizontalSpacer">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                 </layout>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pushButton_reset">
-            <property name="text">
-             <string>恢复图像</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pushButton_measure">
-            <property name="text">
-             <string>测量</string>
-            </property>
-            <property name="checkable">
-             <bool>true</bool>
-            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_19">
+             <item>
+              <widget class="QPushButton" name="pushButton_reset">
+               <property name="text">
+                <string>恢复图像</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pushButton_invert">
+               <property name="text">
+                <string>反相</string>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pushButton_rotate">
+               <property name="text">
+                <string> 旋转</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pushButton_contrast">
+               <property name="text">
+                <string>对比度增强</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pushButton_defects">
+               <property name="text">
+                <string>缺陷增强</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <layout class="QVBoxLayout" name="verticalLayout_2">
+               <item>
+                <widget class="QLabel" name="label">
+                 <property name="text">
+                  <string>窗宽窗位：</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout">
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_4">
+                   <property name="topMargin">
+                    <number>0</number>
+                   </property>
+                   <item>
+                    <widget class="QLabel" name="label_4">
+                     <property name="text">
+                      <string>0</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_3">
+                     <property name="spacing">
+                      <number>0</number>
+                     </property>
+                     <item>
+                      <spacer name="horizontalSpacer_3">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>40</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                     <item>
+                      <widget class="QSlider" name="verticalSlider_3">
+                       <property name="orientation">
+                        <enum>Qt::Vertical</enum>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <spacer name="horizontalSpacer_4">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>40</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                    </layout>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_3">
+                   <property name="topMargin">
+                    <number>0</number>
+                   </property>
+                   <item>
+                    <widget class="QLabel" name="label_3">
+                     <property name="text">
+                      <string>0</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_2">
+                     <property name="spacing">
+                      <number>0</number>
+                     </property>
+                     <item>
+                      <spacer name="horizontalSpacer_2">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>40</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                     <item>
+                      <widget class="QSlider" name="verticalSlider_2">
+                       <property name="minimumSize">
+                        <size>
+                         <width>0</width>
+                         <height>170</height>
+                        </size>
+                       </property>
+                       <property name="orientation">
+                        <enum>Qt::Vertical</enum>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <spacer name="horizontalSpacer">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>40</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                    </layout>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </item>
+            </layout>
            </widget>
           </item>
           <item>
@@ -1024,7 +1092,7 @@ QScrollBar::add-line:!enabled:vertical{
                                 </size>
                                </property>
                                <property name="toolTip">
-                                <string>Track</string>
+                                <string>跟踪</string>
                                </property>
                                <property name="text">
                                 <string/>
@@ -1035,6 +1103,9 @@ QScrollBar::add-line:!enabled:vertical{
                                <property name="checked">
                                 <bool>true</bool>
                                </property>
+                               <attribute name="buttonGroup">
+                                <string notr="true">buttonGroup</string>
+                               </attribute>
                               </widget>
                              </item>
                              <item>
@@ -1052,7 +1123,7 @@ QScrollBar::add-line:!enabled:vertical{
                                 </size>
                                </property>
                                <property name="toolTip">
-                                <string>Object Select</string>
+                                <string>对象选取</string>
                                </property>
                                <property name="text">
                                 <string/>
@@ -1063,6 +1134,9 @@ QScrollBar::add-line:!enabled:vertical{
                                <property name="checked">
                                 <bool>false</bool>
                                </property>
+                               <attribute name="buttonGroup">
+                                <string notr="true">buttonGroup</string>
+                               </attribute>
                               </widget>
                              </item>
                              <item>
@@ -1080,7 +1154,7 @@ QScrollBar::add-line:!enabled:vertical{
                                 </size>
                                </property>
                                <property name="toolTip">
-                                <string>Ellipse</string>
+                                <string>椭圆</string>
                                </property>
                                <property name="text">
                                 <string/>
@@ -1088,6 +1162,9 @@ QScrollBar::add-line:!enabled:vertical{
                                <property name="checkable">
                                 <bool>true</bool>
                                </property>
+                               <attribute name="buttonGroup">
+                                <string notr="true">buttonGroup</string>
+                               </attribute>
                               </widget>
                              </item>
                              <item>
@@ -1105,7 +1182,7 @@ QScrollBar::add-line:!enabled:vertical{
                                 </size>
                                </property>
                                <property name="toolTip">
-                                <string>Rectangle</string>
+                                <string>矩形</string>
                                </property>
                                <property name="text">
                                 <string/>
@@ -1113,6 +1190,9 @@ QScrollBar::add-line:!enabled:vertical{
                                <property name="checkable">
                                 <bool>true</bool>
                                </property>
+                               <attribute name="buttonGroup">
+                                <string notr="true">buttonGroup</string>
+                               </attribute>
                               </widget>
                              </item>
                              <item>
@@ -1130,7 +1210,7 @@ QScrollBar::add-line:!enabled:vertical{
                                 </size>
                                </property>
                                <property name="toolTip">
-                                <string>Line</string>
+                                <string>线</string>
                                </property>
                                <property name="text">
                                 <string/>
@@ -1138,6 +1218,9 @@ QScrollBar::add-line:!enabled:vertical{
                                <property name="checkable">
                                 <bool>true</bool>
                                </property>
+                               <attribute name="buttonGroup">
+                                <string notr="true">buttonGroup</string>
+                               </attribute>
                               </widget>
                              </item>
                              <item>
@@ -1155,7 +1238,7 @@ QScrollBar::add-line:!enabled:vertical{
                                 </size>
                                </property>
                                <property name="toolTip">
-                                <string>Text</string>
+                                <string>文字</string>
                                </property>
                                <property name="text">
                                 <string/>
@@ -1163,6 +1246,9 @@ QScrollBar::add-line:!enabled:vertical{
                                <property name="checkable">
                                 <bool>true</bool>
                                </property>
+                               <attribute name="buttonGroup">
+                                <string notr="true">buttonGroup</string>
+                               </attribute>
                               </widget>
                              </item>
                              <item>
@@ -1180,7 +1266,7 @@ QScrollBar::add-line:!enabled:vertical{
                                 </size>
                                </property>
                                <property name="toolTip">
-                                <string>undo</string>
+                                <string>撤回</string>
                                </property>
                                <property name="text">
                                 <string/>
@@ -1202,7 +1288,7 @@ QScrollBar::add-line:!enabled:vertical{
                                 </size>
                                </property>
                                <property name="toolTip">
-                                <string>redo</string>
+                                <string>恢复</string>
                                </property>
                                <property name="text">
                                 <string/>
@@ -1224,7 +1310,7 @@ QScrollBar::add-line:!enabled:vertical{
                                 </size>
                                </property>
                                <property name="toolTip">
-                                <string>Remove Object</string>
+                                <string>擦除</string>
                                </property>
                                <property name="text">
                                 <string/>
@@ -1246,7 +1332,7 @@ QScrollBar::add-line:!enabled:vertical{
                                 </size>
                                </property>
                                <property name="toolTip">
-                                <string>Clear All Object</string>
+                                <string>清空</string>
                                </property>
                                <property name="text">
                                 <string/>
@@ -1268,7 +1354,7 @@ QScrollBar::add-line:!enabled:vertical{
                                 </size>
                                </property>
                                <property name="toolTip">
-                                <string>Line Color</string>
+                                <string>线颜色</string>
                                </property>
                                <property name="styleSheet">
                                 <string notr="true"/>
@@ -1293,7 +1379,7 @@ QScrollBar::add-line:!enabled:vertical{
                                 </size>
                                </property>
                                <property name="toolTip">
-                                <string>Line Width</string>
+                                <string>线宽</string>
                                </property>
                                <property name="currentIndex">
                                 <number>0</number>
@@ -1341,7 +1427,7 @@ QScrollBar::add-line:!enabled:vertical{
                                 </size>
                                </property>
                                <property name="toolTip">
-                                <string>Font size</string>
+                                <string>字体大小</string>
                                </property>
                                <property name="currentIndex">
                                 <number>5</number>
@@ -1755,4 +1841,8 @@ QScrollBar::add-line:!enabled:vertical{
  </widget>
  <resources/>
  <connections/>
+ <buttongroups>
+  <buttongroup name="buttonGroup"/>
+  <buttongroup name="buttonGroup_2"/>
+ </buttongroups>
 </ui>

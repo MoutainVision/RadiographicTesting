@@ -6,7 +6,8 @@
 #include <QRect>
 
 #include <QScrollBar>
-
+#include <QAbstractButton>
+#include <QMouseEvent>
 
 #include "appconfig.h"
 
@@ -36,7 +37,14 @@ public:
 
     void reSize(float scale);
 
+    //正常显示
     void showNomal();
+
+    //适配屏幕
+    void showAdapt();
+
+    //恢复图像
+    void resetImg();
 
 
     void showImg();
@@ -55,6 +63,11 @@ public:
     //批处理图像
     void delImg();
 
+    //更新鼠标样式
+    void updateCursor();
+
+    void setScrollBarOffsetValues(int hValue, int vValue);
+
 private slots:
     void slotBtnClick(bool bClick);
 
@@ -63,6 +76,10 @@ private slots:
     void slot_scrollAreaYChange(int value);
 
     void slot_sliderReleased();
+
+    //--tool widget--
+    void slot_btnGroupClick(QAbstractButton *btn);
+
 
 protected:
     bool eventFilter(QObject *obj, QEvent *e);
@@ -95,7 +112,21 @@ private:
     //
     bool    mBInvert;  //反相
 
+    bool    mBMeasureOpt;
+
     QRect   mPaintRect;
+
+    //**绘制相关***
+    //鼠标
+    bool            m_bIsPress;
+    QPoint          m_PressPt;
+
+
+    //
+    CurAction           m_ePreAction;
+    CurAction           m_eCurAction;
+    DrawStatus          m_eDrawStatus;
+    DragDirection       m_eSldDragDirection;
 };
 
 #endif // RECOGNIZEWDG_H

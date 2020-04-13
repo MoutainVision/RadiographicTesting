@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
     LoginDlg dlg;
     MainWindow w;
 
-    if (dlg.exec() == QDialog::Accepted)
+//    if (dlg.exec() == QDialog::Accepted)
     {
         w.showMaximized();
         return a.exec();
