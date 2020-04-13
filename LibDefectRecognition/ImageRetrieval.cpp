@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "ImageRetrieval.h"
 
+#include "DCMIndexingFile.h"
+
 #include<io.h>
 #include<direct.h>
 
@@ -87,19 +89,21 @@ void GetFileList(vector<string> &aFileList, const string &strFolder, const strin
 }
 
 
-bool CreateIndexingFile(const char *szIndexFile)
+bool GetIndexList(vector<DCMFileIndex> &aIdxList, const char*szIndexFile)
 {
-	return false;
-}
+	fstream ifs(szIndexFile, ios::in);
+	if (ifs)
+	{
+		string str;
+		unsigned nOff, nLen;
 
-bool Append(DCMFileIndexingData data, const char *szIndexFile)
-{
-	return false;
-}
+		while (ifs >> str >> nOff >> nLen)
+		{
+			aIdxList.push_back(DCMFileIndex(str, nOff, nLen));
+		}
+	}
 
-bool GetIndexingData(vector<DCMFileIndexingData> &aIdxData, const char*szIndexFile)
-{
-	return false;
+	return true;
 }
 
 bool FileFeatEqual(const DCMFileFeat &f1, const DCMFileFeat &f2)
@@ -107,19 +111,21 @@ bool FileFeatEqual(const DCMFileFeat &f1, const DCMFileFeat &f2)
 	return false;
 }
 
-bool DefectListEqual(vector<Defect> &aDL1, vector<Defect> &aDL2)
+bool DefectListEqual(vector<Defect> &aDL1, vector<DefectFeat> &aDL2)
 {
 	return false;
 }
 
 
-void Search(vector<RetrievalResult> &aResult, DCMFile &dfile, const string &strImgLibrary)
+void Search(vector<RetrievalResult> &aResult, DCMFile &dfile, 
+	const string &strImgLibrary, 
+	const string &strIndexDataFile)
 {
 	vector<string> aFileList;
 	GetFileList(aFileList, strImgLibrary, ".idx");
 
-	vector<DCMFileIndexingData> aIdxData;
-	if (!GetIndexingData(aIdxData, aFileList[0].c_str()))
+	vector<DCMFileIndex> aIdxList;
+	if (!GetIndexList(aIdxList, aFileList[0].c_str()))
 	{
 		return;
 	}
@@ -127,34 +133,62 @@ void Search(vector<RetrievalResult> &aResult, DCMFile &dfile, const string &strI
 	RetrievalResult r;
 
 	DCMFileFeat df = dfile.getFileFeature();
-	for (size_t k = 0; k != aIdxData.size(); k++)
-	{
-		//compare df and aIdxData.at(k).fileFeat
-		if (FileFeatEqual(df, aIdxData.at(k).fileFeat))
-		{
-			r.index = k;
-			r.dSimilarity = 1.0;
-
-			return;
-		}
-	}
 
 	vector<Defect> aDefect;
-
 	DetectDefect(aDefect, dfile.GetBuffer(), dfile.GetWidth(), dfile.GetHeight());
-	for (size_t k = 0; k != aIdxData.size(); k++)
-	{
-		//compare aDefect and aIdxData.at(k).a
-		if (DefectListEqual(aDefect, aIdxData.at(k).aDefectList))
-		{
-			r.index = k;
-			r.dSimilarity = 1.0;
 
-			return;
+	for (size_t k = 0; k != aIdxList.size(); k++)
+	{
+		DCMFileIndexingData data;
+		if (DCMIndexingFile::Read(data, strIndexDataFile.c_str(), aIdxList[k]))
+		{
+			//先對比文件特征
+			if (FileFeatEqual(df, data.fileFeat))
+			{
+				r.strMatchedFile = data.strFullPath;
+
+				r.index = k;
+				r.dSimilarity = 1.0;
+
+				aResult.push_back(r);
+
+				return;
+			}
+
+			//在對比缺陷特征
+			if (DefectListEqual(aDefect, data.aDefectList))
+			{
+				r.strMatchedFile = data.strFullPath;
+
+				r.index = k;
+				r.dSimilarity = 1.0;
+
+				aResult.push_back(r);
+
+				return;
+			}
+
 		}
 	}
 
-	//image matching below...
+	//通過文件特征和缺陷特征對比都沒找到，只能進行圖像匹配了。。。
+	for (size_t k = 0; k != aIdxList.size(); k++)
+	{
+		DCMFile searchfile(aIdxList.at(k).strFullPath.c_str());
+
+		double dSimilarity = 0.0;
+		dfile.Match(dSimilarity, searchfile);
+		if (dSimilarity > 0.99)
+		{
+			RetrievalResult r;
+			r.dSimilarity = dSimilarity;
+			r.strMatchedFile = aIdxList.at(k).strFullPath;
+
+			aResult.push_back(r);
+
+			break;
+		}
+	}
 
 	return;
 }

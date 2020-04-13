@@ -24,6 +24,7 @@ enum LIBDEFECTRECOGNITION_API EDefectClass
 	DEFECT_OXIDE_INCLUSIONS
 };
 
+#pragma pack(1)
 //缺陷特征结构体
 struct LIBDEFECTRECOGNITION_API DefectFeat
 {
@@ -50,7 +51,7 @@ struct LIBDEFECTRECOGNITION_API DefectFeat
 		grey_contrast = 0.0;
 	}
 };
-
+#pragma pack()
 
 //缺陷结构体
 struct LIBDEFECTRECOGNITION_API Defect
