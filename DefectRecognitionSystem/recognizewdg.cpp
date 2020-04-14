@@ -31,6 +31,8 @@ RecognizeWdg::RecognizeWdg(QWidget *parent) :
     ui->pushButton_cross->setMouseTracking(true);
 
     mBInvert = false;
+    mBFlip   = false;
+    mBMirror = false;
 
     mSourceX = 0;
     mSourceY = 0;
@@ -51,6 +53,11 @@ RecognizeWdg::RecognizeWdg(QWidget *parent) :
     connect(ui->pushButton_invert, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_Mirror, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_Flip, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+    connect(ui->pushButton_mag, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+
+
+    connect(ui->verticalSlider_WinCentre, SIGNAL(valueChanged(int)), this, SLOT(slot_sliderWinValueChange(int)));
+    connect(ui->verticalSlider_WindWidth, SIGNAL(valueChanged(int)), this, SLOT(slot_sliderWinValueChange(int)));
 
 
     connect(ui->pushButton_next_step, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
@@ -73,6 +80,22 @@ void RecognizeWdg::slot_sliderReleased()
     delImg();
 }
 
+void RecognizeWdg::slot_sliderWinValueChange(int value)
+{
+    if (QObject::sender() == ui->verticalSlider_WinCentre)
+    {
+        mWinCentre = value;
+        ui->label_wincentre->setText(QString("%1").arg(value));
+    }
+    else if (QObject::sender() == ui->verticalSlider_WindWidth)
+    {
+        mWinWidth = value;
+        ui->label_winwidth->setText(QString("%1").arg(value));
+    }
+
+//    delImg();
+}
+
 RecognizeWdg::~RecognizeWdg()
 {
     dmfile.Release();
@@ -87,10 +110,25 @@ void RecognizeWdg::setDcmFileInfo(DcmFileNode dcmInfo)
 {
     mCurDcmFileInfo = dcmInfo;
 
+    ui->verticalSlider_WinCentre->blockSignals(true);
+    ui->verticalSlider_WindWidth->blockSignals(true);
+
+    ui->verticalSlider_WinCentre->setValue(dcmInfo.winCentre);
+    ui->verticalSlider_WindWidth->setValue(dcmInfo.windWidth);
+
+    mWinCentre = dcmInfo.winCentre;
+    mWinWidth  = dcmInfo.windWidth;
+
+
+    qDebug() << mWinCentre <<":" << mWinWidth;
+
+    ui->verticalSlider_WinCentre->blockSignals(false);
+    ui->verticalSlider_WindWidth->blockSignals(false);
+
+
     std::thread([=] {
 
         dmfile.Load(dcmInfo.filePath.toLocal8Bit().toStdString().c_str());
-
 
         FunctionTransfer::runInMainThread([=]()
         {
@@ -150,6 +188,12 @@ void RecognizeWdg::resetImg()
 {
     ui->pushButton_invert->setChecked(false);
     mBInvert = false;
+
+    ui->pushButton_Mirror->setChecked(false);
+    mBMirror = false;
+
+    ui->pushButton_Flip->setChecked(false);
+    mBFlip = false;
 
     //ÊÊÅäÏÔÊ¾
     showAdapt();
@@ -342,30 +386,60 @@ void RecognizeWdg::slotBtnClick(bool bClick)
         mBInvert = ui->pushButton_invert->isChecked();
         delImg();
     }
+    else if (QObject::sender() == ui->pushButton_Flip)
+    {
+        mBFlip = ui->pushButton_Flip->isChecked();
+        delImg();
+    }
+    else if (QObject::sender() == ui->pushButton_Mirror)
+    {
+        mBMirror = ui->pushButton_Mirror->isChecked();
+        delImg();
+    }
 }
 
 void RecognizeWdg::delImg()
 {
-    //É¾³ý
-    delete []m_pImgPro;
-    m_pImgPro = NULL;
+//    std::thread([=] {
+        //É¾³ý
+        delete []m_pImgPro;
+        m_pImgPro = NULL;
 
-    //¿½±´
-    m_pImgPro = new unsigned short[mSrcImgWidth * mSrcImgHeight];
-    memcpy(m_pImgPro, m_pSrcImg, mSrcImgWidth*mSrcImgHeight*sizeof(unsigned short));
+        //¿½±´
+        m_pImgPro = new unsigned short[mSrcImgWidth * mSrcImgHeight];
+        memcpy(m_pImgPro, m_pSrcImg, mSrcImgWidth*mSrcImgHeight*sizeof(unsigned short));
 
-    mCurImgWidth  = mSrcImgWidth;
-    mCurImgHeight = mSrcImgHeight;
+        mCurImgWidth  = mSrcImgWidth;
+        mCurImgHeight = mSrcImgHeight;
 
-    //·´Ïà
-    if (mBInvert)
-        Invert(m_pImgPro, mCurImgWidth, mCurImgHeight);
+        //·´Ïà
+        if (mBInvert)
+            Invert(m_pImgPro, mCurImgWidth, mCurImgHeight);
 
-    //resize
-    reSize(mScale);
+        //¾µÏñ
+        if (mBMirror)
+            Mirror(m_pImgPro, mCurImgWidth, mCurImgHeight);
 
-    //ÏÔÊ¾
-    showImg(m_pImgPro, mCurImgWidth, mCurImgHeight);
+        //·­×ª
+        if (mBFlip)
+            Flip(m_pImgPro, mCurImgWidth, mCurImgHeight);
+
+        //´°¿í´°Î»
+//        WindowLevelTransform(m_pImgPro, mCurImgWidth, mCurImgHeight, mWinCentre, mWinWidth);
+
+        //resize
+        reSize(mScale);
+
+        mBDelImging = false;
+
+        FunctionTransfer::runInMainThread([=]()
+        {
+            //ÏÔÊ¾
+            showImg(m_pImgPro, mCurImgWidth, mCurImgHeight);
+        });
+
+//    }).detach();
+
 }
 
 

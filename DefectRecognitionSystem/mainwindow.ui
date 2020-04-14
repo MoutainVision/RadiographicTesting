@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1035</width>
-    <height>681</height>
+    <width>1347</width>
+    <height>943</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -41,8 +41,11 @@
        </property>
        <item>
         <widget class="QTabWidget" name="tabWidget">
+         <property name="tabPosition">
+          <enum>QTabWidget::West</enum>
+         </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>2</number>
          </property>
          <widget class="QWidget" name="tab">
           <attribute name="title">
@@ -135,14 +138,411 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>254</width>
-                <height>555</height>
+                <width>259</width>
+                <height>836</height>
                </rect>
               </property>
              </widget>
             </widget>
            </item>
           </layout>
+         </widget>
+         <widget class="QWidget" name="tab_3">
+          <attribute name="title">
+           <string>识别</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_9">
+           <item>
+            <widget class="QGroupBox" name="groupBox">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="title">
+              <string>常规</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_17">
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_2">
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QPushButton" name="pushButton_adapt">
+                  <property name="text">
+                   <string> 适应屏幕</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>false</bool>
+                  </property>
+                  <property name="checked">
+                   <bool>false</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="pushButton_nomal">
+                  <property name="text">
+                   <string>1:1</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>false</bool>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_3">
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QPushButton" name="pushButton_mag">
+                  <property name="text">
+                   <string> 放大镜</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="pushButton_rotate">
+                  <property name="text">
+                   <string> 旋转</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_16">
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QPushButton" name="pushButton_measure">
+                  <property name="text">
+                   <string>测量</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="pushButton_measure_table">
+                  <property name="text">
+                   <string>显示测量表格</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="groupBox_2">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>30</height>
+              </size>
+             </property>
+             <property name="title">
+              <string> 调整</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_19">
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_17">
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QPushButton" name="pushButton_reset">
+                  <property name="text">
+                   <string>恢复图像</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="pushButton_invert">
+                  <property name="text">
+                   <string>反相</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_18">
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QPushButton" name="pushButton_Flip">
+                  <property name="text">
+                   <string>翻转</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="pushButton_Mirror">
+                  <property name="text">
+                   <string>镜像</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_19">
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QPushButton" name="pushButton_defects">
+                  <property name="text">
+                   <string>缺陷增强</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="pushButton_contrast">
+                  <property name="text">
+                   <string>对比度增强</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout_6">
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_20">
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QLabel" name="label">
+                    <property name="text">
+                     <string>窗宽窗位：</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="pushButton_reset_wind">
+                    <property name="text">
+                     <string> 重置</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_6">
+                  <item>
+                   <layout class="QVBoxLayout" name="verticalLayout_7">
+                    <property name="topMargin">
+                     <number>0</number>
+                    </property>
+                    <item>
+                     <widget class="QLabel" name="label_wincentre">
+                      <property name="text">
+                       <string>1</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <layout class="QHBoxLayout" name="horizontalLayout_8">
+                      <property name="spacing">
+                       <number>0</number>
+                      </property>
+                      <item>
+                       <spacer name="horizontalSpacer_4">
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>40</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                      <item>
+                       <widget class="QSlider" name="verticalSlider_WinCentre">
+                        <property name="toolTip">
+                         <string>窗宽</string>
+                        </property>
+                        <property name="minimum">
+                         <number>1</number>
+                        </property>
+                        <property name="maximum">
+                         <number>65535</number>
+                        </property>
+                        <property name="invertedAppearance">
+                         <bool>true</bool>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <spacer name="horizontalSpacer_5">
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>40</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                     </layout>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <layout class="QVBoxLayout" name="verticalLayout_8">
+                    <property name="topMargin">
+                     <number>0</number>
+                    </property>
+                    <item>
+                     <widget class="QLabel" name="label_winwidth">
+                      <property name="text">
+                       <string>1</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <layout class="QHBoxLayout" name="horizontalLayout_9">
+                      <property name="spacing">
+                       <number>0</number>
+                      </property>
+                      <item>
+                       <spacer name="horizontalSpacer_6">
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>40</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                      <item>
+                       <widget class="QSlider" name="verticalSlider_WindWidth">
+                        <property name="minimumSize">
+                         <size>
+                          <width>0</width>
+                          <height>170</height>
+                         </size>
+                        </property>
+                        <property name="toolTip">
+                         <string>窗宽</string>
+                        </property>
+                        <property name="minimum">
+                         <number>1</number>
+                        </property>
+                        <property name="maximum">
+                         <number>65535</number>
+                        </property>
+                        <property name="value">
+                         <number>1</number>
+                        </property>
+                        <property name="orientation">
+                         <enum>Qt::Vertical</enum>
+                        </property>
+                        <property name="invertedAppearance">
+                         <bool>true</bool>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <spacer name="horizontalSpacer_8">
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>40</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                     </layout>
+                    </item>
+                   </layout>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>359</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="tab_4">
+          <attribute name="title">
+           <string> 查重</string>
+          </attribute>
          </widget>
         </widget>
        </item>
@@ -151,11 +551,8 @@
     </item>
     <item>
      <widget class="QWidget" name="widget_right" native="true">
-      <layout class="QVBoxLayout" name="verticalLayout" stretch="1,0">
-       <item>
-        <widget class="QWidget" name="widget_img" native="true">
-         <property name="styleSheet">
-          <string notr="true">
+      <property name="styleSheet">
+       <string notr="true">
 /*tab*/
 QTabWidget#tabWidget_main::tab-bar
 {
@@ -230,46 +627,248 @@ QSlider::add-page:vertical {
     background:transparent;
  }
 
+/*工具栏*/
+QWidget#widget_tool
+{
+    padding: 0px 11px 0px 11px;
 
+    border-width: 0px 11px 0px 11px;
+    border-image:url(:/imgs/tool_bar.png)0 11 0 11 repeat repeat;
+}
+
+/*手*/
+QPushButton#pushButton_hand
+{
+        border-image:url(:/imgs/hand_normal.png);
+}
+
+QPushButton#pushButton_hand:hover
+{
+        border-image:url(:/imgs/hand_hover.png);
+}
+
+QPushButton#pushButton_hand:checked
+{
+        border-image:url(:/imgs/hand_active.png);
+}
+
+/*箭头*/
+QPushButton#pushButton_arrow
+{
+        border-image:url(:/imgs/arrow_normal.png);
+}
+
+QPushButton#pushButton_arrow:hover
+{
+        border-image:url(:/imgs/arrow_hover.png);
+}
+
+QPushButton#pushButton_arrow:checked
+{
+        border-image:url(:/imgs/arrow_active.png);
+}
+
+QPushButton#pushButton_ellipse
+{
+        border-image:url(:/imgs/circle_normal.png);
+}
+
+QPushButton#pushButton_ellipse:hover
+{
+        border-image:url(:/imgs/circle_hover.png);
+}
+
+QPushButton#pushButton_ellipse:checked
+{
+        border-image:url(:/imgs/circle_active.png);
+}
+
+
+QPushButton#pushButton_rect
+{
+        border-image:url(:/imgs/b_rectangle_normal.png);
+}
+
+QPushButton#pushButton_rect:hover
+{
+        border-image:url(:/imgs/b_rectangle_hover.png);
+}
+
+QPushButton#pushButton_rect:checked
+{
+        border-image:url(:/imgs/b_rectangle_active.png);
+}
+
+QPushButton#pushButton_line
+{
+        border-image:url(:/imgs/line_normal.png);
+}
+
+QPushButton#pushButton_line:hover
+{
+        border-image:url(:/imgs/line_hover.png);
+}
+
+QPushButton#pushButton_line:checked
+{
+        border-image:url(:/imgs/line_active.png);
+}
+
+QPushButton#pushButton_text
+{
+        border-image:url(:/imgs/text_normal.png);
+}
+
+QPushButton#pushButton_text:hover
+{
+        border-image:url(:/imgs/text_hover.png);
+}
+
+QPushButton#pushButton_text:checked
+{
+        border-image:url(:/imgs/text_active.png);
+}
 
 QPushButton#pushButton_pre
 {
-        border-image:url(:/imgs/prev_normal_big.png);
+        border-image:url(:/imgs/undo_normal.png);
 }
 
 QPushButton#pushButton_pre:hover
 {
-        border-image:url(:/imgs/prev_normal_big.png);
+        border-image:url(:/imgs/undo_hover.png);
 }
 
 QPushButton#pushButton_pre:pressed
 {
-        border-image:url(:/imgs/prev_normal_big.png);
+        border-image:url(:/imgs/undo_active.png);
 }
 
 QPushButton#pushButton_pre:!enabled
 {
-        border-image:url(:/imgs/prev_gray.png);
+        border-image:url(:/imgs/undo_disable.png);
 }
 
 QPushButton#pushButton_next
 {
-        border-image:url(:/imgs/next_normal_big.png);
+        border-image:url(:/imgs/redo_normal.png);
 }
 
 QPushButton#pushButton_next:hover
 {
-        border-image:url(:/imgs/next_normal_big.png);
+        border-image:url(:/imgs/redo_hover.png);
 }
 
 QPushButton#pushButton_next:pressed
 {
-        border-image:url(:/imgs/next_normal_big.png);
+        border-image:url(:/imgs/redo_active.png);
 }
 
 QPushButton#pushButton_next:!enabled
 {
-        border-image:url(:/imgs/next_gray.png);
+        border-image:url(:/imgs/redo_disable.png);
+}
+
+QPushButton#pushButton_pre_big
+{
+        border-image:url(:/imgs/prev_normal_big.png);
+}
+
+QPushButton#pushButton_next_big
+{
+        border-image:url(:/imgs/next_normal_big.png);
+}
+
+QPushButton#pushButton_delete
+{
+        border-image:url(:/imgs/del_normal.png);
+}
+
+QPushButton#pushButton_delete:hover
+{
+        border-image:url(:/imgs/del_hover.png);
+}
+
+QPushButton#pushButton_delete:pressed
+{
+        border-image:url(:/imgs/del_active.png);
+}
+
+QPushButton#pushButton_eraser
+{
+        border-image:url(:/imgs/eraser_normal.png);
+}
+
+QPushButton#pushButton_eraser:hover
+{
+        border-image:url(:/imgs/eraser_hover.png);
+}
+
+QPushButton#pushButton_eraser:pressed
+{
+        border-image:url(:/imgs/eraser_active.png);
+}
+
+QPushButton#pushButton_color
+{
+    background-color: rgb(255, 0, 0);
+    border:1px solid #707070;
+}
+
+QPushButton#pushButton_color:hover
+{
+    border:1px solid #6cb8ff;
+}
+
+QPushButton#pushButton_color:pressed
+{
+    border:1px solid #95ccff;
+}
+
+/*放大缩小*/
+QPushButton#pushButton_zoomin
+{
+    border-image:url(:/imgs/btn_zoom_+_trans.png);
+}
+QPushButton#pushButton_zoomin:hover
+{
+    border-image:url(:/imgs/btn_zoom_+_hover.png);
+}
+QPushButton#pushButton_zoomin:pressed
+{
+    border-image:url(:/imgs/btn_zoom_+_normal.png);
+}
+
+QPushButton#pushButton_zoomout
+{
+    border-image:url(:/imgs/btn_zoom_-_trans.png);
+}
+QPushButton#pushButton_zoomout:hover
+{
+    border-image:url(:/imgs/btn_zoom_-_hover.png);
+}
+QPushButton#pushButton_zoomout:pressed
+{
+    border-image:url(:/imgs/btn_zoom_-_normal.png);
+}
+
+
+/*分割*/
+QPushButton#pushButton_seg
+{
+    border:none;
+
+    image:url(:/imgs/seg_normal.png);
+}
+
+QPushButton#pushButton_seg:hover
+{
+    image:url(:/imgs/seg_hover.png);
+}
+
+QPushButton#pushButton_seg:pressed
+{
+    image:url(:/imgs/seg_active.png);
 }
 
 /*全屏*/
@@ -288,9 +887,194 @@ QPushButton#pushButton_full:pressed
 {
     image:url(:/imgs/full_active.png);
 }
+
+QScrollBar:horizontal  {
+    height: 17px;
+    border-width:0px 8px 0px 8px;
+    border-image: url(:/imgs/m_scrollbar_bg.png) 0 8 0 8 repeat repeat;
+        padding-right:0px;
+        padding-left:0px;
+}
+
+QScrollBar::handle:horizontal  {
+   min-width:17px;
+   border-width: 0px 8px 0px 8px;
+   border-image: url(:/imgs/m_scrollbar_chunk.png)0 8 0 8 repeat repeat;
+        margin-left:9px;
+        margin-right:9px;
+}
+
+QScrollBar::handle:hover:horizontal  {
+    border-image: url(:/imgs/m_scrollbar_chunk.png)0 8 0 8 repeat repeat;
+}
+
+QScrollBar::handle:pressed:horizontal  {
+    border-image: url(:/imgs/m_scrollbar_chunk.png)0 8 0 8 repeat repeat;
+}
+
+QScrollBar::handle:!enabled:horizontal  {
+    border-image: url(:/imgs/m_scrollbar_chunk.png)0 8 0 8 repeat repeat;
+}
+
+QScrollBar::add-page:horizontal
+{
+    border:none;
+    background:transparent;
+}
+
+QScrollBar::sub-page:horizontal
+{
+    border:none;
+    background:transparent;
+}
+
+QScrollBar::sub-line:horizontal  {
+   width: 16px;
+   height: 17px;
+
+   subcontrol-position: left;
+   subcontrol-origin: margin;
+        left:1px;
+   background-image: url(:/imgs/m_scrollbar_Left_normal.png);
+}
+
+QScrollBar::sub-line:hover:horizontal{
+   background-image: url(:/imgs/m_scrollbar_Left_hover.png);
+}
+
+QScrollBar::sub-line:pressed:horizontal{
+   background-image: url(:/imgs/m_scrollbar_Left_active.png);
+}
+
+QScrollBar::sub-line:!enabled:horizontal{
+   background-image: url(:/imgs/m_scrollbar_Left_normal.png);
+}
+
+QScrollBar::add-line:horizontal  {
+    width: 16px;
+    height: 17px;
+        right:1px;
+    subcontrol-position: right;
+    subcontrol-origin: margin;
+    background-image: url(:/imgs/m_scrollbar_right_normal.png);
+}
+
+QScrollBar::add-line:hover:horizontal{
+   background-image: url(:/imgs/m_scrollbar_right_hover.png);
+}
+
+QScrollBar::add-line:pressed:horizontal{
+   background-image: url(:/imgs/m_scrollbar_right_active.png);
+}
+
+QScrollBar::add-line:!enabled:horizontal{
+   background-image: url(:/imgs/m_scrollbar_right_normal.png);
+}
+
+QScrollBar:vertical  {
+    width: 17px;
+    border-width:8px 0px 8px 0px;
+    border-image: url(:/imgs/m_vscrollbar_bg.png) 8 0 8 0 repeat repeat;
+        margin-top: 0px;
+}
+
+QScrollBar::handle:vertical  {
+   min-height:17px;
+   border-width: 8px 0px 8px 0px;
+   border-image: url(:/imgs/m_vscrollbar_chunk.png) 8 0 8 0 repeat repeat;
+        margin-top:22px;
+        margin-bottom:9px;
+}
+
+QScrollBar::handle:hover:vertical  {
+    border-image: url(:/imgs/m_vscrollbar_chunk.png) 8 0 8 0 repeat repeat;
+}
+
+QScrollBar::handle:pressed:vertical  {
+    border-image: url(:/imgs/m_vscrollbar_chunk.png) 8 0 8 0 repeat repeat;
+}
+
+QScrollBar::handle:!enabled:vertical  {
+    border-image: url(:/imgs/m_vscrollbar_chunk.png) 8 0 8 0 repeat repeat;
+}
+
+QScrollBar::add-page:vertical
+{
+    border:none;
+    background:transparent;
+}
+
+QScrollBar::sub-page:vertical
+{
+    border:none;
+    background:transparent;
+}
+
+QScrollBar::sub-line:vertical{
+   height: 16px;
+   width: 17px;
+   subcontrol-position:up;
+   subcontrol-origin: margin;
+        top:1px;
+   background-image: url(:/imgs/m_scrollbar_up_normal.png);
+}
+
+QScrollBar::sub-line:hover:vertical{
+   background-image: url(:/imgs/m_scrollbar_up_hover.png);
+}
+
+QScrollBar::sub-line:pressed:vertical{
+   background-image: url(:/imgs/m_scrollbar_up_active.png);
+}
+
+QScrollBar::sub-line:!enabled:vertical{
+   background-image: url(:/imgs/m_scrollbar_up_normal.png);
+}
+
+QScrollBar::add-line:vertical{
+    height: 16px;
+    width: 17px;
+        bottom:1px;
+    subcontrol-position: bottom;
+    subcontrol-origin: margin;
+    background-image: url(:/imgs/m_scrollbar_down_normal.png);
+}
+
+QScrollBar::add-line:hover:vertical{
+   background-image: url(:/imgs/m_scrollbar_down_hover.png);
+}
+
+QScrollBar::add-line:pressed:vertical{
+   background-image: url(:/imgs/m_scrollbar_down_active.png);
+}
+
+QScrollBar::add-line:!enabled:vertical{
+   background-image: url(:/imgs/m_scrollbar_down_normal.png);
+}
 </string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QWidget" name="widget_img" native="true">
+         <property name="styleSheet">
+          <string notr="true"/>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_5">
+         <layout class="QVBoxLayout" name="verticalLayout_18">
           <property name="leftMargin">
            <number>0</number>
           </property>
@@ -304,237 +1088,912 @@ QPushButton#pushButton_full:pressed
            <number>0</number>
           </property>
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_11" stretch="1,0,0">
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
+           <layout class="QHBoxLayout" name="horizontalLayout_7" stretch="0">
+            <property name="spacing">
              <number>0</number>
             </property>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_2">
-              <property name="leftMargin">
-               <number>20</number>
-              </property>
-              <property name="rightMargin">
-               <number>20</number>
-              </property>
-              <item>
-               <widget class="QPushButton" name="pushButton_pre">
-                <property name="minimumSize">
-                 <size>
-                  <width>64</width>
-                  <height>64</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>64</width>
-                  <height>64</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_3">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pushButton_next">
-                <property name="minimumSize">
-                 <size>
-                  <width>64</width>
-                  <height>64</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>64</width>
-                  <height>64</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QVBoxLayout" name="verticalLayout_15">
+             <layout class="QVBoxLayout" name="verticalLayout_12" stretch="0,1">
               <property name="spacing">
-               <number>10</number>
-              </property>
-              <property name="rightMargin">
                <number>0</number>
               </property>
-              <property name="bottomMargin">
+              <property name="topMargin">
                <number>0</number>
               </property>
               <item>
-               <spacer name="verticalSpacer_3">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
+               <widget class="QWidget" name="widget_img_pre" native="true">
+                <property name="styleSheet">
+                 <string notr="true"/>
                 </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>40</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pushButton_cross">
-                <property name="minimumSize">
-                 <size>
-                  <width>31</width>
-                  <height>31</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>31</width>
-                  <height>31</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="checkable">
-                 <bool>true</bool>
-                </property>
+                <layout class="QVBoxLayout" name="verticalLayout_13" stretch="0">
+                 <property name="spacing">
+                  <number>0</number>
+                 </property>
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <layout class="QHBoxLayout" name="horizontalLayout_10">
+                   <property name="spacing">
+                    <number>0</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>0</number>
+                   </property>
+                   <item>
+                    <layout class="QVBoxLayout" name="verticalLayout_14" stretch="1,0,0">
+                     <property name="spacing">
+                      <number>0</number>
+                     </property>
+                     <property name="bottomMargin">
+                      <number>0</number>
+                     </property>
+                     <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_11" stretch="0,1,0,0,0">
+                       <property name="leftMargin">
+                        <number>6</number>
+                       </property>
+                       <property name="bottomMargin">
+                        <number>0</number>
+                       </property>
+                       <item>
+                        <widget class="QPushButton" name="pushButton_pre_big">
+                         <property name="minimumSize">
+                          <size>
+                           <width>64</width>
+                           <height>64</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>64</width>
+                           <height>64</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string/>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <spacer name="horizontalSpacer_7">
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>40</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                       <item>
+                        <widget class="QPushButton" name="pushButton_next_big">
+                         <property name="minimumSize">
+                          <size>
+                           <width>64</width>
+                           <height>64</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>64</width>
+                           <height>64</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string/>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <layout class="QVBoxLayout" name="verticalLayout_15">
+                         <property name="spacing">
+                          <number>10</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                         <item>
+                          <spacer name="verticalSpacer_3">
+                           <property name="orientation">
+                            <enum>Qt::Vertical</enum>
+                           </property>
+                           <property name="sizeHint" stdset="0">
+                            <size>
+                             <width>20</width>
+                             <height>40</height>
+                            </size>
+                           </property>
+                          </spacer>
+                         </item>
+                         <item>
+                          <widget class="QPushButton" name="pushButton_cross">
+                           <property name="minimumSize">
+                            <size>
+                             <width>31</width>
+                             <height>31</height>
+                            </size>
+                           </property>
+                           <property name="maximumSize">
+                            <size>
+                             <width>31</width>
+                             <height>31</height>
+                            </size>
+                           </property>
+                           <property name="text">
+                            <string/>
+                           </property>
+                           <property name="checkable">
+                            <bool>true</bool>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <layout class="QHBoxLayout" name="horizontalLayout_12">
+                           <property name="spacing">
+                            <number>0</number>
+                           </property>
+                           <property name="bottomMargin">
+                            <number>0</number>
+                           </property>
+                           <item>
+                            <widget class="QSlider" name="verticalSlider_diameter">
+                             <property name="minimumSize">
+                              <size>
+                               <width>0</width>
+                               <height>200</height>
+                              </size>
+                             </property>
+                             <property name="maximumSize">
+                              <size>
+                               <width>16777215</width>
+                               <height>200</height>
+                              </size>
+                             </property>
+                             <property name="styleSheet">
+                              <string notr="true"/>
+                             </property>
+                             <property name="value">
+                              <number>99</number>
+                             </property>
+                             <property name="orientation">
+                              <enum>Qt::Vertical</enum>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
+                         </item>
+                         <item>
+                          <widget class="QLineEdit" name="lineEdit_diameter">
+                           <property name="minimumSize">
+                            <size>
+                             <width>31</width>
+                             <height>0</height>
+                            </size>
+                           </property>
+                           <property name="maximumSize">
+                            <size>
+                             <width>31</width>
+                             <height>16777215</height>
+                            </size>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
+                       </item>
+                       <item>
+                        <spacer name="horizontalSpacer_9">
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                         </property>
+                         <property name="sizeType">
+                          <enum>QSizePolicy::Fixed</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>15</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                      </layout>
+                     </item>
+                     <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_13">
+                       <property name="leftMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="rightMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="bottomMargin">
+                        <number>0</number>
+                       </property>
+                       <item>
+                        <spacer name="horizontalSpacer_10">
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>40</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                       <item>
+                        <widget class="QWidget" name="widget_tool" native="true">
+                         <property name="minimumSize">
+                          <size>
+                           <width>800</width>
+                           <height>50</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>800</width>
+                           <height>50</height>
+                          </size>
+                         </property>
+                         <property name="styleSheet">
+                          <string notr="true"/>
+                         </property>
+                         <layout class="QHBoxLayout" name="horizontalLayout_14">
+                          <property name="spacing">
+                           <number>0</number>
+                          </property>
+                          <property name="leftMargin">
+                           <number>10</number>
+                          </property>
+                          <property name="topMargin">
+                           <number>4</number>
+                          </property>
+                          <property name="rightMargin">
+                           <number>10</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>4</number>
+                          </property>
+                          <item>
+                           <widget class="QPushButton" name="pushButton_hand">
+                            <property name="minimumSize">
+                             <size>
+                              <width>42</width>
+                              <height>42</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>42</width>
+                              <height>42</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string>跟踪</string>
+                            </property>
+                            <property name="text">
+                             <string/>
+                            </property>
+                            <property name="checkable">
+                             <bool>true</bool>
+                            </property>
+                            <property name="checked">
+                             <bool>true</bool>
+                            </property>
+                            <attribute name="buttonGroup">
+                             <string notr="true">buttonGroup</string>
+                            </attribute>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="pushButton_arrow">
+                            <property name="minimumSize">
+                             <size>
+                              <width>42</width>
+                              <height>42</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>42</width>
+                              <height>42</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string>对象选取</string>
+                            </property>
+                            <property name="text">
+                             <string/>
+                            </property>
+                            <property name="checkable">
+                             <bool>true</bool>
+                            </property>
+                            <property name="checked">
+                             <bool>false</bool>
+                            </property>
+                            <attribute name="buttonGroup">
+                             <string notr="true">buttonGroup</string>
+                            </attribute>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="pushButton_ellipse">
+                            <property name="minimumSize">
+                             <size>
+                              <width>42</width>
+                              <height>42</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>42</width>
+                              <height>42</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string>椭圆</string>
+                            </property>
+                            <property name="text">
+                             <string/>
+                            </property>
+                            <property name="checkable">
+                             <bool>true</bool>
+                            </property>
+                            <attribute name="buttonGroup">
+                             <string notr="true">buttonGroup</string>
+                            </attribute>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="pushButton_rect">
+                            <property name="minimumSize">
+                             <size>
+                              <width>42</width>
+                              <height>42</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>42</width>
+                              <height>42</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string>矩形</string>
+                            </property>
+                            <property name="text">
+                             <string/>
+                            </property>
+                            <property name="checkable">
+                             <bool>true</bool>
+                            </property>
+                            <attribute name="buttonGroup">
+                             <string notr="true">buttonGroup</string>
+                            </attribute>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="pushButton_line">
+                            <property name="minimumSize">
+                             <size>
+                              <width>42</width>
+                              <height>42</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>42</width>
+                              <height>42</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string>线</string>
+                            </property>
+                            <property name="text">
+                             <string/>
+                            </property>
+                            <property name="checkable">
+                             <bool>true</bool>
+                            </property>
+                            <attribute name="buttonGroup">
+                             <string notr="true">buttonGroup</string>
+                            </attribute>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="pushButton_text">
+                            <property name="minimumSize">
+                             <size>
+                              <width>42</width>
+                              <height>42</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>42</width>
+                              <height>42</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string>文字</string>
+                            </property>
+                            <property name="text">
+                             <string/>
+                            </property>
+                            <property name="checkable">
+                             <bool>true</bool>
+                            </property>
+                            <attribute name="buttonGroup">
+                             <string notr="true">buttonGroup</string>
+                            </attribute>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="pushButton_pre">
+                            <property name="minimumSize">
+                             <size>
+                              <width>42</width>
+                              <height>42</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>42</width>
+                              <height>42</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string>撤回</string>
+                            </property>
+                            <property name="text">
+                             <string/>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="pushButton_next">
+                            <property name="minimumSize">
+                             <size>
+                              <width>42</width>
+                              <height>42</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>42</width>
+                              <height>42</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string>恢复</string>
+                            </property>
+                            <property name="text">
+                             <string/>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="pushButton_eraser">
+                            <property name="minimumSize">
+                             <size>
+                              <width>42</width>
+                              <height>42</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>42</width>
+                              <height>42</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string>擦除</string>
+                            </property>
+                            <property name="text">
+                             <string/>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="pushButton_delete">
+                            <property name="minimumSize">
+                             <size>
+                              <width>42</width>
+                              <height>42</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>42</width>
+                              <height>42</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string>清空</string>
+                            </property>
+                            <property name="text">
+                             <string/>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="pushButton_color">
+                            <property name="minimumSize">
+                             <size>
+                              <width>27</width>
+                              <height>27</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>27</width>
+                              <height>27</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string>线颜色</string>
+                            </property>
+                            <property name="styleSheet">
+                             <string notr="true"/>
+                            </property>
+                            <property name="text">
+                             <string/>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QComboBox" name="comboBox_linebold">
+                            <property name="minimumSize">
+                             <size>
+                              <width>120</width>
+                              <height>26</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>125</width>
+                              <height>26</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string>线宽</string>
+                            </property>
+                            <property name="currentIndex">
+                             <number>0</number>
+                            </property>
+                            <property name="iconSize">
+                             <size>
+                              <width>80</width>
+                              <height>25</height>
+                             </size>
+                            </property>
+                            <item>
+                             <property name="text">
+                              <string>1</string>
+                             </property>
+                            </item>
+                            <item>
+                             <property name="text">
+                              <string>2</string>
+                             </property>
+                            </item>
+                            <item>
+                             <property name="text">
+                              <string>3</string>
+                             </property>
+                            </item>
+                            <item>
+                             <property name="text">
+                              <string>4</string>
+                             </property>
+                            </item>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QComboBox" name="comboBox_fontsize">
+                            <property name="minimumSize">
+                             <size>
+                              <width>60</width>
+                              <height>26</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>60</width>
+                              <height>26</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string>字体大小</string>
+                            </property>
+                            <property name="currentIndex">
+                             <number>5</number>
+                            </property>
+                            <item>
+                             <property name="text">
+                              <string>16</string>
+                             </property>
+                            </item>
+                            <item>
+                             <property name="text">
+                              <string>18</string>
+                             </property>
+                            </item>
+                            <item>
+                             <property name="text">
+                              <string>20</string>
+                             </property>
+                            </item>
+                            <item>
+                             <property name="text">
+                              <string>22</string>
+                             </property>
+                            </item>
+                            <item>
+                             <property name="text">
+                              <string>24</string>
+                             </property>
+                            </item>
+                            <item>
+                             <property name="text">
+                              <string>30</string>
+                             </property>
+                            </item>
+                            <item>
+                             <property name="text">
+                              <string>35</string>
+                             </property>
+                            </item>
+                            <item>
+                             <property name="text">
+                              <string>40</string>
+                             </property>
+                            </item>
+                            <item>
+                             <property name="text">
+                              <string>45</string>
+                             </property>
+                            </item>
+                            <item>
+                             <property name="text">
+                              <string>50</string>
+                             </property>
+                            </item>
+                           </widget>
+                          </item>
+                         </layout>
+                        </widget>
+                       </item>
+                       <item>
+                        <spacer name="horizontalSpacer_11">
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>40</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                      </layout>
+                     </item>
+                     <item>
+                      <widget class="QScrollBar" name="horizontalScrollBar">
+                       <property name="value">
+                        <number>0</number>
+                       </property>
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <widget class="QScrollBar" name="verticalScrollBar">
+                     <property name="value">
+                      <number>99</number>
+                     </property>
+                     <property name="orientation">
+                      <enum>Qt::Vertical</enum>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
                </widget>
               </item>
               <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_7">
-                <property name="spacing">
-                 <number>0</number>
-                </property>
-                <property name="bottomMargin">
-                 <number>0</number>
-                </property>
-                <item>
-                 <widget class="QSlider" name="verticalSlider_diameter">
-                  <property name="minimumSize">
-                   <size>
-                    <width>0</width>
-                    <height>200</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>16777215</width>
-                    <height>200</height>
-                   </size>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true"/>
-                  </property>
-                  <property name="value">
-                   <number>99</number>
-                  </property>
-                  <property name="orientation">
-                   <enum>Qt::Vertical</enum>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <widget class="QLineEdit" name="lineEdit_diameter">
+               <widget class="QWidget" name="widget_measure" native="true">
                 <property name="minimumSize">
                  <size>
-                  <width>31</width>
-                  <height>0</height>
+                  <width>0</width>
+                  <height>150</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>31</width>
-                  <height>16777215</height>
+                  <width>16777215</width>
+                  <height>250</height>
                  </size>
                 </property>
+                <layout class="QVBoxLayout" name="verticalLayout_16">
+                 <property name="spacing">
+                  <number>0</number>
+                 </property>
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QWidget" name="widget_dragLine" native="true">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>3</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>16777215</width>
+                     <height>3</height>
+                    </size>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true"/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QWidget" name="widget_2" native="true">
+                   <layout class="QHBoxLayout" name="horizontalLayout_15">
+                    <property name="topMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="bottomMargin">
+                     <number>2</number>
+                    </property>
+                    <item>
+                     <widget class="QLabel" name="label_title">
+                      <property name="text">
+                       <string> 测量数据</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <spacer name="horizontalSpacer_12">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>793</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QTableWidget" name="tableWidget_measure">
+                   <property name="editTriggers">
+                    <set>QAbstractItemView::NoEditTriggers</set>
+                   </property>
+                   <property name="alternatingRowColors">
+                    <bool>true</bool>
+                   </property>
+                   <property name="selectionMode">
+                    <enum>QAbstractItemView::SingleSelection</enum>
+                   </property>
+                   <property name="selectionBehavior">
+                    <enum>QAbstractItemView::SelectRows</enum>
+                   </property>
+                   <attribute name="horizontalHeaderStretchLastSection">
+                    <bool>true</bool>
+                   </attribute>
+                   <attribute name="verticalHeaderVisible">
+                    <bool>false</bool>
+                   </attribute>
+                   <column>
+                    <property name="text">
+                     <string>Index</string>
+                    </property>
+                   </column>
+                   <column>
+                    <property name="text">
+                     <string>Name</string>
+                    </property>
+                   </column>
+                   <column>
+                    <property name="text">
+                     <string>Start</string>
+                    </property>
+                   </column>
+                   <column>
+                    <property name="text">
+                     <string>End</string>
+                    </property>
+                   </column>
+                   <column>
+                    <property name="text">
+                     <string>Center</string>
+                    </property>
+                   </column>
+                   <column>
+                    <property name="text">
+                     <string>Width</string>
+                    </property>
+                   </column>
+                   <column>
+                    <property name="text">
+                     <string>Height</string>
+                    </property>
+                   </column>
+                   <column>
+                    <property name="text">
+                     <string>Major Axis</string>
+                    </property>
+                   </column>
+                   <column>
+                    <property name="text">
+                     <string>Minor Axis</string>
+                    </property>
+                   </column>
+                   <column>
+                    <property name="text">
+                     <string>Angle</string>
+                    </property>
+                   </column>
+                   <column>
+                    <property name="text">
+                     <string>Area</string>
+                    </property>
+                   </column>
+                   <column>
+                    <property name="text">
+                     <string>Perimeter</string>
+                    </property>
+                   </column>
+                  </widget>
+                 </item>
+                </layout>
                </widget>
               </item>
              </layout>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_7">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeType">
-               <enum>QSizePolicy::Fixed</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>15</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
             </item>
            </layout>
           </item>
          </layout>
         </widget>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_3">
-         <item>
-          <spacer name="horizontalSpacer">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QPushButton" name="pushButton_recognize">
-           <property name="text">
-            <string>识别...</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="pushButton_recheck">
-           <property name="text">
-            <string>查重...</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
        </item>
       </layout>
      </widget>
@@ -546,7 +2005,7 @@ QPushButton#pushButton_full:pressed
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1035</width>
+     <width>1347</width>
      <height>23</height>
     </rect>
    </property>
@@ -579,4 +2038,7 @@ QPushButton#pushButton_full:pressed
  </widget>
  <resources/>
  <connections/>
+ <buttongroups>
+  <buttongroup name="buttonGroup"/>
+ </buttongroups>
 </ui>

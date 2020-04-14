@@ -45,6 +45,9 @@ struct DcmFileNode
     int width;
     int height;
 
+    int winCentre;  //窗位
+    int windWidth;  //窗宽
+
     QString transFilePath;
     QString md5Str;
 };

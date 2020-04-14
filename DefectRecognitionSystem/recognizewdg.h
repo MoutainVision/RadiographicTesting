@@ -77,6 +77,8 @@ private slots:
 
     void slot_sliderReleased();
 
+    void slot_sliderWinValueChange(int value);
+
     //--tool widget--
     void slot_btnGroupClick(QAbstractButton *btn);
 
@@ -103,6 +105,10 @@ private:
     int     mSrcImgWidth;       //原始图像宽
     int     mSrcImgHeight;      //原始图像高
 
+
+    bool    mBMeasureOpt;
+    bool    mBDelImging;
+
     //当前图像大小
     int     mCurImgWidth;
     int     mCurImgHeight;
@@ -111,8 +117,12 @@ private:
 
     //
     bool    mBInvert;  //反相
+    bool    mBFlip;    //翻转
+    bool    mBMirror;  //镜像
 
-    bool    mBMeasureOpt;
+    int     mWinCentre; //窗宽
+    int     mWinWidth;  //窗位
+
 
     QRect   mPaintRect;
 
