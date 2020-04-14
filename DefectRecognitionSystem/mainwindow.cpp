@@ -75,6 +75,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->widget_measure->hide();
     ui->widget_tool->hide();
 
+    ui->horizontalScrollBar->hide();
+    ui->verticalScrollBar->hide();
+
     ui->tabWidget->setCurrentIndex(0);
 
     mRecognizeWdg  = nullptr;
@@ -1345,11 +1348,14 @@ MainWindow::~MainWindow()
         mSplitter = nullptr;
     }
 
-    dmfile.Release();
+    if (dmfile.IsValid())
+        dmfile.Release();
 
-    delete []m_pImgPro;
-    m_pImgPro = NULL;
-
+    if (nullptr != m_pImgPro)
+    {
+        delete []m_pImgPro;
+        m_pImgPro = NULL;
+    }
 
     //save config
     Appconfig::saveConfigFile();
