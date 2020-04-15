@@ -30,6 +30,8 @@
 
 #include "prewdg.h"
 
+#include "DefectRecognition.h"
+
 
 #define MAX_PRE_WIDGET_WIDTH 100
 #define MIN_PRE_WIDGET_WIDTH 50
@@ -87,6 +89,9 @@ public:
     void updateCursor();
 
     void setScrollBarOffsetValues(int hValue, int vValue);
+
+    //识别 插入特征
+    void setRecognizeValue(int index, DefectFeat feat);
 
 private slots:
     void slotBtnClick(bool bClick);

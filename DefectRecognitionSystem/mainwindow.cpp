@@ -72,6 +72,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
 
+    ui->widget_recognize_table->hide();
     ui->widget_measure->hide();
     ui->widget_tool->hide();
 
@@ -115,6 +116,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->pushButton_measure, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_nomal, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_adapt, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+    connect(ui->pushButton_measure_table, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
 
     //调整
     connect(ui->pushButton_reset, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
@@ -122,6 +124,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->pushButton_Mirror, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_Flip, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_mag, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+
+    //
+    connect(ui->pushButton_aoi, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+    connect(ui->pushButton_recog_show_table, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+    connect(ui->pushButton_exe, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+    connect(ui->pushButton_recog_clear, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
 
 
     connect(ui->verticalSlider_WinCentre, SIGNAL(valueChanged(int)), this, SLOT(slot_sliderWinValueChange(int)));
@@ -139,6 +147,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->treeView, SIGNAL(expanded(QModelIndex)), this, SLOT(expanded(QModelIndex)));
 
     connect(ui->tabWidget, SIGNAL(currentChanged(int)), this, SLOT(slot_tabCurrentChanged(int)));
+
+
+
 }
 
 void MainWindow::slot_tabCurrentChanged(int index)
@@ -462,6 +473,19 @@ void MainWindow::clicked(QModelIndex index)
         //ReadDCMFile::readDCMFile(filePath.toLocal8Bit().toStdString(), outFileName.toLocal8Bit().toStdString(), errorStr);
         //ReadDCMFile::readDCMFileLib(filePath.toLocal8Bit().toStdString(), outFileName.toLocal8Bit().toStdString(), errorStr);
 
+
+        if (dmfile.IsValid())
+            dmfile.Release();
+
+        if (nullptr != m_pImgPro)
+        {
+            delete []m_pImgPro;
+            m_pImgPro = NULL;
+        }
+
+
+
+
         DcmFileNode info;
         info.filePath = filePath;
         ReadDCMFile::readDCMFileLib(filePath.toLocal8Bit().toStdString(), outFileName.toLocal8Bit().toStdString(), info);
@@ -505,6 +529,65 @@ void MainWindow::textChanged(QString text)
 
 }
 
+void MainWindow::setRecognizeValue(int index, DefectFeat feat)
+{
+    int row = ui->tableWidget_recognize->rowCount();
+    ui->tableWidget_recognize->setRowCount(row + 1);
+
+    QTableWidgetItem *indexItem = new QTableWidgetItem;
+    indexItem->setText(QString("%1").arg(index));
+    indexItem->setTextAlignment(Qt::AlignCenter);
+
+    QTableWidgetItem *areaItem = new QTableWidgetItem;
+    areaItem->setText(QString("%1").arg(feat.area));
+    areaItem->setTextAlignment(Qt::AlignCenter);
+
+    QTableWidgetItem *periItem = new QTableWidgetItem;
+    periItem->setText(QString("%1").arg(feat.peri));
+    periItem->setTextAlignment(Qt::AlignCenter);
+
+    QTableWidgetItem *periAreaItem = new QTableWidgetItem;
+    periAreaItem->setText(QString("%1").arg(feat.peri_area_ratio));
+    periAreaItem->setTextAlignment(Qt::AlignCenter);
+
+    QTableWidgetItem *lengthItem = new QTableWidgetItem;
+    lengthItem->setText(QString("%1").arg(feat.length));
+    lengthItem->setTextAlignment(Qt::AlignCenter);
+
+    QTableWidgetItem *widthItem = new QTableWidgetItem;
+    widthItem->setText(QString("%1").arg(feat.width));
+    widthItem->setTextAlignment(Qt::AlignCenter);
+
+    QTableWidgetItem *rndnessItem = new QTableWidgetItem;
+    rndnessItem->setText(QString("%1").arg(feat.rndness));
+    rndnessItem->setTextAlignment(Qt::AlignCenter);
+
+    QTableWidgetItem *rectnessItem = new QTableWidgetItem;
+    rectnessItem->setText(QString("%1").arg(feat.rectness));
+    rectnessItem->setTextAlignment(Qt::AlignCenter);
+
+    QTableWidgetItem *aveGreyItem = new QTableWidgetItem;
+    aveGreyItem->setText(QString("%1").arg(feat.aveGrey));
+    aveGreyItem->setTextAlignment(Qt::AlignCenter);
+
+    QTableWidgetItem *greyContrastItem = new QTableWidgetItem;
+    greyContrastItem->setText(QString("%1").arg(feat.grey_contrast));
+    greyContrastItem->setTextAlignment(Qt::AlignCenter);
+
+
+    //--additems--
+    ui->tableWidget_recognize->setItem(row, 0, indexItem);
+    ui->tableWidget_recognize->setItem(row, 1, areaItem);
+    ui->tableWidget_recognize->setItem(row, 2, periItem);
+    ui->tableWidget_recognize->setItem(row, 3, periAreaItem);
+    ui->tableWidget_recognize->setItem(row, 4, lengthItem);
+    ui->tableWidget_recognize->setItem(row, 5, widthItem);
+    ui->tableWidget_recognize->setItem(row, 6, rndnessItem);
+    ui->tableWidget_recognize->setItem(row, 7, rectnessItem);
+    ui->tableWidget_recognize->setItem(row, 8, aveGreyItem);
+    ui->tableWidget_recognize->setItem(row, 9, greyContrastItem);
+}
+
 void MainWindow::slotBtnClick(bool bClick)
 {
     if (QObject::sender() == ui->pushButton_next_big)
@@ -532,6 +615,10 @@ void MainWindow::slotBtnClick(bool bClick)
                 clicked(preIndex);
             }
         }
+    }
+    else if (QObject::sender() == ui->pushButton_measure_table)
+    {
+        ui->widget_measure->setVisible(ui->pushButton_measure_table->isChecked());
     }
     else if (QObject::sender() == ui->pushButton_search)
     {
@@ -633,6 +720,40 @@ void MainWindow::slotBtnClick(bool bClick)
     {
         mBMirror = ui->pushButton_Mirror->isChecked();
         delImg();
+    }
+    else if (QObject::sender() == ui->pushButton_aoi)
+    {
+
+    }
+    else if (QObject::sender() == ui->pushButton_recog_show_table)
+    {
+        ui->widget_recognize_table->setVisible(ui->pushButton_recog_show_table->isChecked());
+    }
+    else if (QObject::sender() == ui->pushButton_exe)
+    {
+        DetectParam param;
+        param.nGreyDiff     = ui->spinBox_GreyDiff->value();
+        param.nConnectThr   = ui->spinBox_ConnectThr->value();
+        param.nFilterRadius = ui->spinBox_FilterRadius->value();
+        param.nMinDefectArea = ui->spinBox_MinDefectArea->value();
+
+        vector<Defect> aDefectList;
+        ImageRect pRoi(50, 500, 50, 500);
+
+        //DetectDefect(aDefectList, m_pSrcImg, mSrcImgWidth, mSrcImgHeight, &pRoi, &param);
+        DetectDefect(aDefectList, m_pSrcImg, mSrcImgWidth, mSrcImgHeight);
+
+        ui->tableWidget_recognize->clearContents();
+        ui->tableWidget_recognize->setRowCount(0);
+
+        for(int i=0; i<aDefectList.size(); i++)
+        {
+            setRecognizeValue(i, aDefectList.at(i).feat);
+        }
+    }
+    else if (QObject::sender() == ui->pushButton_recog_clear)
+    {
+
     }
 }
 

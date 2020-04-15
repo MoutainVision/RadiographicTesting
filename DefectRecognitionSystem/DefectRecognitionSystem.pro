@@ -48,6 +48,8 @@ INCLUDEPATH += ..\LibImgIO
 
 INCLUDEPATH += ..\LibImgProc
 
+INCLUDEPATH += ..\LibDefectRecognition
+
 
 
 
@@ -101,15 +103,15 @@ CONFIG(release, debug|release) {
     LIBS += -L"..\Dependencies\dcmtk-3.6.5\lib\Release" -ldcmtk
    # LIBS += -L"..\Dependencies\cximage\lib\Release" -lcximagecrt
     LIBS += -L"..\Bins\Release" -lLibImgIO
-    LIBS += -L"..\Bins\Release" -lLibImgProc
+    LIBS += -L"..\Bins\Release" -lLibImgProc -lLibDefectRecognition
 
 
 }
 else {
     LIBS += -L"..\Dependencies\dcmtk-3.6.5\lib\Debug" -ldcmtk
    # LIBS += -L"..\Dependencies\cximage\lib\Debug" -lcximagecrt
-    LIBS += -L"..\Bins\Debug" -lLibImgIO.
-    LIBS += -L"..\Bins\Debug" -lLibImgProc
+    LIBS += -L"..\Bins\Debug" -lLibImgIO
+    LIBS += -L"..\Bins\Debug" -lLibImgProc -lLibDefectRecognition
 
 }
 
