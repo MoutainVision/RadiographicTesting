@@ -13,6 +13,7 @@
 #include <QFileDialog>
 #include <qfileinfo.h>
 #include <QDateTime>
+#include <QMessageBox>
 
 #include <QMutex>
 
@@ -55,8 +56,11 @@ public:
 
     void deletePreWdgList();
 
+
+
+
     //
-    void setDcmFileInfo(DcmFileNode dcmInfo);
+    void setDcmFileInfo();
 
     void reSize(int newW, int newH);
 
@@ -140,6 +144,14 @@ private:
 
     DcmFileNode mCurDcmFileInfo;
     QList<PreWdg *> mPreWdgList;
+
+    QMutex     mDelImgLock;
+
+    //»±œ›
+    vector<Defect> mADefectList;
+    QList<QColor>  mDefectClassColor;
+    bool           mBShowDefect;
+    bool           mBShowCenter;
 
     //
     //**ªÊ÷∆œ‡πÿ***

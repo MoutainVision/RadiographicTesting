@@ -138,8 +138,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>259</width>
-                <height>784</height>
+                <width>256</width>
+                <height>788</height>
                </rect>
               </property>
              </widget>
@@ -668,6 +668,39 @@
                    <string>显示识别表格</string>
                   </property>
                   <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_24">
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QPushButton" name="pushButton_show_defect">
+                  <property name="text">
+                   <string> 显示缺陷</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <property name="checked">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="pushButton_show_defect_center">
+                  <property name="text">
+                   <string>显示中心线</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                  <property name="checked">
                    <bool>true</bool>
                   </property>
                  </widget>
@@ -2339,7 +2372,7 @@ QScrollBar::add-line:!enabled:vertical{
      <x>0</x>
      <y>0</y>
      <width>1347</width>
-     <height>23</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_file">
