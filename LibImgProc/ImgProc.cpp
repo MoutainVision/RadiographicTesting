@@ -364,9 +364,6 @@ T Median(T *pArray, int begin, int end)
 
 bool MedianFiltering(unsigned short *pImg, int nW, int nH, int nFilterRadius, ImageRect *aoi)
 {
-	if (NULL == pImg || nW < 0 || nH < 0 || nFilterRadius < 0)
-		return false;
-
 	int xmin, xmax, ymin, ymax;
 	if (nullptr == aoi)
 	{
@@ -385,7 +382,8 @@ bool MedianFiltering(unsigned short *pImg, int nW, int nH, int nFilterRadius, Im
 
 	if (nullptr == pImg ||
 		xmin < 0 || xmin > xmax || xmax > nW - 1 ||
-		ymin < 0 || ymin > ymax || ymax > nH - 1)
+		ymin < 0 || ymin > ymax || ymax > nH - 1 ||
+		nFilterRadius < 0)
 	{
 		return false;
 	}
@@ -408,14 +406,14 @@ bool MedianFiltering(unsigned short *pImg, int nW, int nH, int nFilterRadius, Im
 
 			int w = xe - xs;
 			int h = ye - ys;
-			int *pImg = new int[(xe - xs)*(ye - ys)];
+			int *pTemp = new int[(xe - xs)*(ye - ys)];
 			for (int i = ys; i < ye; i++)
 				for (int j = xs; j < xe; j++)
-					pImg[(i - ys)*w + (j - xs)] = pImg[i*nW + j];
+					pTemp[(i - ys)*w + (j - xs)] = pImg[i*nW + j];
 
-			pBuf[y*nW + x] = (unsigned short)Median(pImg, 0, w*h);
+			pBuf[y*nW + x] = (unsigned short)Median(pTemp, 0, w*h);
 
-			delete pImg;
+			delete []pTemp;
 		}
 
 	//将滤波后的结果拷贝至源图像中
@@ -814,6 +812,49 @@ bool Rotate90(unsigned short *&pImg, int &nWidth, int &nHeight)
 
 	return true;
 }
+
+bool Rotate180(unsigned short *pImg, int nWidth, int nHeight)
+{
+	if (nullptr == pImg || 0 >= nWidth || 0 >= nHeight)
+		return false;
+
+	
+	unsigned short *pStride = new unsigned short[nWidth];
+	unsigned nStride = nWidth * sizeof(unsigned short);
+	unsigned nHalfH = nHeight / 2;
+	unsigned nHalfW = nWidth / 2;
+	int nOffset0 = 0;
+	int nOffset1 = (nHeight - 1) * nWidth;
+
+	for (unsigned y = 0; y < nHalfH; y++)
+	{
+		unsigned short *pL0 = pImg + nOffset0;
+		unsigned short *pL1 = pImg + nOffset1;
+
+		for (unsigned x = 0; x < nHalfW; x++)
+		{
+			unsigned short t = *pL0;
+			*pL0 = *(pL0 + nWidth - 1 - x);
+			*(pL0 + nWidth - 1 - x) = t;
+
+			t = *pL1;
+			*pL1 = *(pL1 + nWidth - 1 - x);
+			*(pL1 + nWidth - 1 - x) = t;
+		}
+
+		memcpy(pStride, pL0, nStride);
+		memcpy(pL0, pL1, nStride);
+		memcpy(pL1, pStride, nStride);
+
+		nOffset0 += nWidth;
+		nOffset1 -= nWidth;
+	}
+
+	delete[]pStride;
+
+	return true;
+}
+
 
 bool Flip(unsigned short *pImg, int nW, int nH)
 {

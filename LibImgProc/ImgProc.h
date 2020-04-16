@@ -143,6 +143,12 @@ LIBIMGPROC_API bool Rotate90(unsigned short *&pImg,	//圖像數據指針，既為輸入也為
 	int &nH					//圖像高度，既為輸入亦為輸出
 );
 
+//順時針旋轉180度
+LIBIMGPROC_API bool Rotate180(unsigned short *pImg,	//圖像數據指針，既為輸入也為輸出
+	int nW,				//圖像寬度，既為輸入也為輸出
+	int nH					//圖像高度，既為輸入亦為輸出
+);
+
 //上下翻轉
 LIBIMGPROC_API bool Flip(unsigned short *pImg,	//圖像數據指針，既為輸入也為輸出
 	int nW,					//輸入圖像寬度
