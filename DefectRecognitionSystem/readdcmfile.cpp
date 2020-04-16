@@ -48,6 +48,9 @@ bool ReadDCMFile::readDCMFileLib(std::string filePath, std::string outFileName, 
     int w = dmfile.GetWidth();
     int h = dmfile.GetHeight();
 
+    info.winCentre = dmfile.GetWindowCenter();
+    info.windWidth = dmfile.GetWindowWidth();
+
     CxImage img;
     dmfile.Convert(img);
     dmfile.Release();

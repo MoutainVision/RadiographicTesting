@@ -33,3 +33,8 @@ Bins/Debug/LibImgProc.ilk
 Bins/Debug/LibImgProc.pdb
 DefectRecognitionSystem/shortFreq.txt
 DefectRecognitionSystem/ucFreq.txt
+LibDefectRecognition/Debug
+Bins/Debug/LibDefectRecognition.pdb
+Bins/Debug/LibDefectRecognition.exp
+Bins/Debug/LibDefectRecognition.ilk
+Bins/Release/LibDefectRecognition.pdb

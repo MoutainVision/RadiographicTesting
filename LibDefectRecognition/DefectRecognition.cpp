@@ -255,10 +255,10 @@ bool DetectDefect(vector<Defect> &aDefectList, unsigned short *pImg, int nW, int
 	unsigned short *pOri = new unsigned short[nW*nH];
 	memcpy(pOri, pImg, nW*nH * sizeof(unsigned short));
 
-	if (!MedianFiltering(pImg, nW, nH, detParam.nFilterRadius, &roi))
-	{
-		return false;
-	}
+	//if (!MedianFiltering(pImg, nW, nH, detParam.nFilterRadius, &roi))
+	//{
+	//	return false;
+	//}
 	
 	//取得二值图像
 	unsigned char *pMonoImg = new unsigned char[nW*nH];
