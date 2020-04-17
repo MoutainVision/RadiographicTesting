@@ -99,6 +99,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //
     m_pImgPro = nullptr;
     m_pSrcImg = nullptr;
+    m_pImgDefect = nullptr;
 
     mBInvert = false;
     mBFlip   = false;
@@ -220,7 +221,33 @@ void MainWindow::setDcmFileInfo()
     ui->verticalSlider_WinCentre->blockSignals(false);
     ui->verticalSlider_WindWidth->blockSignals(false);
 
+    //reset
+    ui->pushButton_measure_table->setChecked(false);
+    ui->tableWidget_measure->hide();
 
+    ui->pushButton_recog_show_table->setChecked(false);
+    ui->tableWidget_recognize->hide();
+
+    ui->pushButton_measure->setChecked(false);
+    ui->widget_tool->hide();
+
+    ui->pushButton_invert->setChecked(false);
+    mBInvert = false;
+
+    ui->pushButton_Mirror->setChecked(false);
+    mBMirror = false;
+
+    ui->pushButton_Flip->setChecked(false);
+    mBFlip = false;
+
+    mRotate = 0;
+    mNeedRotate = 0;
+
+    //清空缺陷
+    clearDefect();
+
+
+    //load
     std::thread([=] {
 
         dmfile.Load(mCurDcmFileInfo.filePath.toLocal8Bit().toStdString().c_str());
@@ -497,45 +524,6 @@ void MainWindow::clicked(QModelIndex index)
     mCurDcmFileInfo.transFilePath = outFileName;
 
     setDcmFileInfo();
-
-//    QString outFileName = "";
-//    std::thread([=] {
-//        std::string errorStr;
-//        //ReadDCMFile::readDCMFile(filePath.toLocal8Bit().toStdString(), outFileName.toLocal8Bit().toStdString(), errorStr);
-//        //ReadDCMFile::readDCMFileLib(filePath.toLocal8Bit().toStdString(), outFileName.toLocal8Bit().toStdString(), errorStr);
-
-
-//        if (dmfile.IsValid())
-//            dmfile.Release();
-
-//        if (nullptr != m_pImgPro)
-//        {
-//            delete []m_pImgPro;
-//            m_pImgPro = NULL;
-//        }
-
-
-
-
-//        DcmFileNode info;
-//        info.filePath = filePath;
-//        ReadDCMFile::readDCMFileLib(filePath.toLocal8Bit().toStdString(), outFileName.toLocal8Bit().toStdString(), info);
-
-//        FunctionTransfer::runInMainThread([=]()
-//        {
-//            mCurDcmFileInfo = info;
-////            this->setPreviewImg(QString("%1").arg(outFileName));
-//            this->setDcmFileInfo(mCurDcmFileInfo);
-//        });
-
-//        std::cout << errorStr << std::endl;
-
-//    }).detach();
-
-
-//    qDebug() <<  filePath << info.baseName() << info.filePath();
-
-
 }
 
 void MainWindow::textChanged(QString text)
@@ -558,6 +546,15 @@ void MainWindow::textChanged(QString text)
 
     }
 
+}
+
+void MainWindow::clearDefect()
+{
+    mADefectList.clear();
+    ui->tableWidget_recognize->clearContents();
+    ui->tableWidget_recognize->setRowCount(0);
+
+    update();
 }
 
 void MainWindow::setRecognizeValue(int index, DefectFeat feat)
@@ -790,49 +787,87 @@ void MainWindow::slotBtnClick(bool bClick)
     }
     else if (QObject::sender() == ui->pushButton_exe)
     {
-        DetectParam param;
-        param.nGreyDiff     = ui->spinBox_GreyDiff->value();
-        param.nConnectThr   = ui->spinBox_ConnectThr->value();
-        param.nFilterRadius = ui->spinBox_FilterRadius->value();
-        param.nMinDefectArea = ui->spinBox_MinDefectArea->value();
-
-        mADefectList.clear();
-        ui->tableWidget_recognize->clearContents();
-        ui->tableWidget_recognize->setRowCount(0);
-
-
-        ImageRect pRoi(50, 500, 50, 500);
-
-        std::thread([&] {
-
-            DetectDefect(mADefectList, m_pSrcImg, mSrcImgWidth, mSrcImgHeight, &pRoi, &param);
-
-            FunctionTransfer::runInMainThread([=]()
-            {
-                for(int i=0; i<mADefectList.size(); i++)
-                {
-                    setRecognizeValue(i, mADefectList.at(i).feat);
-                }
-
-                update();
-            });
-
-        }).detach();
-
-//        DetectDefect(aDefectList, m_pSrcImg, mSrcImgWidth, mSrcImgHeight);
+        exeDefectImg();
     }
     else if (QObject::sender() == ui->pushButton_recog_clear)
     {
-
+        clearDefect();
     }
+}
+
+
+void MainWindow::exeDefectImg()
+{
+    if (nullptr != m_pImgDefect)
+    {
+        delete []m_pImgDefect;
+        m_pImgDefect = nullptr;
+    }
+
+    //拷贝
+    m_pImgDefect = new unsigned short[mSrcImgWidth * mSrcImgHeight];
+    memcpy(m_pImgDefect, m_pSrcImg, mSrcImgWidth*mSrcImgHeight*sizeof(unsigned short));
+
+    int imgW  = mSrcImgWidth;
+    int imgH = mSrcImgHeight;
+
+
+    //反相
+    if (mBInvert)
+        Invert(m_pImgDefect, imgW, imgH);
+
+    //镜像
+    if (mBMirror)
+        Mirror(m_pImgDefect, imgW, imgH);
+
+    //翻转
+    if (mBFlip)
+        Flip(m_pImgDefect, imgW, imgH);
+
+    //旋转
+    if (mNeedRotate == 90)
+        Rotate90(m_pImgDefect, imgW, imgH);
+    else if (mNeedRotate == 180)
+        Rotate180(m_pImgDefect, imgW, imgH);
+    else if (mNeedRotate == 180)
+        ;
+
+    DetectParam param;
+    param.nGreyDiff     = ui->spinBox_GreyDiff->value();
+    param.nConnectThr   = ui->spinBox_ConnectThr->value();
+    param.nFilterRadius = ui->spinBox_FilterRadius->value();
+    param.nMinDefectArea = ui->spinBox_MinDefectArea->value();
+
+    clearDefect();
+
+    ImageRect pRoi(50, 500, 50, 500);
+
+    std::thread([&] {
+
+        DetectDefect(mADefectList, m_pImgDefect, imgW, imgH, &pRoi, &param);
+
+        FunctionTransfer::runInMainThread([=]()
+        {
+            for(int i=0; i<mADefectList.size(); i++)
+            {
+                setRecognizeValue(i, mADefectList.at(i).feat);
+            }
+
+            update();
+        });
+
+    }).detach();
 }
 
 void MainWindow::delImg()
 {
 //    std::thread([=] {
         //删除
-        delete []m_pImgPro;
-        m_pImgPro = NULL;
+        if (nullptr != m_pImgPro)
+        {
+            delete []m_pImgPro;
+            m_pImgPro = NULL;
+        }
 
         //拷贝
         m_pImgPro = new unsigned short[mSrcImgWidth * mSrcImgHeight];
@@ -1613,6 +1648,12 @@ MainWindow::~MainWindow()
     {
         delete []m_pImgPro;
         m_pImgPro = NULL;
+    }
+
+    if (nullptr != m_pImgDefect)
+    {
+        delete []m_pImgDefect;
+        m_pImgDefect = nullptr;
     }
 
     //save config

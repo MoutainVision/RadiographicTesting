@@ -96,6 +96,12 @@ public:
     //识别 插入特征
     void setRecognizeValue(int index, DefectFeat feat);
 
+    //识别缺陷
+    void exeDefectImg();
+
+    //清楚缺陷
+    void clearDefect();
+
 private slots:
     void slotBtnClick(bool bClick);
 
@@ -155,6 +161,8 @@ private:
     QList<QColor>  mDefectClassColor;
     bool           mBShowDefect;
     bool           mBShowCenter;
+
+    unsigned short *m_pImgDefect;  //处理图像
 
     //--图像处理相关=------
     int     mCurImgWidth;
