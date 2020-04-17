@@ -113,6 +113,8 @@ MainWindow::MainWindow(QWidget *parent) :
     m_eCurAction = ARROWACTION;
     mBMeasureOpt = false;
 
+    mRotate = 0;
+
     ui->verticalSlider_diameter->setRange(5, 200);
 
     connect(ui->pushButton_search, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
@@ -136,6 +138,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->pushButton_Mirror, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_Flip, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_mag, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+
+    connect(ui->pushButton_rotate, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
 
     //
     connect(ui->pushButton_aoi, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
@@ -300,6 +304,9 @@ void MainWindow::resetImg()
 
     ui->pushButton_Flip->setChecked(false);
     mBFlip = false;
+
+    mRotate = 0;
+    mNeedRotate = 0;
 
     //适配显示
     showAdapt();
@@ -745,6 +752,24 @@ void MainWindow::slotBtnClick(bool bClick)
         mBMirror = ui->pushButton_Mirror->isChecked();
         delImg();
     }
+    else if (QObject::sender() == ui->pushButton_rotate)
+    {
+        mRotate += 90;
+
+        mRotate = mRotate % 360;
+
+        if ((mBFlip && !mBMirror) || (!mBFlip && mBMirror))
+        {
+            mNeedRotate += 90;
+            mNeedRotate = mNeedRotate % 360;
+        }
+        else
+        {
+            mNeedRotate = mRotate;
+        }
+
+        delImg();
+    }
     else if (QObject::sender() == ui->pushButton_aoi)
     {
 
@@ -833,6 +858,14 @@ void MainWindow::delImg()
 
         //resize
         reSize(mScale);
+
+        //旋转
+        if (mNeedRotate == 90)
+            Rotate90(m_pImgPro, mCurImgWidth, mCurImgHeight);
+        else if (mNeedRotate == 180)
+            Rotate180(m_pImgPro, mCurImgWidth, mCurImgHeight);
+        else if (mNeedRotate == 180)
+            ;
 
         mBDelImging = false;
 
@@ -998,13 +1031,6 @@ void MainWindow::calcPreWdgPos()
 void MainWindow::resizeEvent(QResizeEvent *e)
 {
     return QMainWindow::resizeEvent(e);
-}
-
-void MainWindow::setPreviewImg(QString filePath)
-{
-    qDebug() << __FUNCTION__ << filePath;
-    mPreviewPixImg.load(filePath);
-    update();
 }
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *e)
