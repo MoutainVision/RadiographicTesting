@@ -48,7 +48,8 @@ INCLUDEPATH += ..\LibImgIO
 
 INCLUDEPATH += ..\LibImgProc
 
-INCLUDEPATH += ..\LibDefectRecognition
+INCLUDEPATH += ..\LibDefectRecognition  \
+               ./geometryItem
 
 
 

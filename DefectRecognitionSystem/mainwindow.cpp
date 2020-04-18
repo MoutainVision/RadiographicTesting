@@ -830,7 +830,7 @@ void MainWindow::exeDefectImg()
     else if (mNeedRotate == 180)
         Rotate180(m_pImgDefect, imgW, imgH);
     else if (mNeedRotate == 180)
-        ;
+        Rotate270(m_pImgDefect, imgW, imgH);
 
     DetectParam param;
     param.nGreyDiff     = ui->spinBox_GreyDiff->value();
@@ -900,7 +900,7 @@ void MainWindow::delImg()
         else if (mNeedRotate == 180)
             Rotate180(m_pImgPro, mCurImgWidth, mCurImgHeight);
         else if (mNeedRotate == 180)
-            ;
+            Rotate270(m_pImgDefect, mCurImgWidth, mCurImgHeight);
 
         mBDelImging = false;
 
@@ -1088,6 +1088,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                 int nHeight = ui->widget_img_pre->height();
                 int nWidth = ui->widget_img_pre->width();
 
+                p.save();
                 QBrush b(QColor("#000000"));
                 p.setBrush(b);
                 p.drawRect(ui->widget_img_pre->rect());
@@ -1191,6 +1192,181 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                            .arg(mCurDcmFileInfo.height)
                            .arg(QString::number(mScale*100,'f',1)));
 
+
+                p.restore();
+
+                p.setPen(QColor("#ff0000"));
+
+                //几何图像
+                QPen pen;
+                for (int i=0; i<m_geometryItemList.size(); i++)
+                {
+                    GeometryItemBase *geometryItemTmp = m_geometryItemList.at(i);
+
+                    if (NULL == geometryItemTmp)
+                        continue;
+
+                    if (RectItem *rectItemTmp = dynamic_cast<RectItem *> (geometryItemTmp))
+                    {
+//                        rectItemTmp->updateGeometry(QPoint(m_PaintRect.topLeft().x(), m_PaintRect.topLeft().y()),
+//                                                            m_img.width(),
+//                                                            m_img.height(), m_scaleRate,
+//                                                            0, false, false);
+
+                        QRectF rectTmp = rectItemTmp->getRect();
+                        bool selectedFlag = false;
+
+                        p.save();
+
+                        if (rectItemTmp->getItemStatus() == SELECTEDMOVE
+                                 || rectItemTmp->getItemStatus() == SELECTEDNOMOVE
+                                 || rectItemTmp->getItemStatus() == SELECTEDDRAG)
+                        {
+            //                pen.setStyle(Qt::DashLine);
+                            selectedFlag = true;
+                        }
+
+                        pen.setColor(rectItemTmp->getColor());
+                        pen.setWidth(rectItemTmp->getLineWidht());
+                        pen.setStyle(rectItemTmp->getPenStyle());
+
+                        if (rectItemTmp->getFillStatus())
+                            p.setBrush(QColor(rectItemTmp->getFillColor()));
+
+                        p.setPen(pen);
+
+                        p.drawRect(rectTmp);
+
+                        p.restore();
+
+                        p.save();
+                        if (selectedFlag)
+                        {
+                            pen.setStyle(Qt::SolidLine);
+                            pen.setColor(Qt::green);
+                            pen.setWidth(2);
+
+                            p.setPen(pen);
+
+                            QList<QRect> rectList = rectItemTmp->getDragItemData().getDragItemRects();
+
+                            for (int i=0; i<rectList.size(); i++)
+                            {
+                                p.drawEllipse(rectList.at(i));
+                            }
+                        }
+                        else
+                        {
+//                            pen.setColor(m_measureSetting.generalSet.color);
+                            QFont font;
+//                            font.setPointSize(m_measureSetting.generalSet.fontSize);
+
+                            p.setPen(pen);
+                            p.setFont(font);
+
+                            QString labelStr;
+                            qreal value;
+
+                            switch (rectItemTmp->getCurLabelType()) {
+                            case NAMELABEL:
+
+                                p.drawText(rectTmp.center(), rectItemTmp->getItemName());
+
+                                break;
+                            case AREALABEL:
+                                value = rectItemTmp->getAreaUnit();
+
+//                                if (m_measureSetting.generalSet.bDimension)
+//                                    labelStr = QString("A:%1%2").arg(QString::number(value, 'f', m_measureSetting.generalSet.resultKeep))
+//                                                               .arg(m_measureSetting.getUnitStr());
+//                                else
+//                                    labelStr = QString("A:%1").arg(QString::number(value, 'f', m_measureSetting.generalSet.resultKeep));
+                                labelStr = QString("A:%1").arg(QString::number(value, 'f', 2));
+
+                                p.drawText(rectTmp.center(), labelStr);
+
+                                break;
+                            case PERIMETERLABEL:
+                                value = rectItemTmp->getCircumferenceUnit();
+
+//                                if (m_measureSetting.generalSet.bDimension)
+//                                    labelStr = QString("P:%1%2").arg(QString::number(value, 'f', m_measureSetting.generalSet.resultKeep))
+//                                                               .arg(m_measureSetting.getUnitStr());
+//                                else
+//                                    labelStr = QString("P:%1").arg(QString::number(value, 'f', m_measureSetting.generalSet.resultKeep));
+
+                                                                    labelStr = QString("P:%1").arg(QString::number(value, 'f', 2));
+
+                                p.drawText(rectTmp.center(), labelStr);
+                                break;
+                            case WIDTHANDHEIGHTLABEL:
+                            {
+                                value = rectItemTmp->getOriWidthUnit();
+
+//                                if (m_measureSetting.generalSet.bDimension)
+//                                    labelStr = QString("W:%1%2").arg(QString::number(value, 'f', m_measureSetting.generalSet.resultKeep))
+//                                                               .arg(m_measureSetting.getUnitStr());
+//                                else
+//                                    labelStr = QString("W:%1").arg(QString::number(value, 'f', m_measureSetting.generalSet.resultKeep));
+                                labelStr = QString("W:%1").arg(QString::number(value, 'f', 2));
+
+                                p.drawText(rectTmp.center(), labelStr);
+
+                                //--
+                                value = rectItemTmp->getOriHeightUnit();
+
+//                                if (m_measureSetting.generalSet.bDimension)
+//                                    labelStr = QString("H:%1%2").arg(QString::number(value, 'f', m_measureSetting.generalSet.resultKeep))
+//                                                               .arg(m_measureSetting.getUnitStr());
+//                                else
+//                                    labelStr = QString("H:%1").arg(QString::number(value, 'f', m_measureSetting.generalSet.resultKeep));
+
+                                labelStr = QString("H:%1").arg(QString::number(value, 'f', 2));
+
+                                p.drawText(rectTmp.center().x(), rectTmp.center().y()+12+2, labelStr);
+//                                p.drawText(rectTmp.center().x(), rectTmp.center().y()+m_measureSetting.generalSet.fontSize+2, labelStr);
+            //                    p.drawText(rectTmp.right() - 30, rectTmp.center().y(), labelStr);
+                            }
+                                break;
+                            default:
+                                break;
+                            }
+                        }
+
+                        p.restore();
+                    }
+                }
+
+                switch (m_eCurAction) {
+                case RECTACTION:
+                {
+                    if (m_eDrawStatus == BEGINDRAW)
+                    {
+                        p.drawRect(m_rectTmp);
+                    }
+                }
+                    break;
+                case ELLIPSEACTION:
+                {
+                    if (m_eDrawStatus == BEGINDRAW)
+                    {
+//                        painter->drawEllipse(m_rectTmp);
+                    }
+                }
+                    break;
+                case LINEACTION:
+                {
+                    if (m_eDrawStatus == BEGINDRAW)
+                    {
+//                        painter->drawLine(m_lineTmp);
+                    }
+                }
+                    break;
+                default:
+                    break;
+                }
+
+
                 return true;
             }
         }
@@ -1226,15 +1402,15 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
 //                        //清空测量窗口信息
 //                        updateMesureDlgCtr(NULL);
 
-//                        //清空选中item
-//                        clearItemSelected(m_selectedIndex);
+                        //清空选中item
+                        clearItemSelected(m_selectedIndex);
 
 //                        //判断点击是否在图像区域内
 //                        if (m_PaintRect.contains(wdgPtConvertToPaintPt(pt)))
 //                        {
-//                            m_beginPosPt = pt;
+                            m_beginPosPt = pt;
 
-//                            m_eDrawStatus = BEGINDRAW;
+                            m_eDrawStatus = BEGINDRAW;
 
 //                            if (m_eCurAction == TEXTACTION)
 //                            {
@@ -1257,7 +1433,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                         break;
                     case ARROWACTION:
                     {
-//                        mousePressArrowAction(pt);
+                        mousePressArrowAction(pt);
                     }
                         break;
                     case HANDACTION:
@@ -1298,9 +1474,9 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                     switch (m_eCurAction) {
                     case RECTACTION:
                     {
-//                        if (m_rectTmp.isValid() && m_eDrawStatus == BEGINDRAW)
-//                        {
-//                            m_geometryItemBase = new RectItem(m_rectTmp);
+                        if (m_rectTmp.isValid() && m_eDrawStatus == BEGINDRAW)
+                        {
+                            m_geometryItemBase = new RectItem(m_rectTmp);
 //                            m_geometryItemBase->setColor(m_measureSetting.measureObjectSet.lineColor);
 //                            m_geometryItemBase->setLineWidth(m_measureSetting.measureObjectSet.lineWidth);
 //                            m_geometryItemBase->setPenStyle(m_measureSetting.measureObjectSet.penStyle);
@@ -1309,7 +1485,8 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
 //                            m_geometryItemBase->setSpatialResolution(g_scanner.getSpatialResolution());
 //                            m_geometryItemBase->setUnit(m_measureSetting.lengthUnit);
 
-//                            m_geometryItemBase->calcOriGeometry(QPoint(m_PaintRect.topLeft().x(), m_PaintRect.topLeft().y()),
+//                            m_geometryItemBase->calcOriGeometry(QPoint(m_PaintRect.topLeft().x(),
+//                                                                       m_PaintRect.topLeft().y()),
 //                                                                m_img.width(),
 //                                                                m_img.height(), m_scaleRate,
 //                                                                0, false, false);
@@ -1318,26 +1495,26 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
 //                            rectItem->setFillStatus(m_measureSetting.measureObjectSet.bFill);
 //                            rectItem->setFillColor(m_measureSetting.measureObjectSet.fillColor);
 
-//                            m_geometryItemList.push_back(m_geometryItemBase);
+                            m_geometryItemList.push_back(m_geometryItemBase);
 
-//                            //置为选中态
-//                            m_selectedIndex = m_geometryItemList.count() - 1;
-//                            m_geometryItemBase->setItemStatus(SELECTEDNOMOVE);
+                            //置为选中态
+                            m_selectedIndex = m_geometryItemList.count() - 1;
+                            m_geometryItemBase->setItemStatus(SELECTEDNOMOVE);
 
-//                            //添加新增操作
-//                            m_itemOperatorTmp = new ItemOperator;
-//                            m_itemOperatorTmp->geometryItem = m_geometryItemBase;
-//                            m_itemOperatorTmp->type = ADDOPT;
-//                            insetOperator(m_itemOperatorTmp);
+                            //添加新增操作
+                            m_itemOperatorTmp = new ItemOperator;
+                            m_itemOperatorTmp->geometryItem = m_geometryItemBase;
+                            m_itemOperatorTmp->type = ADDOPT;
+                            insetOperator(m_itemOperatorTmp);
 
 //                            updateMesureDlgCtr(m_geometryItemBase);
 
 //                            updateMeasureTable();
-//                        }
+                        }
 
-//                        m_rectTmp = QRectF();
+                        m_rectTmp = QRectF();
 
-//                        m_eDrawStatus = ENDDRAW;
+                        m_eDrawStatus = ENDDRAW;
                     }
                         break;
                     case ELLIPSEACTION:
@@ -1386,7 +1563,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                         break;
                     case ARROWACTION:
                     {
-//                        mouseReleaseArrowAction();
+                        mouseReleaseArrowAction();
                     }
                         break;
                     case LINEACTION:
@@ -1474,18 +1651,18 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                 switch (m_eCurAction) {
                 case RECTACTION:
                 {
-//                    if (m_eDrawStatus == BEGINDRAW)
-//                    {
-//                        int x, y , w, h;
-//                        x = m_beginPosPt.x();
-//                        y = m_beginPosPt.y();
-//                        w = imgPt.x() - x;
-//                        h = imgPt.y() - y;
+                    if (m_eDrawStatus == BEGINDRAW)
+                    {
+                        int x, y , w, h;
+                        x = m_beginPosPt.x();
+                        y = m_beginPosPt.y();
+                        w = imgPt.x() - x;
+                        h = imgPt.y() - y;
 
-//                        m_rectTmp = QRect(x, y, w, h);
+                        m_rectTmp = QRect(x, y, w, h);
 
-//                        update(ui->widget_main->rect());
-//                    }
+                        update();
+                    }
                 }
                     break;
                 case ELLIPSEACTION:
@@ -1519,7 +1696,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                     break;
                 case ARROWACTION:
                 {
-//                    mouseMoveArrowAction(pt);
+                    mouseMoveArrowAction(pt);
                 }
                     break;
                 case HANDACTION:
@@ -1625,6 +1802,975 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
 
 
     return QMainWindow::eventFilter(obj, e);
+}
+
+void MainWindow::insetOperator(ItemOperator *itemOperator)
+{
+    if (m_curOperatorIndex < m_ItemOperatorList.size() - 1)
+    {
+        //更新链表
+        int popCount = m_ItemOperatorList.size() - m_curOperatorIndex - 1;
+
+        for (int i=0; i<popCount; i++)
+        {
+            m_ItemOperatorList.pop_back();
+        }
+    }
+
+    if (m_ItemOperatorList.size() >= 15)
+    {
+        //多出15个操作以后，扔掉之前的操作
+        m_ItemOperatorList.pop_front();
+    }
+
+    m_ItemOperatorList.push_back(itemOperator);
+    m_curOperatorIndex = m_ItemOperatorList.size() - 1;
+
+    updateOperatorStatus();
+}
+
+void MainWindow::mousePressArrowAction(QPoint pt)
+{
+//    QPoint imgPt = convertToImgPt(pt);
+    QPoint imgPt = pt;
+
+//    slot_lineEditFinished();
+
+    if (m_selectedIndex >= 0 && m_selectedIndex < m_geometryItemList.count())
+    {
+        GeometryItemBase *geometryItemTmp = m_geometryItemList.at(m_selectedIndex);
+
+        if (RectItem *rectItemTmp = dynamic_cast<RectItem *> (geometryItemTmp))
+        {
+            QList<DragItem> dragItemList = rectItemTmp->getDragItemData().getDragItems();
+
+            bool containtFlag;
+            DragDirection curDragDirection;
+
+            containtFlag = getDragDirection(dragItemList, imgPt, curDragDirection);
+
+            if (containtFlag)
+            {
+                m_eSldDragDirection = curDragDirection;
+
+                m_curPosPt = imgPt;
+                m_geometryItemList.at(m_selectedIndex)->setItemStatus(SELECTEDDRAG);
+
+                update();
+
+                return;
+            }
+        }
+        else if (TextItem *textItemTmp = dynamic_cast<TextItem *> (geometryItemTmp))
+        {
+            QList<DragItem> dragItemList = textItemTmp->getDragItemData().getDragItems();
+
+            bool containtFlag;
+            DragDirection curDragDirection;
+
+            containtFlag = getDragDirection(dragItemList, imgPt, curDragDirection);
+
+            if (containtFlag)
+            {
+                m_eSldDragDirection = curDragDirection;
+
+                m_curPosPt = imgPt;
+                m_geometryItemList.at(m_selectedIndex)->setItemStatus(SELECTEDDRAG);
+
+                update();
+
+                return;
+            }
+        }
+        else if (EllipseItem *ellipseItemTmp = dynamic_cast<EllipseItem *> (geometryItemTmp))
+        {
+            QList<DragItem> dragItemList = ellipseItemTmp->getDragItemData().getDragItems();
+
+            bool containtFlag;
+            DragDirection curDragDirection;
+
+            containtFlag = getDragDirection(dragItemList, imgPt, curDragDirection);
+
+            if (containtFlag)
+            {
+                m_eSldDragDirection = curDragDirection;
+
+                m_curPosPt = imgPt;
+                m_geometryItemList.at(m_selectedIndex)->setItemStatus(SELECTEDDRAG);
+
+                update();
+
+                return;
+            }
+        }
+        else if (LineItem *lineItemTmp = dynamic_cast<LineItem *> (geometryItemTmp))
+        {
+            QList<DragItem> dragItemList = lineItemTmp->getDragItemData().getDragItems();
+
+            bool containtFlag;
+            DragDirection curDragDirection;
+
+            containtFlag = getDragDirection(dragItemList, imgPt, curDragDirection);
+
+            if (containtFlag)
+            {
+                m_eSldDragDirection = curDragDirection;
+
+                m_curPosPt = imgPt;
+                m_geometryItemList.at(m_selectedIndex)->setItemStatus(SELECTEDDRAG);
+
+                update();
+
+                return;
+            }
+        }
+    }
+
+    m_selectedIndex = -1;
+    m_eSldDragDirection = NONEDIR;
+
+    for (int i=0; i<m_geometryItemList.size(); i++)
+    {
+        GeometryItemBase *geometryItemTmp = m_geometryItemList.at(i);
+
+        if (RectItem *rectItemTmp = dynamic_cast<RectItem *> (geometryItemTmp))
+        {
+            QRectF rectTmp = rectItemTmp->getRect();
+
+            //置为未选中态
+            rectItemTmp->setItemStatus(NORMOAL);
+
+            if (rectTmp.contains(imgPt))
+            {
+                m_selectedIndex = i;
+                m_curPosPt = imgPt;
+            }
+        }
+        else if (TextItem *textItemTmp = dynamic_cast<TextItem *> (geometryItemTmp))
+        {
+            QRectF rectTmp = textItemTmp->getRect();
+
+            //置为未选中态
+            textItemTmp->setItemStatus(NORMOAL);
+
+            if (rectTmp.contains(imgPt))
+            {
+                m_selectedIndex = i;
+                m_curPosPt = imgPt;
+            }
+        }
+        else if (EllipseItem *ellipseItemTmp = dynamic_cast<EllipseItem *> (geometryItemTmp))
+        {
+            QRectF rectTmp = ellipseItemTmp->getRect();
+
+            //置为未选中态
+            ellipseItemTmp->setItemStatus(NORMOAL);
+
+            if (rectTmp.contains(imgPt))
+            {
+                m_selectedIndex = i;
+                m_curPosPt = imgPt;
+            }
+        }
+        else if (LineItem *lineItemTmp = dynamic_cast<LineItem *> (geometryItemTmp))
+        {
+
+            QPolygonF polygonf = lineItemTmp->getBoundingPolygonf();
+
+            //置为未选中态
+            lineItemTmp->setItemStatus(NORMOAL);
+
+//            if (point2Polygon(polygonf, polygonf.size(), imgPt) >= 0)
+//            {
+//                m_selectedIndex = i;
+//                m_curPosPt = imgPt;
+//            }
+        }
+     }
+
+    if (m_selectedIndex >= 0 && m_selectedIndex < m_geometryItemList.count())
+    {
+        //置为选中态
+        m_geometryItemList.at(m_selectedIndex)->setItemStatus(SELECTEDMOVE);
+
+//        setToolStyles();
+
+        setCursor(Qt::SizeAllCursor);
+
+//        updateMesureDlgCtr(m_geometryItemList.at(m_selectedIndex));
+
+        update();
+    }
+    else
+    {
+//        updateMesureDlgCtr();
+    }
+}
+
+void MainWindow::clearItemSelected(int index)
+{
+    if (index >= 0 && index < m_geometryItemList.count())
+    {
+        m_geometryItemList.at(index)->setItemStatus(NORMOAL);
+
+        m_selectedIndex = -1;
+        m_eSldDragDirection = NONEDIR;
+    }
+}
+
+
+void MainWindow::mouseReleaseArrowAction()
+{
+    if (m_selectedIndex >= 0 && m_selectedIndex < m_geometryItemList.count())
+    {
+        GeometryItemBase *geometryItemTmp = m_geometryItemList.at(m_selectedIndex);
+
+        if (RectItem *rectItemTmp = dynamic_cast<RectItem *> (geometryItemTmp))
+        {
+            rectItemTmp->setItemStatus(SELECTEDNOMOVE);
+
+            m_eSldDragDirection = NONEDIR;
+
+            if (m_beginMove)
+            {
+                m_beginMove = false;
+
+                //插入一个移动操作
+                m_itemOperatorTmp = new ItemOperator;
+                m_itemOperatorTmp->geometryItem = rectItemTmp;
+                m_itemOperatorTmp->type = MOVEOPT;
+                m_itemOperatorTmp->originalPt = m_originPt;
+                m_itemOperatorTmp->movePt = rectItemTmp->getOriRect().topLeft();
+
+                insetOperator(m_itemOperatorTmp);
+
+//                updateMeasureTable();
+            }
+
+            if (m_beginChange)
+            {
+                m_beginChange = false;
+
+                //插入一个修改操作
+                m_itemOperatorTmp = new ItemOperator;
+                m_itemOperatorTmp->geometryItem = rectItemTmp;
+                m_itemOperatorTmp->type = CHANGEOPT;
+                m_itemOperatorTmp->originalRect = m_originRect;
+                m_itemOperatorTmp->changedRect = rectItemTmp->getOriRect();
+
+                insetOperator(m_itemOperatorTmp);
+
+//                updateMeasureTable();
+            }
+        }
+        else if (TextItem *textItemTmp = dynamic_cast<TextItem *> (geometryItemTmp))
+        {
+            textItemTmp->setItemStatus(SELECTEDNOMOVE);
+
+            m_eSldDragDirection = NONEDIR;
+
+            if (m_beginMove)
+            {
+                m_beginMove = false;
+
+                //插入一个移动操作
+                m_itemOperatorTmp = new ItemOperator;
+                m_itemOperatorTmp->geometryItem = textItemTmp;
+                m_itemOperatorTmp->type = MOVEOPT;
+                m_itemOperatorTmp->originalPt = m_originPt;
+                m_itemOperatorTmp->movePt = textItemTmp->getOriRect().topLeft();
+
+                insetOperator(m_itemOperatorTmp);
+            }
+
+            if (m_beginChange)
+            {
+                m_beginChange = false;
+
+                //插入一个修改操作
+                m_itemOperatorTmp = new ItemOperator;
+                m_itemOperatorTmp->geometryItem = textItemTmp;
+                m_itemOperatorTmp->type = CHANGEOPT;
+                m_itemOperatorTmp->originalRect = m_originRect;
+                m_itemOperatorTmp->changedRect = textItemTmp->getOriRect();
+
+                insetOperator(m_itemOperatorTmp);
+            }
+        }
+        else if (EllipseItem *ellipseItemTmp = dynamic_cast<EllipseItem *> (geometryItemTmp))
+        {
+            ellipseItemTmp->setItemStatus(SELECTEDNOMOVE);
+
+            m_eSldDragDirection = NONEDIR;
+
+
+            if (m_beginMove)
+            {
+                m_beginMove = false;
+
+                //插入一个移动操作
+                m_itemOperatorTmp = new ItemOperator;
+                m_itemOperatorTmp->geometryItem = ellipseItemTmp;
+                m_itemOperatorTmp->type = MOVEOPT;
+                m_itemOperatorTmp->originalPt = m_originPt;
+                m_itemOperatorTmp->movePt = ellipseItemTmp->getOriRect().topLeft();
+
+                insetOperator(m_itemOperatorTmp);
+
+//                updateMeasureTable();
+            }
+
+            if (m_beginChange)
+            {
+                m_beginChange = false;
+
+                //插入一个修改操作
+                m_itemOperatorTmp = new ItemOperator;
+                m_itemOperatorTmp->geometryItem = ellipseItemTmp;
+                m_itemOperatorTmp->type = CHANGEOPT;
+                m_itemOperatorTmp->originalRect = m_originRect;
+                m_itemOperatorTmp->changedRect = ellipseItemTmp->getOriRect();
+
+                insetOperator(m_itemOperatorTmp);
+
+//                updateMeasureTable();
+            }
+        }
+        else if (LineItem *lineItemTmp = dynamic_cast<LineItem *> (geometryItemTmp))
+        {
+            lineItemTmp->setItemStatus(SELECTEDNOMOVE);
+
+            m_eSldDragDirection = NONEDIR;
+
+            if (m_beginMove)
+            {
+                m_beginMove = false;
+
+                //插入一个移动操作
+                m_itemOperatorTmp = new ItemOperator;
+                m_itemOperatorTmp->geometryItem = lineItemTmp;
+                m_itemOperatorTmp->type = MOVEOPT;
+                m_itemOperatorTmp->originalPt = m_originPt;
+                m_itemOperatorTmp->movePt = lineItemTmp->getOriLine().p1();
+
+                insetOperator(m_itemOperatorTmp);
+
+//                updateMeasureTable();
+            }
+
+            if (m_beginChange)
+            {
+                m_beginChange = false;
+
+                //插入一个修改操作
+                m_itemOperatorTmp = new ItemOperator;
+                m_itemOperatorTmp->geometryItem = lineItemTmp;
+                m_itemOperatorTmp->type = CHANGEOPT;
+                m_itemOperatorTmp->originLine = m_originLine;
+                m_itemOperatorTmp->changeLine = lineItemTmp->getOriLine();
+
+                insetOperator(m_itemOperatorTmp);
+
+//                updateMeasureTable();
+            }
+
+        }
+    }
+//    else
+//    {
+//        m_bMousePress = false;
+//    }
+
+    setCursor(Qt::ArrowCursor);
+    update();
+}
+
+
+bool MainWindow::getDragDirection(QList<DragItem> &dragItemList,
+                      QPoint pt,
+                      DragDirection &dragDirection)
+{
+    bool containtFlag = false;
+
+    for (int i=0; i<dragItemList.size(); i++)
+    {
+        DragItem dragItemTmp = dragItemList.at(i);
+        if (dragItemTmp.getDragRect().contains(pt))
+        {
+            containtFlag = true;
+
+            if (dragItemTmp.getDragDirection() == LEFTTOP)
+            {
+                setCursor(Qt::SizeFDiagCursor);
+                dragDirection = LEFTTOP;
+
+                break;
+            }
+            else if (dragItemTmp.getDragDirection() == LEFTBOTTOM)
+            {
+                setCursor(Qt::SizeBDiagCursor);
+                dragDirection = LEFTBOTTOM;
+
+                break;
+            }
+            else if (dragItemTmp.getDragDirection() == RIGHTTOP)
+            {
+                setCursor(Qt::SizeBDiagCursor);
+                dragDirection = RIGHTTOP;
+
+                break;
+            }
+            else if (dragItemTmp.getDragDirection() == RIGHTBOTTOM)
+            {
+                setCursor(Qt::SizeFDiagCursor);
+                dragDirection = RIGHTBOTTOM;
+
+                break;
+            }
+            else if (dragItemTmp.getDragDirection() == DragDirection::LEFT)
+            {
+                setCursor(Qt::SizeHorCursor);
+                dragDirection = DragDirection::LEFT;
+
+                break;
+            }
+            else if (dragItemTmp.getDragDirection() == DragDirection::RIGHT)
+            {
+                setCursor(Qt::SizeHorCursor);
+                dragDirection = DragDirection::RIGHT;
+
+                break;
+            }
+         }
+    }
+
+    return containtFlag;
+}
+
+void MainWindow::mouseMoveArrowAction(QPoint pt)
+{
+//    QPoint imgPt = convertToImgPt(pt);
+    QPoint imgPt = pt;
+
+    if (m_selectedIndex >= 0 && m_selectedIndex < m_geometryItemList.count())
+    {
+        GeometryItemBase *geometryItemTmp = m_geometryItemList.at(m_selectedIndex);
+
+        if (RectItem *rectItemTmp = dynamic_cast<RectItem *> (geometryItemTmp))
+        {
+            QList<DragItem> dragItemList = rectItemTmp->getDragItemData().getDragItems();
+
+            bool containtFlag = false;
+            DragDirection curDragDirection;
+
+            if (m_eSldDragDirection == NONEDIR)
+            {
+                containtFlag = getDragDirection(dragItemList, imgPt, curDragDirection);
+            }
+            else
+            {
+                containtFlag = true;
+                curDragDirection = m_eSldDragDirection;
+            }
+
+            if (containtFlag)
+            {
+                if (rectItemTmp->getItemStatus() == SELECTEDDRAG)
+                {
+                    //拖拽点移动
+                    if (!m_beginChange)
+                    {
+                        m_beginChange = true;
+                        m_originRect  = rectItemTmp->getOriRect();
+                    }
+
+                    QPoint offsetPt = m_curPosPt - imgPt;
+                    QRectF oldRect = rectItemTmp->getRect();
+                    QRectF rectTmp;
+
+                    switch(curDragDirection)
+                    {
+                    case LEFTTOP:
+                        oldRect.setX(oldRect.x() - offsetPt.x());
+                        oldRect.setY(oldRect.y() - offsetPt.y());
+                        rectTmp = oldRect;
+                        break;
+                    case LEFTBOTTOM:
+                        rectTmp = QRectF(oldRect.x() - offsetPt.x(),
+                                        oldRect.y(),
+                                        rectItemTmp->getWidth() + offsetPt.x(),
+                                        rectItemTmp->getHeight() - offsetPt.y());
+
+                        break;
+                    case RIGHTTOP:
+                        rectTmp = QRectF(oldRect.x(),
+                                        oldRect.y() - offsetPt.y(),
+                                        rectItemTmp->getWidth() - offsetPt.x(),
+                                        rectItemTmp->getHeight() + offsetPt.y());
+                        break;
+                    case RIGHTBOTTOM:
+                        rectTmp = QRectF(oldRect.x(),
+                                        oldRect.y(),
+                                        rectItemTmp->getWidth() - offsetPt.x(),
+                                        rectItemTmp->getHeight() - offsetPt.y());
+                        break;
+                    default :
+                        break;
+                    }
+
+                    rectItemTmp->setRect(rectTmp);
+//                    rectItemTmp->calcOriGeometry(QPoint(m_PaintRect.topLeft().x(), m_PaintRect.topLeft().y()),
+//                                                 m_img.width(),
+//                                                 m_img.height(), m_scaleRate,
+//                                                 0, false, false);
+
+                    m_curPosPt = imgPt;
+
+//                    updateMesureDlgCtr(geometryItemTmp);
+
+//                    updateMeasureTable();
+
+                    update();
+
+                    return ;
+                }
+            }
+            else
+            {
+
+//                QPoint imgPt = convertToImgPt(pt);
+                //设置鼠标状态
+                if (rectItemTmp->getBoundingRectF().contains(imgPt)){
+                    setCursor(Qt::SizeAllCursor);
+                }
+                else{
+                    setCursor(Qt::ArrowCursor);
+                }
+
+                if (rectItemTmp->getItemStatus() == SELECTEDMOVE)
+                {
+                    //ITEM移动
+                    if (!m_beginMove)
+                    {
+                        m_beginMove = true;
+                        m_originPt = rectItemTmp->getOriRect().topLeft();
+                    }
+
+                    QPoint offsetPt = m_curPosPt - imgPt;
+                    QRectF oldRect = rectItemTmp->getRect();
+
+                    QRectF rectTmp = QRectF(oldRect.x() - offsetPt.x(),
+                                          oldRect.y() - offsetPt.y(),
+                                          rectItemTmp->getWidth(),
+                                          rectItemTmp->getHeight());
+
+                    rectItemTmp->setRect(rectTmp);
+//                    rectItemTmp->calcOriGeometry(QPoint(m_PaintRect.topLeft().x(), m_PaintRect.topLeft().y()),
+//                                                 m_img.width(),
+//                                                 m_img.height(), m_scaleRate,
+//                                                 0, false, false);
+
+                    m_curPosPt = imgPt;
+
+//                    updateMesureDlgCtr(geometryItemTmp);
+
+//                    updateMeasureTable();
+
+                    update();
+
+                    return ;
+                }
+            }
+
+        }
+        else if (TextItem *textItemTmp = dynamic_cast<TextItem *> (geometryItemTmp))
+        {
+//            QList<DragItem> dragItemList = textItemTmp->getDragItemData().getDragItems();
+
+//            bool containtFlag = false;
+//            DragDirection curDragDirection;
+
+//            if (m_eSldDragDirection == NONEDIR)
+//            {
+//                containtFlag = getDragDirection(dragItemList, imgPt, curDragDirection);
+//            }
+//            else
+//            {
+//                containtFlag = true;
+//                curDragDirection = m_eSldDragDirection;
+//            }
+
+//            if (containtFlag)
+//            {
+//                if (textItemTmp->getItemStatus() == SELECTEDDRAG)
+//                {
+//                    //拖拽点移动
+//                    if (!m_beginChange)
+//                    {
+//                        m_beginChange = true;
+//                        m_originRect  = textItemTmp->getOriRect();
+//                    }
+
+//                    QPoint offsetPt = m_curPosPt - imgPt;
+//                    QRectF oldRect = textItemTmp->getRect();
+//                    QRectF rectTmp;
+
+//                    switch(curDragDirection)
+//                    {
+//                    case LEFTTOP:
+//                        oldRect.setX(oldRect.x() - offsetPt.x());
+//                        oldRect.setY(oldRect.y() - offsetPt.y());
+//                        rectTmp = oldRect;
+//                        break;
+//                    case LEFTBOTTOM:
+//                        rectTmp = QRectF(oldRect.x() - offsetPt.x(),
+//                                        oldRect.y(),
+//                                        textItemTmp->getWidth() + offsetPt.x(),
+//                                        textItemTmp->getHeight() - offsetPt.y());
+
+//                        break;
+//                    case RIGHTTOP:
+//                        rectTmp = QRectF(oldRect.x(),
+//                                        oldRect.y() - offsetPt.y(),
+//                                        textItemTmp->getWidth() - offsetPt.x(),
+//                                        textItemTmp->getHeight() + offsetPt.y());
+//                        break;
+//                    case RIGHTBOTTOM:
+//                        rectTmp = QRectF(oldRect.x(),
+//                                        oldRect.y(),
+//                                        textItemTmp->getWidth() - offsetPt.x(),
+//                                        textItemTmp->getHeight() - offsetPt.y());
+//                        break;
+//                    default :
+//                        break;
+//                    }
+
+////                    textItemTmp->updateRect(rectTmp);
+//                    textItemTmp->setText(rectTmp, textItemTmp->getText());
+//                    textItemTmp->calcOriGeometry(QPoint(m_PaintRect.topLeft().x(), m_PaintRect.topLeft().y()),
+//                                                 m_img.width(),
+//                                                 m_img.height(), m_scaleRate,
+//                                                 0, false, false);
+
+//                    textItemTmp->reCalcFont();
+
+//                    m_curPosPt = imgPt;
+
+//                    updateMeasureTable();
+
+//                    update(ui->widget_main->rect());
+
+//                    return ;
+//                }
+//            }
+//            else
+//            {
+
+////                QPoint imgPt = convertToImgPt(pt);
+//                //设置鼠标状态
+//                if (textItemTmp->getBoundingRectF().contains(imgPt)){
+//                    setCursor(Qt::SizeAllCursor);
+//                }
+//                else{
+//                    setCursor(Qt::ArrowCursor);
+//                }
+
+//                if (textItemTmp->getItemStatus() == SELECTEDMOVE)
+//                {
+//                    //ITEM移动
+//                    if (!m_beginMove)
+//                    {
+//                        m_beginMove = true;
+//                        m_originPt = textItemTmp->getOriRect().topLeft();
+//                    }
+
+//                    QPoint offsetPt = m_curPosPt - imgPt;
+//                    QRectF oldRect = textItemTmp->getRect();
+
+//                    QRectF rectTmp = QRectF(oldRect.x() - offsetPt.x(),
+//                                          oldRect.y() - offsetPt.y(),
+//                                          textItemTmp->getWidth(),
+//                                          textItemTmp->getHeight());
+
+//                    textItemTmp->setText(rectTmp, textItemTmp->getText());
+////                    textItemTmp->updateRect(rectTmp);
+//                    textItemTmp->calcOriGeometry(QPoint(m_PaintRect.topLeft().x(), m_PaintRect.topLeft().y()),
+//                                                 m_img.width(),
+//                                                 m_img.height(), m_scaleRate,
+//                                                 0, false, false);
+//                    textItemTmp->reCalcFont();
+
+//                    m_curPosPt = imgPt;
+
+//                    updateMeasureTable();
+
+//                    update(ui->widget_main->rect());
+
+//                    return ;
+//                }
+//            }
+
+        }
+        else if (EllipseItem *ellipseItemTmp = dynamic_cast<EllipseItem *> (geometryItemTmp))
+        {
+//            QList<DragItem> dragItemList = ellipseItemTmp->getDragItemData().getDragItems();
+
+//            bool containtFlag = false;
+//            DragDirection curDragDirection;
+
+//            if (m_eSldDragDirection == NONEDIR)
+//            {
+//                containtFlag = getDragDirection(dragItemList, imgPt, curDragDirection);
+//            }
+//            else
+//            {
+//                containtFlag = true;
+//                curDragDirection = m_eSldDragDirection;
+//            }
+
+//            if (containtFlag)
+//            {
+//                if (ellipseItemTmp->getItemStatus() == SELECTEDDRAG)
+//                {
+//                    //拖拽点移动
+//                    if (!m_beginChange)
+//                    {
+//                        m_beginChange = true;
+//                        m_originRect  = ellipseItemTmp->getOriRect();
+//                    }
+
+//                    QPoint offsetPt = m_curPosPt - imgPt;
+//                    QRectF oldRect = ellipseItemTmp->getRect();
+//                    QRectF rectTmp;
+
+//                    switch(curDragDirection)
+//                    {
+//                    case LEFTTOP:
+//                        oldRect.setX(oldRect.x() - offsetPt.x());
+//                        oldRect.setY(oldRect.y() - offsetPt.y());
+//                        rectTmp = oldRect;
+//                        break;
+//                    case LEFTBOTTOM:
+//                        rectTmp = QRectF(oldRect.x() - offsetPt.x(),
+//                                        oldRect.y(),
+//                                        ellipseItemTmp->getWidth() + offsetPt.x(),
+//                                        ellipseItemTmp->getHeight() - offsetPt.y());
+
+//                        break;
+//                    case RIGHTTOP:
+//                        rectTmp = QRectF(oldRect.x(),
+//                                        oldRect.y() - offsetPt.y(),
+//                                        ellipseItemTmp->getWidth() - offsetPt.x(),
+//                                        ellipseItemTmp->getHeight() + offsetPt.y());
+//                        break;
+//                    case RIGHTBOTTOM:
+//                        rectTmp = QRectF(oldRect.x(),
+//                                        oldRect.y(),
+//                                        ellipseItemTmp->getWidth() - offsetPt.x(),
+//                                        ellipseItemTmp->getHeight() - offsetPt.y());
+//                        break;
+//                    default :
+//                        break;
+//                    }
+
+//                    ellipseItemTmp->setRect(rectTmp);
+//                    ellipseItemTmp->calcOriGeometry(QPoint(m_PaintRect.topLeft().x(), m_PaintRect.topLeft().y()),
+//                                                    m_img.width(),
+//                                                    m_img.height(), m_scaleRate,
+//                                                    0, false, false);
+
+//                    m_curPosPt = imgPt;
+
+//                    updateMesureDlgCtr(geometryItemTmp);
+
+//                    updateMeasureTable();
+
+//                    update(ui->widget_main->rect());
+
+//                    return ;
+//                }
+//            }
+//            else
+//            {
+//                //设置鼠标状态
+//                if (ellipseItemTmp->getBoundingRectF().contains(imgPt)){
+//                    setCursor(Qt::SizeAllCursor);
+//                }
+//                else{
+//                    setCursor(Qt::ArrowCursor);
+//                }
+
+//                if (ellipseItemTmp->getItemStatus() == SELECTEDMOVE)
+//                {
+//                    //ITEM移动
+//                    if (!m_beginMove)
+//                    {
+//                        m_beginMove = true;
+//                        m_originPt = ellipseItemTmp->getOriRect().topLeft();
+//                    }
+
+//                    QPoint offsetPt = m_curPosPt - imgPt;
+//                    QRectF oldRect = ellipseItemTmp->getRect();
+
+//                    QRectF rectTmp = QRectF(oldRect.x() - offsetPt.x(),
+//                                          oldRect.y() - offsetPt.y(),
+//                                          ellipseItemTmp->getWidth(),
+//                                          ellipseItemTmp->getHeight());
+
+
+//                    ellipseItemTmp->setRect(rectTmp);
+//                    ellipseItemTmp->calcOriGeometry(QPoint(m_PaintRect.topLeft().x(), m_PaintRect.topLeft().y()),
+//                                                     m_img.width(),
+//                                                     m_img.height(), m_scaleRate,
+//                                                     0, false, false);
+
+//                    m_curPosPt = imgPt;
+
+//                    updateMesureDlgCtr(geometryItemTmp);
+
+//                    updateMeasureTable();
+
+//                    update(ui->widget_main->rect());
+
+//                    return ;
+//                }
+//            }
+        }
+        else if (LineItem *lineItemTmp = dynamic_cast<LineItem *> (geometryItemTmp))
+        {
+//            QList<DragItem> dragItemList = lineItemTmp->getDragItemData().getDragItems();
+
+//            bool containtFlag = false;
+//            DragDirection curDragDirection;
+
+//            if (m_eSldDragDirection == NONEDIR)
+//            {
+//                containtFlag = getDragDirection(dragItemList, imgPt, curDragDirection);
+//            }
+//            else
+//            {
+//                containtFlag = true;
+//                curDragDirection = m_eSldDragDirection;
+//            }
+
+//            if (containtFlag)
+//            {
+//                if (lineItemTmp->getItemStatus() == SELECTEDDRAG)
+//                {
+//                    //拖拽点移动
+//                    if (!m_beginChange)
+//                    {
+//                        m_beginChange = true;
+//                        m_originLine  = lineItemTmp->getOriLine();
+//                    }
+
+//                    QLineF lineTmp = lineItemTmp->getLine();
+
+//                    switch(curDragDirection)
+//                    {
+//                    case DragDirection::LEFT:
+//                        lineTmp.setP1(imgPt);
+//                        break;
+//                    case DragDirection::RIGHT:
+//                        lineTmp.setP2(imgPt);
+//                        break;
+//                    default :
+//                        break;
+//                    }
+
+//                    lineItemTmp->setLine(lineTmp);
+//                    lineItemTmp->calcOriGeometry(QPoint(m_PaintRect.topLeft().x(), m_PaintRect.topLeft().y()),
+//                                                 m_img.width(),
+//                                                 m_img.height(), m_scaleRate,
+//                                                 0, false, false);
+
+//                    m_curPosPt = imgPt;
+
+//                    updateMesureDlgCtr(geometryItemTmp);
+
+//                    updateMeasureTable();
+
+//                    update(ui->widget_main->rect());
+
+//                    return ;
+//                }
+//            }
+//            else
+//            {
+//                QPolygonF polygonf = lineItemTmp->getBoundingPolygonf();
+
+//                //设置鼠标状态
+//                if (point2Polygon(polygonf, polygonf.size(), imgPt) >= 0){
+//                    setCursor(Qt::SizeAllCursor);
+//                }
+//                else{
+//                    setCursor(Qt::ArrowCursor);
+//                }
+
+
+//                if (lineItemTmp->getItemStatus() == SELECTEDMOVE)
+//                {
+//                    //ITEM移动
+//                    if (!m_beginMove)
+//                    {
+//                        m_beginMove = true;
+//                        m_originPt = lineItemTmp->getOriLine().p1();
+//                    }
+
+//                    QPoint offsetPt = m_curPosPt - imgPt;
+
+//                    QLineF oldLine = lineItemTmp->getLine();
+//                    QLineF lineTmp = QLineF(oldLine.p1()-offsetPt, oldLine.p2()-offsetPt);
+
+//                    lineItemTmp->setLine(lineTmp);
+//                    lineItemTmp->calcOriGeometry(QPoint(m_PaintRect.topLeft().x(), m_PaintRect.topLeft().y()),
+//                                                 m_img.width(),
+//                                                 m_img.height(), m_scaleRate,
+//                                                 0, false, false);
+
+//                    m_curPosPt = imgPt;
+
+//                    updateMesureDlgCtr(geometryItemTmp);
+
+//                    updateMeasureTable();
+
+//                    update(ui->widget_main->rect());
+
+//                    return ;
+//                }
+//            }
+        }
+
+        return ;
+    }
+}
+
+void MainWindow::updateOperatorStatus()
+{
+    if (m_ItemOperatorList.size() <= 0)
+    {
+        ui->pushButton_pre->setEnabled(false);
+        ui->pushButton_next->setEnabled(false);
+    }
+    else
+    {
+        if (m_curOperatorIndex < 0)
+        {
+            ui->pushButton_pre->setEnabled(false);
+            ui->pushButton_next->setEnabled(true);
+        }
+        else if (m_curOperatorIndex>=0 && m_curOperatorIndex==m_ItemOperatorList.size()-1)
+        {
+            ui->pushButton_pre->setEnabled(true);
+            ui->pushButton_next->setEnabled(false);
+        }
+        else if (m_curOperatorIndex>0 && m_curOperatorIndex<m_ItemOperatorList.size()-1)
+        {
+            ui->pushButton_pre->setEnabled(true);
+            ui->pushButton_next->setEnabled(true);
+        }
+
+    }
 }
 
 MainWindow::~MainWindow()
