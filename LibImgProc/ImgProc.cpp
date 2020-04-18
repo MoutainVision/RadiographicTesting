@@ -855,6 +855,31 @@ bool Rotate180(unsigned short *pImg, int nWidth, int nHeight)
 	return true;
 }
 
+bool Rotate270(unsigned short *&pImg, int &nWidth, int &nHeight)
+{
+	if (NULL == pImg || nWidth < 0 || nHeight < 0)
+		return false;
+
+	int nW = nHeight;
+	int nH = nWidth;
+
+	unsigned short *pTemp = new unsigned short[nW*nH];
+
+	for (int y = 0; y < nHeight; y++)
+	{
+		for (int x = 0; x < nWidth; x++)
+		{
+			pTemp[x*nW +(nW - 1 - y)] = pImg[y*nWidth + x];
+		}
+	}
+
+	delete[]pImg;
+	pImg = pTemp;
+	nWidth = nW;
+	nHeight = nH;
+
+	return true;
+}
 
 bool Flip(unsigned short *pImg, int nW, int nH)
 {
