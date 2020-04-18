@@ -181,6 +181,13 @@ LIBIMGPROC_API bool Crop(unsigned short *&pImg,	//圖像數據指針，既為輸入也為輸出
 	int ys, int ye			//剪切区域的上下边界
 );
 
+//對比度增強
+LIBIMGPROC_API bool ContrastEnhancement(unsigned short *&pImg,	//圖像數據指針，既為輸入也為輸出
+	int &nW,				//圖像寬度，既為輸入也為輸出
+	int &nH,				//圖像數據指針，既為輸入亦為輸出
+	unsigned nContrast=0		//對比度增強因子，範圍為0~100
+);
+
 //获取灰度曲线
 LIBIMGPROC_API bool GetIntensityCurve(vector<unsigned short> &aIntensity,
 	unsigned short *pImg,	//輸入圖像數據指針
@@ -188,6 +195,14 @@ LIBIMGPROC_API bool GetIntensityCurve(vector<unsigned short> &aIntensity,
 	int nH,				//輸入圖像高度
 	int xs, int ys,		//起点图像坐标
 	int xe, int ye			//终点图像坐标
+);
+
+//获取指定位置處灰度值
+LIBIMGPROC_API bool GetIntensity(unsigned short &nIntensity,
+	unsigned short *pImg,	//輸入圖像數據指針
+	int nW,				//輸入圖像寬度
+	int nH,				//輸入圖像高度
+	int x, int y		//图像坐标
 );
 
 //计算信噪比

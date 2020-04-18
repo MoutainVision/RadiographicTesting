@@ -927,6 +927,24 @@ bool Mirror(unsigned short *pImg, int nW, int nH)
 	return true;
 }
 
+bool ContrastEnhancement(unsigned short *pImg, int nW, int nH, unsigned nContrast)
+{
+	if (NULL == pImg || nW < 0 || nH < 0 || nContrast > 100)
+		return false;
+
+	double dRatio = nContrast * 0.09 + 1.0;
+
+	for (int y = 0; y < nH; y++)
+		for (int x = 0; x < nW; x++)
+		{
+			double g = dRatio * pImg[y*nW + x];
+
+			pImg[y*nW + x] = (unsigned short)(g > 65535 ? 65535 : g);
+		}
+
+	return true;
+}
+
 bool Invert(unsigned short *pImg, int nW, int nH)
 {
 	if (NULL == pImg || nW < 0 || nH < 0)
@@ -967,6 +985,20 @@ bool Crop(unsigned short *&pImg, int &nW, int &nH, int xs, int xe, int ys, int y
 
 	nW = w;
 	nH = h;
+
+	return true;
+}
+
+bool GetIntensity(unsigned short &nIntensity, unsigned short *pImg, int nW, int nH, int x, int y)
+{
+	if (NULL == pImg ||
+		x < 0 || x >= nW ||
+		y < 0 || y >= nH)
+	{
+		return false;
+	}
+
+	nIntensity = pImg[y*nW + x];
 
 	return true;
 }
