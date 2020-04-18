@@ -182,9 +182,9 @@ LIBIMGPROC_API bool Crop(unsigned short *&pImg,	//圖像數據指針，既為輸入也為輸出
 );
 
 //對比度增強
-LIBIMGPROC_API bool ContrastEnhancement(unsigned short *&pImg,	//圖像數據指針，既為輸入也為輸出
-	int &nW,				//圖像寬度，既為輸入也為輸出
-	int &nH,				//圖像數據指針，既為輸入亦為輸出
+LIBIMGPROC_API bool ContrastEnhancement(unsigned short *pImg,	//圖像數據指針，既為輸入也為輸出
+	int nW,				//圖像寬度，既為輸入也為輸出
+	int nH,				//圖像數據指針，既為輸入亦為輸出
 	unsigned nContrast=0		//對比度增強因子，範圍為0~100
 );
 

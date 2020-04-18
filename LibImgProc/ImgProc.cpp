@@ -833,11 +833,11 @@ bool Rotate180(unsigned short *pImg, int nWidth, int nHeight)
 
 		for (unsigned x = 0; x < nHalfW; x++)
 		{
-			unsigned short t = *pL0;
+			unsigned short t = *(pL0 + x);
 			*pL0 = *(pL0 + nWidth - 1 - x);
 			*(pL0 + nWidth - 1 - x) = t;
 
-			t = *pL1;
+			t = *(pL1 + x);
 			*pL1 = *(pL1 + nWidth - 1 - x);
 			*(pL1 + nWidth - 1 - x) = t;
 		}
