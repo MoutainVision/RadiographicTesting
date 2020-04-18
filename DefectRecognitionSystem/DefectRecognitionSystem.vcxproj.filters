@@ -102,6 +102,9 @@
     <ClCompile Include="prewdg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="geyimgwdg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Base\FunctionTransfer.h">
@@ -128,6 +131,9 @@
     <QtMoc Include="prewdg.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="geyimgwdg.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="obj\Moc\moc_predefs.h.cbt">
@@ -148,6 +154,9 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="prewdg.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="geyimgwdg.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>

@@ -135,7 +135,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;..\Dependencies\dcmtk-3.6.5\dcmdata\include;..\LibImgProc;..\LibImgIO;..\LibDefectRecognition;..\Dependencies\cximage\include;$(QTDIR)\include;obj\Moc;obj\Gui;$(QTDIR)\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\GeneratedFiles\$(ConfigurationName);.\GeneratedFiles;.;.\geometryItem;..\Dependencies\dcmtk-3.6.5\dcmdata\include;..\LibImgProc;..\LibImgIO;..\LibDefectRecognition;..\Dependencies\cximage\include;$(QTDIR)\include;obj\Moc;obj\Gui;$(QTDIR)\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zc:rvalueCast -Zc:inline -Zc:strictStrings -Zc:throwingNew -Zc:referenceBinding -Zc:__cplusplus -std:c++17 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <AssemblerListingLocation>obj\Obj\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
@@ -199,6 +199,7 @@
     <ClCompile Include="geometryItem\rectdragitemdata.cpp" />
     <ClCompile Include="geometryItem\rectitem.cpp" />
     <ClCompile Include="geometryItem\textitem.cpp" />
+    <ClCompile Include="geyimgwdg.cpp" />
     <ClCompile Include="logindlg.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mainwindow.cpp" />
@@ -224,6 +225,7 @@
     <ClInclude Include="geometryItem\textitem.h" />
     <QtMoc Include="logindlg.h" />
     <QtMoc Include="prewdg.h" />
+    <QtMoc Include="geyimgwdg.h" />
     <ClInclude Include="readdcmfile.h" />
     <QtMoc Include="recheckwdg.h">
     </QtMoc>
@@ -244,6 +246,7 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <QtUic Include="geyimgwdg.ui" />
     <QtUic Include="logindlg.ui" />
     <QtUic Include="mainwindow.ui">
     </QtUic>

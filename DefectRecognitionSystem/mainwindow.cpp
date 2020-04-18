@@ -48,6 +48,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->widget_pre->installEventFilter(this);
 
     ui->widget_img_pre->installEventFilter(this);
+    ui->widget_img_pre->setMouseTracking(true);
 
     ui->widget_tool->installEventFilter(this);
     ui->widget_tool->setMouseTracking(true);
@@ -114,10 +115,15 @@ MainWindow::MainWindow(QWidget *parent) :
     m_eCurAction = ARROWACTION;
     mBMeasureOpt = false;
 
+    mGeyImgWdg = NULL;
+
     mRotate = 0;
 
     ui->verticalSlider_diameter->setRange(5, 200);
 
+
+
+	connect(ui->checkBox_gray_mesure, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_search, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_pre_big, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_next_big, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
@@ -415,6 +421,8 @@ void MainWindow::showScrollBar(bool status)
     {
         ui->horizontalScrollBar->hide();
         ui->verticalScrollBar->hide();
+
+        mSourceRect = QRect(0, 0, mPaintRect.width(), mPaintRect.height());
     }
     else
     {
@@ -555,6 +563,92 @@ void MainWindow::clearDefect()
     ui->tableWidget_recognize->setRowCount(0);
 
     update();
+}
+
+QPoint MainWindow::convertImgPt(QPoint wPt)
+{
+    return QPoint(wPt.x() - mPaintRectReal.x() + mSourceRect.x(),
+                  wPt.y() - mPaintRectReal.y() + mSourceRect.y());
+}
+
+void MainWindow::calcIntensityCurve(QPoint p1, QPoint p2)
+{
+    QPoint iP1 = convertImgPt(p1);
+    QPoint iP2 = convertImgPt(p2);
+
+    m_iP1 = iP1;
+    m_iP2 = iP2;
+
+    //m_pImgPro, mCurImgWidth, mCurImgHeight
+    vector<unsigned short> aIntensity;
+//    GetIntensityCurve(aIntensity, m_pImgPro, mCurImgWidth, mCurImgHeight, iP1.x(),
+//                      mCurImgHeight - 1 - iP1.y(), iP2.x(), mCurImgHeight -1 - iP2.y());
+
+    GetIntensityCurve(aIntensity, m_pImgPro, mCurImgWidth, mCurImgHeight, iP1.x(),
+                      iP1.y(), iP2.x(), iP2.y());
+
+    float ab = iP2.x() - iP1.x();
+    float bc = iP2.y() - iP1.y();
+
+    m_angle = atan(ab / bc);
+
+    setIntensityCurveValues(aIntensity);
+}
+
+void MainWindow::calcCurGreyPos(int length)
+{
+
+}
+
+void MainWindow::setIntensityCurveValues(vector<unsigned short> aIntensity)
+{
+    if (nullptr == mGeyImgWdg)
+    {
+        mGeyImgWdg = new GeyImgWdg;
+    }
+
+    mGeyImgWdg->SetIntensityCurveValues(aIntensity, aIntensity.size());
+    mGeyImgWdg->show();
+}
+
+void MainWindow::clearGreyLine()
+{
+    mGrayLine = QLine();
+}
+
+void MainWindow::closeGreyWdg()
+{
+    if (nullptr != mGeyImgWdg)
+    {
+        mGeyImgWdg->close();
+    }
+}
+
+void MainWindow::getIntensity(QPoint curPt)
+{
+	if (nullptr != m_pImgPro)
+	{
+		QPoint imgPt = convertImgPt(curPt);
+
+        if (imgPt.x() > 0 && imgPt.x()<mPaintRectReal.width()
+                && imgPt.y() > 0 && imgPt.y()<mPaintRectReal.height())
+        {
+            unsigned short intensity = 0;
+            GetIntensity(intensity, m_pImgPro, mCurImgWidth, mCurImgHeight,
+                imgPt.x(), imgPt.y());
+
+            ui->label_X_Value->setText(QString("%1").arg(imgPt.x()));
+            ui->label_Y_Value->setText(QString("%1").arg(imgPt.y()));
+
+            ui->label_intensity->setText(QString("%1").arg(intensity));
+        }
+        else
+        {
+            ui->label_X_Value->clear();
+            ui->label_Y_Value->clear();
+            ui->label_intensity->clear();
+        }
+	}   
 }
 
 void MainWindow::setRecognizeValue(int index, DefectFeat feat)
@@ -793,6 +887,10 @@ void MainWindow::slotBtnClick(bool bClick)
     {
         clearDefect();
     }
+    else if (QObject::sender() == ui->checkBox_gray_mesure)
+    {
+        m_eCurAction = GREAYACTION;
+    }
 }
 
 
@@ -829,7 +927,7 @@ void MainWindow::exeDefectImg()
         Rotate90(m_pImgDefect, imgW, imgH);
     else if (mNeedRotate == 180)
         Rotate180(m_pImgDefect, imgW, imgH);
-    else if (mNeedRotate == 180)
+    else if (mNeedRotate == 270)
         Rotate270(m_pImgDefect, imgW, imgH);
 
     DetectParam param;
@@ -899,8 +997,8 @@ void MainWindow::delImg()
             Rotate90(m_pImgPro, mCurImgWidth, mCurImgHeight);
         else if (mNeedRotate == 180)
             Rotate180(m_pImgPro, mCurImgWidth, mCurImgHeight);
-        else if (mNeedRotate == 180)
-            Rotate270(m_pImgDefect, mCurImgWidth, mCurImgHeight);
+        else if (mNeedRotate == 270)
+            Rotate270(m_pImgPro, mCurImgWidth, mCurImgHeight);
 
         mBDelImging = false;
 
@@ -1093,39 +1191,36 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                 p.setBrush(b);
                 p.drawRect(ui->widget_img_pre->rect());
 
-
-                QRect paintRectTmp;
-
                 if (mPaintRect.width() <= nWidth && mPaintRect.height() <= nHeight)
                 {
-                    paintRectTmp.setRect((nWidth-mPaintRect.width())/2,
+                    mPaintRectReal.setRect((nWidth-mPaintRect.width())/2,
                                          (nHeight-mPaintRect.height())/2,
                                          mPaintRect.width(),
                                          mPaintRect.height());
 
                     mSourceRect = QRect(0, 0, mPaintRect.width(), mPaintRect.height());
 
-                    p.drawImage(paintRectTmp, mPaintImg);
+                    p.drawImage(mPaintRectReal, mPaintImg);
                 }
                 else if (mPaintRect.width() <= nWidth && mPaintRect.height() > nHeight)
                 {
-                    paintRectTmp.setRect((nWidth-mPaintRect.width())/2, 0,
+                    mPaintRectReal.setRect((nWidth-mPaintRect.width())/2, 0,
                                          mPaintRect.width(),
                                          nHeight);
 
-                    p.drawImage(paintRectTmp, mPaintImg, mSourceRect);
+                    p.drawImage(mPaintRectReal, mPaintImg, mSourceRect);
                 }
                 else if (mPaintRect.width() > nWidth && mPaintRect.height() <= nHeight)
                 {
-                    paintRectTmp.setRect(0, (nHeight-mPaintRect.height())/2,
+                    mPaintRectReal.setRect(0, (nHeight-mPaintRect.height())/2,
                                          nWidth,
                                          mPaintRect.height());
-                    p.drawImage(paintRectTmp, mPaintImg, mSourceRect);
+                    p.drawImage(mPaintRectReal, mPaintImg, mSourceRect);
                 }
                 else
                 {
-                    paintRectTmp.setRect(0, 0, nWidth, nHeight);
-                    p.drawImage(paintRectTmp, mPaintImg, mSourceRect);
+                    mPaintRectReal.setRect(0, 0, nWidth, nHeight);
+                    p.drawImage(mPaintRectReal, mPaintImg, mSourceRect);
                 }
 
                 if (mBShowDefect || mBShowCenter)
@@ -1142,10 +1237,10 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                         {
                             for (int j=0; j<aPt.size(); j++)
                             {
-                                QPoint pt(aPt.at(j).x * mScale-mSourceRect.x() + paintRectTmp.x(),
-                                          aPt.at(j).y * mScale - mSourceRect.y() + paintRectTmp.y());
+                                QPoint pt(aPt.at(j).x * mScale-mSourceRect.x() + mPaintRectReal.x(),
+                                          aPt.at(j).y * mScale - mSourceRect.y() + mPaintRectReal.y());
 
-                                if (paintRectTmp.contains(pt))
+                                if (mPaintRectReal.contains(pt))
                                 {
                                     p.setPen(color);
                                     p.drawPoint(pt);
@@ -1168,15 +1263,15 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                                                      mADefectList.at(i).center.y * mScale);
 
                             p.setPen(QColor("#ff0000"));
-                            p.drawLine(centerPt.x() - mSourceRect.x() -length + paintRectTmp.x(),
-                                       centerPt.y() - mSourceRect.y() + paintRectTmp.y(),
-                                       centerPt.x() - mSourceRect.x() + length + paintRectTmp.x(),
-                                       centerPt.y() - mSourceRect.y() + paintRectTmp.y());
+                            p.drawLine(centerPt.x() - mSourceRect.x() -length + mPaintRectReal.x(),
+                                       centerPt.y() - mSourceRect.y() + mPaintRectReal.y(),
+                                       centerPt.x() - mSourceRect.x() + length + mPaintRectReal.x(),
+                                       centerPt.y() - mSourceRect.y() + mPaintRectReal.y());
 
-                            p.drawLine(centerPt.x() - mSourceRect.x() + paintRectTmp.x(),
-                                       centerPt.y() - mSourceRect.y() - length + paintRectTmp.y(),
-                                       centerPt.x() - mSourceRect.x() + paintRectTmp.x(),
-                                       centerPt.y() - mSourceRect.y() + length + paintRectTmp.y());
+                            p.drawLine(centerPt.x() - mSourceRect.x() + mPaintRectReal.x(),
+                                       centerPt.y() - mSourceRect.y() - length + mPaintRectReal.y(),
+                                       centerPt.x() - mSourceRect.x() + mPaintRectReal.x(),
+                                       centerPt.y() - mSourceRect.y() + length + mPaintRectReal.y());
                         }
                     }
                 }
@@ -1337,6 +1432,11 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                     }
                 }
 
+
+                //灰色计算
+                p.drawLine(mGrayLine);
+
+                //临时几何图像
                 switch (m_eCurAction) {
                 case RECTACTION:
                 {
@@ -1362,6 +1462,14 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                     }
                 }
                     break;
+                case GREAYACTION:
+                {
+                    if (m_eDrawStatus == BEGINDRAW)
+                    {
+                        p.drawLine(mGrayLineTmp);
+                    }
+                }
+                    break;
                 default:
                     break;
                 }
@@ -1375,18 +1483,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
             QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(e);
             QPoint pt = mouseEvent->pos();
 
-            if (!mBMeasureOpt)
-            {
-                m_bIsPress = true;
-                m_PressPt = pt;
-
-                if (mPaintRect.width() > ui->widget_img_pre->width() ||
-                    mPaintRect.height() > ui->widget_img_pre->height())
-                {
-                    setCursor(Qt::ClosedHandCursor);
-                }
-            }
-            else
+            if (mBMeasureOpt || m_eCurAction==GREAYACTION)
             {
                 //测量模式
 //                hideColorWdg();
@@ -1398,6 +1495,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                     case LINEACTION:
                     case ELLIPSEACTION:
                     case TEXTACTION:
+                    case GREAYACTION:
                     {
 //                        //清空测量窗口信息
 //                        updateMesureDlgCtr(NULL);
@@ -1449,6 +1547,17 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                     }
                  }
             }
+            else if (!mBMeasureOpt)
+            {
+                m_bIsPress = true;
+                m_PressPt = pt;
+
+                if (mPaintRect.width() > ui->widget_img_pre->width() ||
+                    mPaintRect.height() > ui->widget_img_pre->height())
+                {
+                    setCursor(Qt::ClosedHandCursor);
+                }
+            }
 
         }
         else if (e->type() == QEvent::MouseButtonRelease)
@@ -1456,18 +1565,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
             QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(e);
             QPoint pt = mouseEvent->pos();
 
-            if (!mBMeasureOpt)
-            {
-                if (mPaintRect.width() > ui->widget_img_pre->width() ||
-                    mPaintRect.height() > ui->widget_img_pre->height())
-                {
-                    setCursor(Qt::OpenHandCursor);
-                    m_bIsPress = false;
-
-                    update();
-                }
-            }
-            else
+            if (mBMeasureOpt || m_eCurAction==GREAYACTION)
             {
                 if (mouseEvent->button() == Qt::LeftButton)
                 {
@@ -1606,6 +1704,20 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
 //                        m_eDrawStatus = ENDDRAW;
                     }
                         break;
+                    case GREAYACTION:
+                    {
+                        if (!mGrayLineTmp.isNull() && m_eDrawStatus == BEGINDRAW)
+                        {
+                            mGrayLine = mGrayLineTmp;
+                        }
+
+                        mGrayLineTmp = QLine();
+
+                        m_eDrawStatus = ENDDRAW;
+
+                        calcIntensityCurve(mGrayLine.p1(), mGrayLine.p2());
+                    }
+                        break;
                     case HANDACTION:
                     {
                         setCursor(Qt::OpenHandCursor);
@@ -1619,6 +1731,17 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                     }
                 }
             }
+            else if (!mBMeasureOpt)
+            {
+                if (mPaintRect.width() > ui->widget_img_pre->width() ||
+                    mPaintRect.height() > ui->widget_img_pre->height())
+                {
+                    setCursor(Qt::OpenHandCursor);
+                    m_bIsPress = false;
+
+                    update();
+                }
+            }
 
        }
        else if (e->type() == QEvent::MouseMove)
@@ -1626,25 +1749,10 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
             QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(e);
             QPoint pt = mouseEvent->pos();
 
-            if (!mBMeasureOpt)
-            {
-                if (mPaintRect.width() > ui->widget_img_pre->width() ||
-                    mPaintRect.height() > ui->widget_img_pre->height())
-                {
-                    if (m_bIsPress)
-                    {
-                        //偏移距离转化为 （图像坐标中）
-                        QPoint offsetPt = m_PressPt - pt;
+            //灰度
+            getIntensity(pt);
 
-                        m_PressPt = pt;
-
-                        setScrollBarOffsetValues(offsetPt.x(), offsetPt.y());
-
-                        update();
-                    }
-                }
-            }
-            else
+            if (mBMeasureOpt || m_eCurAction==GREAYACTION)
             {
                 QPoint imgPt = pt;
 
@@ -1694,6 +1802,19 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
 //                    }
                 }
                     break;
+                case GREAYACTION:
+                {
+                    if (m_eDrawStatus == BEGINDRAW)
+                    {
+                        QPoint p1 = m_beginPosPt;
+                        QPoint p2 = imgPt;
+
+                        mGrayLineTmp = QLine(p1, p2);
+
+                        update();
+                    }
+                }
+                    break;
                 case ARROWACTION:
                 {
                     mouseMoveArrowAction(pt);
@@ -1720,7 +1841,25 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                 }
 
             }
-       }
+            else if (!mBMeasureOpt)
+            {
+                if (mPaintRect.width() > ui->widget_img_pre->width() ||
+                    mPaintRect.height() > ui->widget_img_pre->height())
+                {
+                    if (m_bIsPress)
+                    {
+                        //偏移距离转化为 （图像坐标中）
+                        QPoint offsetPt = m_PressPt - pt;
+
+                        m_PressPt = pt;
+
+                        setScrollBarOffsetValues(offsetPt.x(), offsetPt.y());
+
+                        update();
+                    }
+                }
+            }
+        }
         else if (e->type() == QEvent::Enter)
         {
 //            if (mBMeasureOpt)
@@ -2800,6 +2939,12 @@ MainWindow::~MainWindow()
     {
         delete []m_pImgDefect;
         m_pImgDefect = nullptr;
+    }
+
+    if (NULL != mGeyImgWdg)
+    {
+        delete mGeyImgWdg;
+        mGeyImgWdg = NULL;
     }
 
     //save config

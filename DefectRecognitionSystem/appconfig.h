@@ -328,7 +328,9 @@ enum CurAction
     RECTACTION,
     LINEACTION,
     TEXTACTION,
-    POLYGONACTION
+    POLYGONACTION,
+    GREAYACTION,
+    AOIACTION
 };
 #endif
 

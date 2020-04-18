@@ -39,6 +39,8 @@
 #include "lineitem.h"
 #include "textitem.h"
 
+#include "geyimgwdg.h"
+
 
 
 #define MAX_PRE_WIDGET_WIDTH 100
@@ -109,6 +111,26 @@ public:
     //清楚缺陷
     void clearDefect();
 
+//----灰度分布图------
+    QPoint convertImgPt(QPoint wPt);
+
+    //计算灰度分布
+    void calcIntensityCurve(QPoint p1, QPoint p2);
+
+    void calcCurGreyPos(int length);
+
+    //设置灰度图像
+    void setIntensityCurveValues(vector<unsigned short> aIntensity);
+
+    //清空计算灰度的线
+    void clearGreyLine();
+
+    //关闭灰度窗口
+    void closeGreyWdg();
+
+    void getIntensity(QPoint curPt);
+
+
 //----绘几何图形相关------
     ItemOperator *getPreOperator();
     ItemOperator *getNextOperator();
@@ -171,6 +193,10 @@ protected:
 private:
     Ui::MainWindow *ui;
 
+    //状态栏
+    QLabel  *mStatusLabel;
+
+    //
     QSplitter *mSplitter;
     QDirModel *mModel;
 
@@ -197,6 +223,17 @@ private:
 
     unsigned short *m_pImgDefect;  //处理图像
 
+    //灰度图像
+    QPoint      m_iP1;
+    QPoint      m_iP2;
+
+    QLine       mGrayLine;
+    QLine       mGrayLineTmp;
+    QRect       mGreyRect;
+    float       m_angle;
+
+    GeyImgWdg   *mGeyImgWdg;
+
     //--图像处理相关=------
     int     mCurImgWidth;
     int     mCurImgHeight;
@@ -215,6 +252,7 @@ private:
     int     mNeedRotate; //需要旋转的角度
 
     QRect   mPaintRect;
+    QRect   mPaintRectReal;
 
     bool    mBMeasureOpt;
     bool    mBDelImging;
