@@ -33,6 +33,13 @@
 
 #include "DefectRecognition.h"
 
+//**绘图**
+#include "rectitem.h"
+#include "ellipseitem.h"
+#include "lineitem.h"
+#include "textitem.h"
+
+
 
 #define MAX_PRE_WIDGET_WIDTH 100
 #define MIN_PRE_WIDGET_WIDTH 50
@@ -102,6 +109,32 @@ public:
     //清楚缺陷
     void clearDefect();
 
+//----绘几何图形相关------
+    ItemOperator *getPreOperator();
+    ItemOperator *getNextOperator();
+
+    void insetOperator(ItemOperator *itemOperator);
+    void doPreOperator(ItemOperator *itemOperator);
+    void doNextOperator(ItemOperator *itemOperator);
+
+    //更新操作历史记录按钮组（redo， undo）
+    void updateOperatorStatus();
+
+    //清空item
+    void clearItemSelected(int index);
+
+    //--mouse--
+    void mousePressArrowAction(QPoint pt);
+
+    void mouseReleaseArrowAction();
+
+    void mouseMoveArrowAction(QPoint pt);
+
+    //获取拖拽点方向
+    bool getDragDirection(QList<DragItem> &dragItemList,
+                          QPoint pt,
+                          DragDirection &dragDirection);
+
 private slots:
     void slotBtnClick(bool bClick);
 
@@ -168,7 +201,7 @@ private:
     int     mCurImgWidth;
     int     mCurImgHeight;
 
-    float   mScale;  //缩放
+    float   mScale;     //缩放
 
     //
     bool    mBInvert;  //反相
@@ -211,6 +244,30 @@ private:
     CurAction           m_eCurAction;
     DrawStatus          m_eDrawStatus;
     DragDirection       m_eSldDragDirection;
+
+    int                 m_selectedIndex;
+    QPoint              m_curPosPt;
+
+    QRectF              m_rectTmp;
+    QLine               m_lineTmp;
+    QPoint              m_beginPosPt;
+
+    QLineEdit           *m_lineEditWdg;
+    bool                m_bChangeText;
+
+    GeometryItemBase            *m_geometryItemBase;
+    QList<GeometryItemBase *>    m_geometryItemList;
+
+    ItemOperator                *m_itemOperatorTmp;
+    QList<ItemOperator *>        m_ItemOperatorList;
+    int                          m_curOperatorIndex;
+
+    bool             m_beginMove;
+    QPointF          m_originPt;
+
+    bool             m_beginChange;
+    QRectF           m_originRect;
+    QLineF           m_originLine;
 
 };
 
