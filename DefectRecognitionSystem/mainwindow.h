@@ -13,6 +13,7 @@
 #include <QFileDialog>
 #include <qfileinfo.h>
 #include <QDateTime>
+#include <QMessageBox>
 
 #include <QMutex>
 
@@ -49,14 +50,13 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    void setPreviewImg(QString filePath);
-
+    //预览相关
     void calcPreWdgPos();
 
     void deletePreWdgList();
 
     //
-    void setDcmFileInfo(DcmFileNode dcmInfo);
+    void setDcmFileInfo();
 
     void reSize(int newW, int newH);
 
@@ -71,16 +71,21 @@ public:
     //恢复图像
     void resetImg();
 
-    void showImg(unsigned short *pImg, int nW, int nH);
-
+    //滚动条相关
     void showScrollBar();
 
     void showScrollBar(bool status);
 
     void setScrollRanges(int maxX, int maxY);
 
+    //鼠标移动， 修改滚动条，修改图像位置
+    void setScrollBarOffsetValues(int hValue, int vValue);
+
+    //图像转换
     void shortImgToImage(unsigned short *pImg, int nW, int nH, QImage &img);
 
+    //显示图像
+    void showImg(unsigned short *pImg, int nW, int nH);
 
     //批处理图像
     void delImg();
@@ -88,32 +93,40 @@ public:
     //更新鼠标样式
     void updateCursor();
 
-    void setScrollBarOffsetValues(int hValue, int vValue);
-
     //识别 插入特征
     void setRecognizeValue(int index, DefectFeat feat);
+
+    //识别缺陷
+    void exeDefectImg();
+
+    //清楚缺陷
+    void clearDefect();
 
 private slots:
     void slotBtnClick(bool bClick);
 
     void textChanged(QString text);
 
+    //资源树点击
     void clicked(QModelIndex index);
 
     void  expanded(QModelIndex index);
 
-    //
+    //滚动条X Y 改变
     void slot_scrollAreaXChange(int value);
 
     void slot_scrollAreaYChange(int value);
 
+    //放大缩小
     void slot_sliderReleased();
 
+    //窗宽窗位变化
     void slot_sliderWinValueChange(int value);
 
     //--tool widget--
     void slot_btnGroupClick(QAbstractButton *btn);
 
+    //模块tab 变化
     void slot_tabCurrentChanged(int index);
 
 
@@ -141,6 +154,38 @@ private:
     DcmFileNode mCurDcmFileInfo;
     QList<PreWdg *> mPreWdgList;
 
+    QMutex     mDelImgLock;
+
+    //缺陷
+    vector<Defect> mADefectList;
+    QList<QColor>  mDefectClassColor;
+    bool           mBShowDefect;
+    bool           mBShowCenter;
+
+    unsigned short *m_pImgDefect;  //处理图像
+
+    //--图像处理相关=------
+    int     mCurImgWidth;
+    int     mCurImgHeight;
+
+    float   mScale;  //缩放
+
+    //
+    bool    mBInvert;  //反相
+    bool    mBFlip;    //翻转
+    bool    mBMirror;  //镜像
+
+    int     mWinCentre; //窗宽
+    int     mWinWidth;  //窗位
+
+    int     mRotate;     //角度
+    int     mNeedRotate; //需要旋转的角度
+
+    QRect   mPaintRect;
+
+    bool    mBMeasureOpt;
+    bool    mBDelImging;
+
     //
     //**绘制相关***
     DCMFile dmfile;
@@ -157,29 +202,9 @@ private:
     int     mSrcImgWidth;       //原始图像宽
     int     mSrcImgHeight;      //原始图像高
 
-    bool    mBMeasureOpt;
-    bool    mBDelImging;
-
-    //当前图像大小
-    int     mCurImgWidth;
-    int     mCurImgHeight;
-
-    float   mScale;  //缩放
-
-    //
-    bool    mBInvert;  //反相
-    bool    mBFlip;    //翻转
-    bool    mBMirror;  //镜像
-
-    int     mWinCentre; //窗宽
-    int     mWinWidth;  //窗位
-
-    QRect   mPaintRect;
-
     //鼠标
     bool            m_bIsPress;
     QPoint          m_PressPt;
-
 
     //
     CurAction           m_ePreAction;

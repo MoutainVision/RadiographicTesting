@@ -70,7 +70,16 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->pushButton_pre_big->installEventFilter(this);
     ui->pushButton_pre_big->setMouseTracking(true);
 
-
+    //
+    mDefectClassColor.push_back(QColor("#f7acbc"));
+    mDefectClassColor.push_back(QColor("#f47920"));
+    mDefectClassColor.push_back(QColor("#726930"));
+    mDefectClassColor.push_back(QColor("#426ab3"));
+    mDefectClassColor.push_back(QColor("#b2d235"));
+    mDefectClassColor.push_back(QColor("#843900"));
+    mDefectClassColor.push_back(QColor("#d93a49"));
+    mDefectClassColor.push_back(QColor("#007d65"));
+    mDefectClassColor.push_back(QColor("#dea32c"));
 
     ui->widget_recognize_table->hide();
     ui->widget_measure->hide();
@@ -90,16 +99,22 @@ MainWindow::MainWindow(QWidget *parent) :
     //
     m_pImgPro = nullptr;
     m_pSrcImg = nullptr;
+    m_pImgDefect = nullptr;
 
     mBInvert = false;
     mBFlip   = false;
     mBMirror = false;
+
+    mBShowDefect = true;
+    mBShowCenter = true;
 
     mSourceX = 0;
     mSourceY = 0;
 
     m_eCurAction = ARROWACTION;
     mBMeasureOpt = false;
+
+    mRotate = 0;
 
     ui->verticalSlider_diameter->setRange(5, 200);
 
@@ -125,11 +140,15 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->pushButton_Flip, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_mag, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
 
+    connect(ui->pushButton_rotate, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+
     //
     connect(ui->pushButton_aoi, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_recog_show_table, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_exe, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_recog_clear, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+    connect(ui->pushButton_show_defect, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+    connect(ui->pushButton_show_defect_center, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
 
 
     connect(ui->verticalSlider_WinCentre, SIGNAL(valueChanged(int)), this, SLOT(slot_sliderWinValueChange(int)));
@@ -193,32 +212,62 @@ void MainWindow::slot_sliderWinValueChange(int value)
 //    delImg();
 }
 
-void MainWindow::setDcmFileInfo(DcmFileNode dcmInfo)
+void MainWindow::setDcmFileInfo()
 {
-    mCurDcmFileInfo = dcmInfo;
-
     ui->verticalSlider_WinCentre->blockSignals(true);
     ui->verticalSlider_WindWidth->blockSignals(true);
 
-    ui->verticalSlider_WinCentre->setValue(dcmInfo.winCentre);
-    ui->verticalSlider_WindWidth->setValue(dcmInfo.windWidth);
-
-    mWinCentre = dcmInfo.winCentre;
-    mWinWidth  = dcmInfo.windWidth;
-
-
-    qDebug() << mWinCentre <<":" << mWinWidth;
 
     ui->verticalSlider_WinCentre->blockSignals(false);
     ui->verticalSlider_WindWidth->blockSignals(false);
 
+    //reset
+    ui->pushButton_measure_table->setChecked(false);
+    ui->tableWidget_measure->hide();
 
+    ui->pushButton_recog_show_table->setChecked(false);
+    ui->tableWidget_recognize->hide();
+
+    ui->pushButton_measure->setChecked(false);
+    ui->widget_tool->hide();
+
+    ui->pushButton_invert->setChecked(false);
+    mBInvert = false;
+
+    ui->pushButton_Mirror->setChecked(false);
+    mBMirror = false;
+
+    ui->pushButton_Flip->setChecked(false);
+    mBFlip = false;
+
+    mRotate = 0;
+    mNeedRotate = 0;
+
+    //清空缺陷
+    clearDefect();
+
+
+    //load
     std::thread([=] {
 
-        dmfile.Load(dcmInfo.filePath.toLocal8Bit().toStdString().c_str());
+        dmfile.Load(mCurDcmFileInfo.filePath.toLocal8Bit().toStdString().c_str());
+
+        mCurDcmFileInfo.winCentre = dmfile.GetWindowCenter();
+        mCurDcmFileInfo.windWidth = dmfile.GetWindowWidth();
+
+        mCurDcmFileInfo.width = dmfile.GetWidth();
+        mCurDcmFileInfo.height = dmfile.GetHeight();
+
+        mWinCentre = mCurDcmFileInfo.winCentre;
+        mWinWidth  = mCurDcmFileInfo.windWidth;
+
+        qDebug() << mWinCentre <<":" << mWinWidth;
 
         FunctionTransfer::runInMainThread([=]()
         {
+            ui->verticalSlider_WinCentre->setValue(mCurDcmFileInfo.winCentre);
+            ui->verticalSlider_WindWidth->setValue(mCurDcmFileInfo.windWidth);
+
             m_pSrcImg = dmfile.GetBuffer();
             mSrcImgWidth = dmfile.GetWidth();
             mSrcImgHeight = dmfile.GetHeight();
@@ -282,6 +331,9 @@ void MainWindow::resetImg()
 
     ui->pushButton_Flip->setChecked(false);
     mBFlip = false;
+
+    mRotate = 0;
+    mNeedRotate = 0;
 
     //适配显示
     showAdapt();
@@ -467,44 +519,11 @@ void MainWindow::clicked(QModelIndex index)
     QString dateTimeStr = QDateTime::currentDateTime().toString("MM-dd hh-mm-ss-zzz");
     QString outFileName = QString(QStringLiteral("%1/%2.jpg")).arg(Appconfig::AppDataPath_Tmp).arg(dateTimeStr);
 
-//    QString outFileName = "";
-    std::thread([=] {
-        std::string errorStr;
-        //ReadDCMFile::readDCMFile(filePath.toLocal8Bit().toStdString(), outFileName.toLocal8Bit().toStdString(), errorStr);
-        //ReadDCMFile::readDCMFileLib(filePath.toLocal8Bit().toStdString(), outFileName.toLocal8Bit().toStdString(), errorStr);
 
+    mCurDcmFileInfo.filePath = filePath;
+    mCurDcmFileInfo.transFilePath = outFileName;
 
-        if (dmfile.IsValid())
-            dmfile.Release();
-
-        if (nullptr != m_pImgPro)
-        {
-            delete []m_pImgPro;
-            m_pImgPro = NULL;
-        }
-
-
-
-
-        DcmFileNode info;
-        info.filePath = filePath;
-        ReadDCMFile::readDCMFileLib(filePath.toLocal8Bit().toStdString(), outFileName.toLocal8Bit().toStdString(), info);
-
-        FunctionTransfer::runInMainThread([=]()
-        {
-            mCurDcmFileInfo = info;
-//            this->setPreviewImg(QString("%1").arg(outFileName));
-            this->setDcmFileInfo(mCurDcmFileInfo);
-        });
-
-        std::cout << errorStr << std::endl;
-
-    }).detach();
-
-
-//    qDebug() <<  filePath << info.baseName() << info.filePath();
-
-
+    setDcmFileInfo();
 }
 
 void MainWindow::textChanged(QString text)
@@ -527,6 +546,15 @@ void MainWindow::textChanged(QString text)
 
     }
 
+}
+
+void MainWindow::clearDefect()
+{
+    mADefectList.clear();
+    ui->tableWidget_recognize->clearContents();
+    ui->tableWidget_recognize->setRowCount(0);
+
+    update();
 }
 
 void MainWindow::setRecognizeValue(int index, DefectFeat feat)
@@ -721,6 +749,24 @@ void MainWindow::slotBtnClick(bool bClick)
         mBMirror = ui->pushButton_Mirror->isChecked();
         delImg();
     }
+    else if (QObject::sender() == ui->pushButton_rotate)
+    {
+        mRotate += 90;
+
+        mRotate = mRotate % 360;
+
+        if ((mBFlip && !mBMirror) || (!mBFlip && mBMirror))
+        {
+            mNeedRotate += 90;
+            mNeedRotate = mNeedRotate % 360;
+        }
+        else
+        {
+            mNeedRotate = mRotate;
+        }
+
+        delImg();
+    }
     else if (QObject::sender() == ui->pushButton_aoi)
     {
 
@@ -729,40 +775,99 @@ void MainWindow::slotBtnClick(bool bClick)
     {
         ui->widget_recognize_table->setVisible(ui->pushButton_recog_show_table->isChecked());
     }
+    else if (QObject::sender() == ui->pushButton_show_defect)
+    {
+        mBShowDefect = ui->pushButton_show_defect->isChecked();
+        update();
+    }
+    else if (QObject::sender() == ui->pushButton_show_defect_center)
+    {
+        mBShowCenter = ui->pushButton_show_defect_center->isChecked();
+        update();
+    }
     else if (QObject::sender() == ui->pushButton_exe)
     {
-        DetectParam param;
-        param.nGreyDiff     = ui->spinBox_GreyDiff->value();
-        param.nConnectThr   = ui->spinBox_ConnectThr->value();
-        param.nFilterRadius = ui->spinBox_FilterRadius->value();
-        param.nMinDefectArea = ui->spinBox_MinDefectArea->value();
-
-        vector<Defect> aDefectList;
-        ImageRect pRoi(50, 500, 50, 500);
-
-        //DetectDefect(aDefectList, m_pSrcImg, mSrcImgWidth, mSrcImgHeight, &pRoi, &param);
-        DetectDefect(aDefectList, m_pSrcImg, mSrcImgWidth, mSrcImgHeight);
-
-        ui->tableWidget_recognize->clearContents();
-        ui->tableWidget_recognize->setRowCount(0);
-
-        for(int i=0; i<aDefectList.size(); i++)
-        {
-            setRecognizeValue(i, aDefectList.at(i).feat);
-        }
+        exeDefectImg();
     }
     else if (QObject::sender() == ui->pushButton_recog_clear)
     {
-
+        clearDefect();
     }
+}
+
+
+void MainWindow::exeDefectImg()
+{
+    if (nullptr != m_pImgDefect)
+    {
+        delete []m_pImgDefect;
+        m_pImgDefect = nullptr;
+    }
+
+    //拷贝
+    m_pImgDefect = new unsigned short[mSrcImgWidth * mSrcImgHeight];
+    memcpy(m_pImgDefect, m_pSrcImg, mSrcImgWidth*mSrcImgHeight*sizeof(unsigned short));
+
+    int imgW  = mSrcImgWidth;
+    int imgH = mSrcImgHeight;
+
+
+    //反相
+    if (mBInvert)
+        Invert(m_pImgDefect, imgW, imgH);
+
+    //镜像
+    if (mBMirror)
+        Mirror(m_pImgDefect, imgW, imgH);
+
+    //翻转
+    if (mBFlip)
+        Flip(m_pImgDefect, imgW, imgH);
+
+    //旋转
+    if (mNeedRotate == 90)
+        Rotate90(m_pImgDefect, imgW, imgH);
+    else if (mNeedRotate == 180)
+        Rotate180(m_pImgDefect, imgW, imgH);
+    else if (mNeedRotate == 180)
+        ;
+
+    DetectParam param;
+    param.nGreyDiff     = ui->spinBox_GreyDiff->value();
+    param.nConnectThr   = ui->spinBox_ConnectThr->value();
+    param.nFilterRadius = ui->spinBox_FilterRadius->value();
+    param.nMinDefectArea = ui->spinBox_MinDefectArea->value();
+
+    clearDefect();
+
+    ImageRect pRoi(50, 500, 50, 500);
+
+    std::thread([&] {
+
+        DetectDefect(mADefectList, m_pImgDefect, imgW, imgH, &pRoi, &param);
+
+        FunctionTransfer::runInMainThread([=]()
+        {
+            for(int i=0; i<mADefectList.size(); i++)
+            {
+                setRecognizeValue(i, mADefectList.at(i).feat);
+            }
+
+            update();
+        });
+
+    }).detach();
 }
 
 void MainWindow::delImg()
 {
 //    std::thread([=] {
         //删除
-        delete []m_pImgPro;
-        m_pImgPro = NULL;
+        if (nullptr != m_pImgPro)
+        {
+            delete []m_pImgPro;
+            m_pImgPro = NULL;
+        }
 
         //拷贝
         m_pImgPro = new unsigned short[mSrcImgWidth * mSrcImgHeight];
@@ -788,6 +893,14 @@ void MainWindow::delImg()
 
         //resize
         reSize(mScale);
+
+        //旋转
+        if (mNeedRotate == 90)
+            Rotate90(m_pImgPro, mCurImgWidth, mCurImgHeight);
+        else if (mNeedRotate == 180)
+            Rotate180(m_pImgPro, mCurImgWidth, mCurImgHeight);
+        else if (mNeedRotate == 180)
+            ;
 
         mBDelImging = false;
 
@@ -955,13 +1068,6 @@ void MainWindow::resizeEvent(QResizeEvent *e)
     return QMainWindow::resizeEvent(e);
 }
 
-void MainWindow::setPreviewImg(QString filePath)
-{
-    qDebug() << __FUNCTION__ << filePath;
-    mPreviewPixImg.load(filePath);
-    update();
-}
-
 bool MainWindow::eventFilter(QObject *obj, QEvent *e)
 {
     if (obj == ui->widget_pre)
@@ -987,27 +1093,93 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                 p.drawRect(ui->widget_img_pre->rect());
 
 
+                QRect paintRectTmp;
+
                 if (mPaintRect.width() <= nWidth && mPaintRect.height() <= nHeight)
                 {
-                    p.drawImage(QRect((nWidth-mPaintRect.width())/2,
-                                      (nHeight-mPaintRect.height())/2,
-                                      mPaintRect.width(),
-                                      mPaintRect.height()), mPaintImg);
+                    paintRectTmp.setRect((nWidth-mPaintRect.width())/2,
+                                         (nHeight-mPaintRect.height())/2,
+                                         mPaintRect.width(),
+                                         mPaintRect.height());
+
+                    mSourceRect = QRect(0, 0, mPaintRect.width(), mPaintRect.height());
+
+                    p.drawImage(paintRectTmp, mPaintImg);
                 }
                 else if (mPaintRect.width() <= nWidth && mPaintRect.height() > nHeight)
                 {
-                    p.drawImage(QRect((nWidth-mPaintRect.width())/2, 0,
-                                      mPaintRect.width(),
-                                      nHeight), mPaintImg, mSourceRect);
+                    paintRectTmp.setRect((nWidth-mPaintRect.width())/2, 0,
+                                         mPaintRect.width(),
+                                         nHeight);
+
+                    p.drawImage(paintRectTmp, mPaintImg, mSourceRect);
                 }
                 else if (mPaintRect.width() > nWidth && mPaintRect.height() <= nHeight)
                 {
-                    p.drawImage(QRect(0, (nHeight-mPaintRect.height())/2,
-                                      nWidth,
-                                      mPaintRect.height()), mPaintImg, mSourceRect);
+                    paintRectTmp.setRect(0, (nHeight-mPaintRect.height())/2,
+                                         nWidth,
+                                         mPaintRect.height());
+                    p.drawImage(paintRectTmp, mPaintImg, mSourceRect);
                 }
                 else
-                    p.drawImage(QRect(0, 0, nWidth, nHeight), mPaintImg, mSourceRect);
+                {
+                    paintRectTmp.setRect(0, 0, nWidth, nHeight);
+                    p.drawImage(paintRectTmp, mPaintImg, mSourceRect);
+                }
+
+                if (mBShowDefect || mBShowCenter)
+                {
+                    for (int i=0; i<mADefectList.size(); i++)
+                    {
+                        int deClass = mADefectList.at(i).iClass;
+                        QColor color = mDefectClassColor.at(deClass+1);
+
+                        vector<POINT> aPt = mADefectList.at(i).aPt;
+
+
+                        if (mBShowDefect)
+                        {
+                            for (int j=0; j<aPt.size(); j++)
+                            {
+                                QPoint pt(aPt.at(j).x * mScale-mSourceRect.x() + paintRectTmp.x(),
+                                          aPt.at(j).y * mScale - mSourceRect.y() + paintRectTmp.y());
+
+                                if (paintRectTmp.contains(pt))
+                                {
+                                    p.setPen(color);
+                                    p.drawPoint(pt);
+                                }
+                            }
+                        }
+
+
+                        if (mBShowCenter)
+                        {
+                            //--center--
+                            int length = 20 * mScale;
+
+                            if (length > 20)
+                                length = 20;
+                            else if (length < 5)
+                                length = 5;
+
+                            QPoint centerPt = QPoint(mADefectList.at(i).center.x * mScale,
+                                                     mADefectList.at(i).center.y * mScale);
+
+                            p.setPen(QColor("#ff0000"));
+                            p.drawLine(centerPt.x() - mSourceRect.x() -length + paintRectTmp.x(),
+                                       centerPt.y() - mSourceRect.y() + paintRectTmp.y(),
+                                       centerPt.x() - mSourceRect.x() + length + paintRectTmp.x(),
+                                       centerPt.y() - mSourceRect.y() + paintRectTmp.y());
+
+                            p.drawLine(centerPt.x() - mSourceRect.x() + paintRectTmp.x(),
+                                       centerPt.y() - mSourceRect.y() - length + paintRectTmp.y(),
+                                       centerPt.x() - mSourceRect.x() + paintRectTmp.x(),
+                                       centerPt.y() - mSourceRect.y() + length + paintRectTmp.y());
+                        }
+                    }
+                }
+
 
                 p.setPen(QColor("#ffff00"));
                 p.setFont(QFont("Microsoft YaHei UI", 20));
@@ -1476,6 +1648,12 @@ MainWindow::~MainWindow()
     {
         delete []m_pImgPro;
         m_pImgPro = NULL;
+    }
+
+    if (nullptr != m_pImgDefect)
+    {
+        delete []m_pImgDefect;
+        m_pImgDefect = nullptr;
     }
 
     //save config
