@@ -23,7 +23,8 @@ void GeometryItemBase::dummy()
 
 }
 
-void GeometryItemBase::calcOriGeometry(QPoint oriPt, int imgW, int imgH, float scale, int rotate, bool bFlip, bool bMirror)
+void GeometryItemBase::calcOriGeometry(QPoint oriPt, int imgW, int imgH, float scale,
+                                       int rotate, bool bFlip, bool bMirror)
 {
 
 }

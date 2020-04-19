@@ -14,10 +14,14 @@ public:
     virtual void dummy();
 
     //calc original geometry(trans image coordinate)
-    virtual void calcOriGeometry(QPoint oriPt, int imgW, int imgH, float scale, int rotate, bool bFlip, bool bMirror);
+    virtual void calcOriGeometry(QPoint oriPt, int imgW,
+                                 int imgH, float scale, int rotate,
+                                 bool bFlip, bool bMirror);
 
     //update geometry (get current geometry)
-    virtual void updateGeometry(QPoint curOriPt, int imgW, int imgH, float scale, int rotate, bool bFlip, bool bMirror);
+    virtual void updateGeometry(QPoint curOriPt, int imgW,
+                                int imgH, float scale, int rotate,
+                                bool bFlip, bool bMirror);
 
     virtual void setCurLabelType(LabelType type = NONELABEL);
     virtual void setCurLabelType(QString typeStr);

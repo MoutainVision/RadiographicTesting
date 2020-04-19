@@ -41,6 +41,8 @@
 
 #include "geyimgwdg.h"
 
+#include "colorwdg.h"
+
 
 
 #define MAX_PRE_WIDGET_WIDTH 100
@@ -157,6 +159,23 @@ public:
                           QPoint pt,
                           DragDirection &dragDirection);
 
+    QPoint getCurOffset();
+
+//**测量表格相关**
+    void updateMeasureTable();
+
+    void addOneMeasure(int num, QString name,
+                       QPoint beginPt,
+                       QPoint endPt,
+                       QPoint centerPt,
+                       qreal width,
+                       qreal height,
+                       qreal majorAxis,
+                       qreal minorAxis,
+                       qreal angle,
+                       qreal area,
+                       qreal perimeter);
+
 private slots:
     void slotBtnClick(bool bClick);
 
@@ -193,8 +212,8 @@ protected:
 private:
     Ui::MainWindow *ui;
 
-    //状态栏
-    QLabel  *mStatusLabel;
+    //颜色
+    ColorWdg *mColorWdg;
 
     //
     QSplitter *mSplitter;
@@ -251,8 +270,6 @@ private:
     int     mRotate;     //角度
     int     mNeedRotate; //需要旋转的角度
 
-    QRect   mPaintRect;
-    QRect   mPaintRectReal;
 
     bool    mBMeasureOpt;
     bool    mBDelImging;
@@ -263,9 +280,12 @@ private:
 
     DCMFile mSourceFile;
 
+    QRect   mPaintRect;          //图像的Rect  (0, 0, nW, nH)
+    QRect   mPaintRectReal;      //图像绘制的Rect
+
     int     mSourceX;
     int     mSourceY;
-    QRect   mSourceRect;
+    QRect   mSourceRect;        //原图需要显示的Rect
     QImage  mPaintImg;
 
     unsigned short *m_pImgPro;  //处理图像

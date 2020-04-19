@@ -463,5 +463,6 @@
         <file>imgs/redo_normal.png</file>
         <file>imgs/next_normal_big.png</file>
         <file>imgs/prev_normal_big.png</file>
+        <file>imgs/colorwdg.png</file>
     </qresource>
 </RCC>

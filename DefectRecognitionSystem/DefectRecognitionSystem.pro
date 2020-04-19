@@ -73,7 +73,8 @@ SOURCES += \
     geometryItem/textitem.cpp \
     logindlg.cpp \
     prewdg.cpp \
-    geyimgwdg.cpp
+    geyimgwdg.cpp \
+    colorwdg.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -93,7 +94,8 @@ HEADERS += \
     geometryItem/textitem.h \
     logindlg.h \
     prewdg.h \
-    geyimgwdg.h
+    geyimgwdg.h \
+    colorwdg.h
 
 FORMS += \
     mainwindow.ui \
@@ -101,7 +103,8 @@ FORMS += \
     recheckwdg.ui \
     logindlg.ui \
     prewdg.ui \
-    geyimgwdg.ui
+    geyimgwdg.ui \
+    colorwdg.ui
 
 CONFIG(release, debug|release) {
     LIBS += -L"..\Dependencies\dcmtk-3.6.5\lib\Release" -ldcmtk

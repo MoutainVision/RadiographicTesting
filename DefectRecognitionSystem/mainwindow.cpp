@@ -121,7 +121,16 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->verticalSlider_diameter->setRange(5, 200);
 
+    //
+    mColorWdg = new ColorWdg();
+    mColorWdg->hide();
+    mColorWdg->installEventFilter(this);
+    mColorWdg->setMouseTracking(true);
 
+    connect(mColorWdg, &ColorWdg::sig_btnColorClick, [=](){
+        QString style = "background-color: "+ mColorWdg->getCurColor().name() + ";";
+        ui->pushButton_color->setStyleSheet(style);
+    });
 
 	connect(ui->checkBox_gray_mesure, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_search, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
@@ -132,6 +141,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->pushButton_open_pre, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->lineEdit_open_pre, SIGNAL(textChanged(QString)), this, SLOT(textChanged(QString)));
+
+    //tool widget
+    connect(ui->pushButton_color, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+
 
     //常规
     connect(ui->pushButton_measure, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
@@ -229,10 +242,10 @@ void MainWindow::setDcmFileInfo()
 
     //reset
     ui->pushButton_measure_table->setChecked(false);
-    ui->tableWidget_measure->hide();
+    ui->widget_measure->hide();
 
     ui->pushButton_recog_show_table->setChecked(false);
-    ui->tableWidget_recognize->hide();
+    ui->widget_recognize_table->hide();
 
     ui->pushButton_measure->setChecked(false);
     ui->widget_tool->hide();
@@ -571,6 +584,12 @@ QPoint MainWindow::convertImgPt(QPoint wPt)
                   wPt.y() - mPaintRectReal.y() + mSourceRect.y());
 }
 
+QPoint MainWindow::getCurOffset()
+{
+    return QPoint(mPaintRectReal.x() - mSourceRect.x(),
+                 mPaintRectReal.y() - mSourceRect.y());
+}
+
 void MainWindow::calcIntensityCurve(QPoint p1, QPoint p2)
 {
     QPoint iP1 = convertImgPt(p1);
@@ -891,6 +910,15 @@ void MainWindow::slotBtnClick(bool bClick)
     {
         m_eCurAction = GREAYACTION;
     }
+    else if (QObject::sender() == ui->pushButton_color)
+    {
+        mColorWdg->show();
+
+        QPoint GlobalPoint(ui->pushButton_color->mapToGlobal(QPoint(13, 0)));
+        mColorWdg->move(GlobalPoint.x()-mColorWdg->width()/2, GlobalPoint.y()-mColorWdg->height()-10);
+
+        mColorWdg->setFocus();
+    }
 }
 
 
@@ -1040,10 +1068,8 @@ void MainWindow::slot_btnGroupClick(QAbstractButton *btn)
     {
         m_eCurAction = LINEACTION;
     }
-    else if (btn == ui->pushButton_text)
-    {
-        m_eCurAction = TEXTACTION;
-    }
+
+    mColorWdg->hide();
 
 //    slot_btnColorClick(m_measureSetting.measureObjectSet.lineColor.name(), false);
 //    ui->comboBox_linebold->setCurrentText(QString("%1").arg(m_measureSetting.measureObjectSet.lineWidth));
@@ -1175,6 +1201,29 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
             calcPreWdgPos();
         }
     }
+    else if (obj == mColorWdg)
+    {
+        if (e->type() == QEvent::FocusOut)
+        {
+            if (mColorWdg->hasFocus())
+            {
+            }
+            else
+            {
+                mColorWdg->hide();
+            }
+        }
+        else if (e->type() == QEvent::Enter)
+        {
+            setCursor(Qt::ArrowCursor);
+            return true;
+        }
+        else if(e->type() == QEvent::Leave)
+        {
+            updateCursor();
+            return true;
+        }
+    }
     else if (obj == ui->widget_img_pre)
     {
         if (e->type() == QEvent::Paint)
@@ -1303,10 +1352,10 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
 
                     if (RectItem *rectItemTmp = dynamic_cast<RectItem *> (geometryItemTmp))
                     {
-//                        rectItemTmp->updateGeometry(QPoint(m_PaintRect.topLeft().x(), m_PaintRect.topLeft().y()),
-//                                                            m_img.width(),
-//                                                            m_img.height(), m_scaleRate,
-//                                                            0, false, false);
+                        rectItemTmp->updateGeometry(getCurOffset(),
+                                                            mCurImgWidth,
+                                                            mCurImgHeight, mScale,
+                                                            mNeedRotate, mBFlip, mBMirror);
 
                         QRectF rectTmp = rectItemTmp->getRect();
                         bool selectedFlag = false;
@@ -1372,10 +1421,10 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                                 value = rectItemTmp->getAreaUnit();
 
 //                                if (m_measureSetting.generalSet.bDimension)
-//                                    labelStr = QString("A:%1%2").arg(QString::number(value, 'f', m_measureSetting.generalSet.resultKeep))
+//                                    labelStr = QString("A:%1%2").arg(QString::number(value, 'f', 2))
 //                                                               .arg(m_measureSetting.getUnitStr());
 //                                else
-//                                    labelStr = QString("A:%1").arg(QString::number(value, 'f', m_measureSetting.generalSet.resultKeep));
+//                                    labelStr = QString("A:%1").arg(QString::number(value, 'f', 2));
                                 labelStr = QString("A:%1").arg(QString::number(value, 'f', 2));
 
                                 p.drawText(rectTmp.center(), labelStr);
@@ -1385,10 +1434,10 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                                 value = rectItemTmp->getCircumferenceUnit();
 
 //                                if (m_measureSetting.generalSet.bDimension)
-//                                    labelStr = QString("P:%1%2").arg(QString::number(value, 'f', m_measureSetting.generalSet.resultKeep))
+//                                    labelStr = QString("P:%1%2").arg(QString::number(value, 'f', 2))
 //                                                               .arg(m_measureSetting.getUnitStr());
 //                                else
-//                                    labelStr = QString("P:%1").arg(QString::number(value, 'f', m_measureSetting.generalSet.resultKeep));
+//                                    labelStr = QString("P:%1").arg(QString::number(value, 'f', 2));
 
                                                                     labelStr = QString("P:%1").arg(QString::number(value, 'f', 2));
 
@@ -1399,10 +1448,10 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                                 value = rectItemTmp->getOriWidthUnit();
 
 //                                if (m_measureSetting.generalSet.bDimension)
-//                                    labelStr = QString("W:%1%2").arg(QString::number(value, 'f', m_measureSetting.generalSet.resultKeep))
+//                                    labelStr = QString("W:%1%2").arg(QString::number(value, 'f', 2))
 //                                                               .arg(m_measureSetting.getUnitStr());
 //                                else
-//                                    labelStr = QString("W:%1").arg(QString::number(value, 'f', m_measureSetting.generalSet.resultKeep));
+//                                    labelStr = QString("W:%1").arg(QString::number(value, 'f', 2));
                                 labelStr = QString("W:%1").arg(QString::number(value, 'f', 2));
 
                                 p.drawText(rectTmp.center(), labelStr);
@@ -1411,10 +1460,10 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                                 value = rectItemTmp->getOriHeightUnit();
 
 //                                if (m_measureSetting.generalSet.bDimension)
-//                                    labelStr = QString("H:%1%2").arg(QString::number(value, 'f', m_measureSetting.generalSet.resultKeep))
+//                                    labelStr = QString("H:%1%2").arg(QString::number(value, 'f', 2))
 //                                                               .arg(m_measureSetting.getUnitStr());
 //                                else
-//                                    labelStr = QString("H:%1").arg(QString::number(value, 'f', m_measureSetting.generalSet.resultKeep));
+//                                    labelStr = QString("H:%1").arg(QString::number(value, 'f', 2));
 
                                 labelStr = QString("H:%1").arg(QString::number(value, 'f', 2));
 
@@ -1575,19 +1624,19 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                         if (m_rectTmp.isValid() && m_eDrawStatus == BEGINDRAW)
                         {
                             m_geometryItemBase = new RectItem(m_rectTmp);
-//                            m_geometryItemBase->setColor(m_measureSetting.measureObjectSet.lineColor);
-//                            m_geometryItemBase->setLineWidth(m_measureSetting.measureObjectSet.lineWidth);
+                            m_geometryItemBase->setColor(mColorWdg->getCurColor());
+                            m_geometryItemBase->setLineWidth(ui->comboBox_linebold->currentText().toInt());
 //                            m_geometryItemBase->setPenStyle(m_measureSetting.measureObjectSet.penStyle);
 //                            m_geometryItemBase->setCurLabelType(m_measureSetting.measureObjectSet.rectLabelType);
 
 //                            m_geometryItemBase->setSpatialResolution(g_scanner.getSpatialResolution());
 //                            m_geometryItemBase->setUnit(m_measureSetting.lengthUnit);
 
-//                            m_geometryItemBase->calcOriGeometry(QPoint(m_PaintRect.topLeft().x(),
-//                                                                       m_PaintRect.topLeft().y()),
-//                                                                m_img.width(),
-//                                                                m_img.height(), m_scaleRate,
-//                                                                0, false, false);
+                            m_geometryItemBase->calcOriGeometry(getCurOffset(),
+                                                                mCurImgWidth,
+                                                                mCurImgHeight,
+                                                                mScale,
+                                                                mNeedRotate, mBFlip, mBMirror);
 
 //                            RectItem *rectItem = (RectItem *)m_geometryItemBase;
 //                            rectItem->setFillStatus(m_measureSetting.measureObjectSet.bFill);
@@ -1607,7 +1656,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
 
 //                            updateMesureDlgCtr(m_geometryItemBase);
 
-//                            updateMeasureTable();
+                            updateMeasureTable();
                         }
 
                         m_rectTmp = QRectF();
@@ -1891,15 +1940,11 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
         if (e->type() == QEvent::Enter)
         {
             setCursor(Qt::ArrowCursor);
-
-//            showColorWdgOpacity(1);
             return true;
         }
         else if(e->type() == QEvent::Leave)
         {
             updateCursor();
-
-//            showColorWdgOpacity(0.5);
             return true;
         }
     }
@@ -2183,7 +2228,7 @@ void MainWindow::mouseReleaseArrowAction()
 
                 insetOperator(m_itemOperatorTmp);
 
-//                updateMeasureTable();
+                updateMeasureTable();
             }
 
             if (m_beginChange)
@@ -2199,7 +2244,7 @@ void MainWindow::mouseReleaseArrowAction()
 
                 insetOperator(m_itemOperatorTmp);
 
-//                updateMeasureTable();
+                updateMeasureTable();
             }
         }
         else if (TextItem *textItemTmp = dynamic_cast<TextItem *> (geometryItemTmp))
@@ -2256,7 +2301,7 @@ void MainWindow::mouseReleaseArrowAction()
 
                 insetOperator(m_itemOperatorTmp);
 
-//                updateMeasureTable();
+                updateMeasureTable();
             }
 
             if (m_beginChange)
@@ -2272,7 +2317,7 @@ void MainWindow::mouseReleaseArrowAction()
 
                 insetOperator(m_itemOperatorTmp);
 
-//                updateMeasureTable();
+                updateMeasureTable();
             }
         }
         else if (LineItem *lineItemTmp = dynamic_cast<LineItem *> (geometryItemTmp))
@@ -2294,7 +2339,7 @@ void MainWindow::mouseReleaseArrowAction()
 
                 insetOperator(m_itemOperatorTmp);
 
-//                updateMeasureTable();
+                updateMeasureTable();
             }
 
             if (m_beginChange)
@@ -2310,7 +2355,7 @@ void MainWindow::mouseReleaseArrowAction()
 
                 insetOperator(m_itemOperatorTmp);
 
-//                updateMeasureTable();
+                updateMeasureTable();
             }
 
         }
@@ -2324,6 +2369,150 @@ void MainWindow::mouseReleaseArrowAction()
     update();
 }
 
+void MainWindow::updateMeasureTable()
+{
+    ui->tableWidget_measure->clearContents();
+    ui->tableWidget_measure->setRowCount(0);
+
+    for (int i=0; i<m_geometryItemList.size(); i++)
+    {
+        GeometryItemBase *geometryItemTmp = m_geometryItemList.at(i);
+
+        if (RectItem *rectItemTmp = dynamic_cast<RectItem *> (geometryItemTmp))
+        {
+            QRectF rect = rectItemTmp->getOriRect();
+
+            addOneMeasure(i, QStringLiteral("矩形"), rect.topLeft().toPoint(), rect.bottomRight().toPoint(),
+                          rect.center().toPoint(), rectItemTmp->getOriHeightUnit(), rectItemTmp->getOriWidthUnit(),
+                          0, 0, 0,
+                          rectItemTmp->getAreaUnit(),
+                          rectItemTmp->getCircumferenceUnit());
+        }
+        else if (EllipseItem *ellipseItemTmp = dynamic_cast<EllipseItem *> (geometryItemTmp))
+        {
+            QRectF rect = ellipseItemTmp->getOriRect();
+
+            addOneMeasure(i, QStringLiteral("椭圆"), rect.topLeft().toPoint(), rect.bottomRight().toPoint(),
+                          rect.center().toPoint(),
+                          ellipseItemTmp->getOriWidthUnit(), ellipseItemTmp->getOriHeightUnit(),
+                          ellipseItemTmp->getSemiMajorAxisUnit(), ellipseItemTmp->getSemiMinorAxisUnit(),
+                          0,
+                          ellipseItemTmp->getAreaUnit(),
+                          ellipseItemTmp->getCircumferenceUnit());
+        }
+        else if (LineItem *lineItemTmp = dynamic_cast<LineItem *> (geometryItemTmp))
+        {
+            QLineF line = lineItemTmp->getOriLine();
+
+            addOneMeasure(i, QStringLiteral("直线"), line.p1().toPoint(), line.p2().toPoint(),
+                          lineItemTmp->getCenterPt(),
+                          lineItemTmp->getLengthUnit(), 0,
+                          0,0,
+                          lineItemTmp->getAngle(),
+                          0,
+                          0);
+        }
+    }
+}
+
+void MainWindow::addOneMeasure(int num,
+                   QString name,
+                   QPoint beginPt,
+                   QPoint endPt,
+                   QPoint centerPt,
+                   qreal width,
+                   qreal height, qreal majorAxis, qreal minorAxis, qreal angle,
+                   qreal area,
+                   qreal perimeter)
+{
+    ui->tableWidget_measure->setRowCount(ui->tableWidget_measure->rowCount() + 1);
+
+    int row = ui->tableWidget_measure->rowCount() - 1;
+
+    //--items--
+    QTableWidgetItem *noItem = new QTableWidgetItem;
+    noItem->setText(QString("%1").arg(num));
+    noItem->setTextAlignment(Qt::AlignCenter);
+
+    QTableWidgetItem *nameItem = new QTableWidgetItem;
+    nameItem->setText(name);
+    nameItem->setTextAlignment(Qt::AlignCenter);
+
+    QTableWidgetItem *beginItem = new QTableWidgetItem;
+    beginItem->setText(QString("(%1, %2)").arg(beginPt.x()).arg(beginPt.y()));
+    beginItem->setTextAlignment(Qt::AlignCenter);
+
+    QTableWidgetItem *endItem = new QTableWidgetItem;
+    endItem->setText(QString("(%1, %2)").arg(endPt.x()).arg(endPt.y()));
+    endItem->setTextAlignment(Qt::AlignCenter);
+
+    QTableWidgetItem *centerItem = new QTableWidgetItem;
+    centerItem->setText(QString("(%1, %2)").arg(centerPt.x()).arg(centerPt.y()));
+    centerItem->setTextAlignment(Qt::AlignCenter);
+
+    QTableWidgetItem *widthItem = new QTableWidgetItem;
+    widthItem->setText(QString("%1").arg(QString::number(width, 'f', 2)));
+    widthItem->setTextAlignment(Qt::AlignCenter);
+
+    QTableWidgetItem *heightItem = new QTableWidgetItem;
+    if (name == tr("Line") )
+        heightItem->setText(QString("-"));
+    else
+        heightItem->setText(QString("%1").arg(QString::number(height, 'f', 2)));
+
+    heightItem->setTextAlignment(Qt::AlignCenter);
+
+    QTableWidgetItem *majorItem = new QTableWidgetItem;
+    if (name == tr("Rectangle") || name == tr("Line") )
+        majorItem->setText(QString("-"));
+    else
+        majorItem->setText(QString("%1").arg(QString::number(majorAxis, 'f', 2)));
+    majorItem->setTextAlignment(Qt::AlignCenter);
+
+    QTableWidgetItem *minorItem = new QTableWidgetItem;
+    if (name == tr("Rectangle") || name == tr("Line" ))
+        minorItem->setText(QString("-"));
+    else
+        minorItem->setText(QString("%1").arg(QString::number(minorAxis, 'f', 2)));
+    minorItem->setTextAlignment(Qt::AlignCenter);
+
+    QTableWidgetItem *angleItem = new QTableWidgetItem;
+    if (name == tr("Rectangle") || name == tr("Ellipse") )
+        angleItem->setText(QString("-"));
+    else
+        angleItem->setText(QString("%1").arg(QString::number(angle, 'f', 2)));
+    angleItem->setTextAlignment(Qt::AlignCenter);
+
+    QTableWidgetItem *areaItem = new QTableWidgetItem;
+    if (name == tr("Line"))
+        areaItem->setText(QString("-"));
+    else
+        areaItem->setText(QString("%1").arg(QString::number(area, 'f', 2)));
+
+    areaItem->setTextAlignment(Qt::AlignCenter);
+
+    QTableWidgetItem *perimeterItem = new QTableWidgetItem;
+    if (name == tr("Line"))
+        perimeterItem->setText(QString("-"));
+    else
+        perimeterItem->setText(QString("%1").arg(QString::number(perimeter, 'f', 2)));
+
+    perimeterItem->setTextAlignment(Qt::AlignCenter);
+
+    //--additems--
+    ui->tableWidget_measure->setItem(row, 0, noItem);
+    ui->tableWidget_measure->setItem(row, 1, nameItem);
+    ui->tableWidget_measure->setItem(row, 2, beginItem);
+    ui->tableWidget_measure->setItem(row, 3, endItem);
+    ui->tableWidget_measure->setItem(row, 4, centerItem);
+    ui->tableWidget_measure->setItem(row, 5, widthItem);
+    ui->tableWidget_measure->setItem(row, 6, heightItem);
+    ui->tableWidget_measure->setItem(row, 7, majorItem);
+    ui->tableWidget_measure->setItem(row, 8, minorItem);
+    ui->tableWidget_measure->setItem(row, 9, angleItem);
+    ui->tableWidget_measure->setItem(row, 10, areaItem);
+    ui->tableWidget_measure->setItem(row, 11, perimeterItem);
+}
 
 bool MainWindow::getDragDirection(QList<DragItem> &dragItemList,
                       QPoint pt,
@@ -2467,7 +2656,7 @@ void MainWindow::mouseMoveArrowAction(QPoint pt)
 
 //                    updateMesureDlgCtr(geometryItemTmp);
 
-//                    updateMeasureTable();
+                    updateMeasureTable();
 
                     update();
 
@@ -2513,7 +2702,7 @@ void MainWindow::mouseMoveArrowAction(QPoint pt)
 
 //                    updateMesureDlgCtr(geometryItemTmp);
 
-//                    updateMeasureTable();
+                    updateMeasureTable();
 
                     update();
 

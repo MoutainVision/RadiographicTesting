@@ -20,6 +20,8 @@ void GeyImgWdg::SetIntensityCurveValues(std::vector<unsigned short> aIntensity, 
 
     m_pixWidth = pixWidth;
 
+    ui->label_max_pix->setText(QString("%1").arg(m_pixWidth));
+
     update();
 }
 

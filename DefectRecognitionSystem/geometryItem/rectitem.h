@@ -25,10 +25,12 @@ public:
     void setRect(QRectF rect);
 
     //设置坐标系（计算原始几何图形）
-    void calcOriGeometry(QPoint oriPt, int imgW, int imgH, float scale, int rotate, bool bFlip, bool bMirror);
+    void calcOriGeometry(QPoint oriPt, int imgW, int imgH,
+                         float scale, int rotate, bool bFlip, bool bMirror);
 
     //做完变换刷新几何图形（获得当前几何图形）
-    void updateGeometry(QPoint curOriPt, int imgW, int imgH, float scale, int rotate, bool bFlip, bool bMirror);
+    void updateGeometry(QPoint curOriPt, int imgW, int imgH,
+                        float scale, int rotate, bool bFlip, bool bMirror);
 
     //get
     QRectF getRect();
