@@ -121,6 +121,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->verticalSlider_diameter->setRange(5, 200);
 
+    ui->pushButton_pre->hide();
+    ui->pushButton_next->hide();
+
     //
     mColorWdg = new ColorWdg();
     mColorWdg->hide();
@@ -180,6 +183,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->verticalSlider_diameter, SIGNAL(sliderReleased()), this, SLOT(slot_sliderReleased()));
 
     connect(ui->buttonGroup, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(slot_btnGroupClick(QAbstractButton*)));
+    connect(ui->pushButton_pre, SIGNAL(clicked()), this, SLOT(slot_btnPreToolClick()));
+    connect(ui->pushButton_next, SIGNAL(clicked()), this, SLOT(slot_btnNextToolClick()));
+    connect(ui->pushButton_delete, SIGNAL(clicked()), this, SLOT(slot_btnDeleteToolClick()));
+    connect(ui->pushButton_eraser, SIGNAL(clicked()), this, SLOT(slot_btnEraserToolClick()));
 
     connect(ui->treeView, SIGNAL(clicked(QModelIndex)), this, SLOT(clicked(QModelIndex)));
     connect(ui->treeView, SIGNAL(expanded(QModelIndex)), this, SLOT(expanded(QModelIndex)));
@@ -1352,19 +1359,10 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
 
                     if (RectItem *rectItemTmp = dynamic_cast<RectItem *> (geometryItemTmp))
                     {
-                        if (mNeedRotate == 0 || mNeedRotate == 180) {
-
-                            rectItemTmp->updateGeometry(getCurOffset(),
-                                                            mCurImgWidth,
-                                                            mCurImgHeight, mScale,
-                                                            mNeedRotate, mBFlip, mBMirror);
-                        }
-                        else {
-                            rectItemTmp->updateGeometry(getCurOffset(),
-                                                            mCurImgHeight,
-                                                            mCurImgWidth, mScale,
-                                                            mNeedRotate, mBFlip, mBMirror);
-                        }
+                        rectItemTmp->updateGeometry(getCurOffset(),
+                                                        mCurImgWidth,
+                                                        mCurImgHeight, mScale,
+                                                        mNeedRotate, mBFlip, mBMirror);
 
                         QRectF rectTmp = rectItemTmp->getRect();
                         bool selectedFlag = false;
@@ -1630,7 +1628,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                     switch (m_eCurAction) {
                     case RECTACTION:
                     {
-                        if (m_rectTmp.isValid() && m_eDrawStatus == BEGINDRAW)
+                        if (m_rectTmp.isValid() && m_eDrawStatus == BEGINDRAW && m_rectTmp.width() > 2 && m_rectTmp.height() > 2)
                         {
                             m_geometryItemBase = new RectItem(m_rectTmp);
                             m_geometryItemBase->setColor(mColorWdg->getCurColor());
@@ -1780,13 +1778,13 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                     {
                         setCursor(Qt::OpenHandCursor);
                         m_bIsPress = false;
-
-                        update();
                     }
                         break;
                     default:
                         break;
                     }
+
+                    update();
                 }
             }
             else if (!mBMeasureOpt)
@@ -2020,6 +2018,428 @@ void MainWindow::insetOperator(ItemOperator *itemOperator)
     m_curOperatorIndex = m_ItemOperatorList.size() - 1;
 
     updateOperatorStatus();
+}
+
+
+void MainWindow::doPreOperator(ItemOperator *itemOperator)
+{
+    GeometryItemBase *geometryItemTmp = itemOperator->geometryItem;
+
+    if (NULL == geometryItemTmp)
+        return;
+
+    if (RectItem *rectItemTmp = dynamic_cast<RectItem *> (geometryItemTmp))
+    {
+        QRectF rectTmp;
+
+        rectItemTmp->setItemStatus(NORMOAL);
+        switch (itemOperator->type) {
+        case ADDOPT:
+        {
+            m_geometryItemList.removeOne(rectItemTmp);
+        }
+            break;
+        case MOVEOPT:
+        {
+            QPointF pt = itemOperator->originalPt;
+            rectTmp = QRectF(pt.x(),
+                            pt.y(),
+                            rectItemTmp->getOriWidth(),
+                            rectItemTmp->getOriHeight());
+
+            rectItemTmp->setRect(rectTmp);
+
+            rectItemTmp->calcOriGeometry(QPoint(0, 0),
+                                         mSrcImgWidth,
+                                         mSrcImgHeight,
+                                         1,
+                                         0, false, false);
+        }
+            break;
+        case DELETEOPT:
+            m_geometryItemList.push_back(rectItemTmp);
+            break;
+        case CHANGEOPT:
+            rectTmp = itemOperator->originalRect;
+            rectItemTmp->setRect(rectTmp);
+
+            rectItemTmp->calcOriGeometry(QPoint(0, 0),
+                                         mCurImgWidth,
+                                         mCurImgHeight,
+                                         1,
+                                         mNeedRotate, mBFlip, mBMirror);
+            break;
+        case COLORCHAGNEOPT:
+        {
+            rectItemTmp->setColor(itemOperator->origiColor);
+        }
+            break;
+        case LINEWIDTHCHANGEOPT:
+        {
+            rectItemTmp->setLineWidth(itemOperator->origiLineWidth);
+        }
+            break;
+        case PENSTYLEOPT:
+        {
+            rectItemTmp->setPenStyle(itemOperator->oriPenStyle);
+        }
+            break;
+        case FILLCHANGEOPT:
+        {
+            rectItemTmp->setFillStatus(itemOperator->oriBFill);
+        }
+            break;
+        case FILLCOLORCHANGEOPT:
+        {
+            rectItemTmp->setFillColor(itemOperator->oriFillColor);
+        }
+            break;
+        default:
+            break;
+        }
+    }
+    else if (TextItem *textItemTmp = dynamic_cast<TextItem *> (geometryItemTmp))
+    {
+
+    }
+    else if (EllipseItem *ellipseItemTmp = dynamic_cast<EllipseItem *> (geometryItemTmp))
+    {
+//        QRectF rectTmp;
+
+//        ellipseItemTmp->setItemStatus(NORMOAL);
+//        switch (itemOperator->type) {
+//        case ADDOPT:
+//        {
+//            m_geometryItemList.removeOne(ellipseItemTmp);
+//        }
+//            break;
+//        case MOVEOPT:
+//        {
+//            QPointF pt = itemOperator->originalPt;
+//            rectTmp = QRectF(pt.x(),
+//                            pt.y(),
+//                            ellipseItemTmp->getOriWidth(),
+//                            ellipseItemTmp->getOriHeight());
+
+//            ellipseItemTmp->setRect(rectTmp);
+
+//            ellipseItemTmp->calcOriGeometry(QPoint(0, 0),
+//                                            m_img.width(),m_img.height(),
+//                                            1, 0, false, false);
+//        }
+//            break;
+//        case DELETEOPT:
+//            m_geometryItemList.push_back(ellipseItemTmp);
+//            break;
+//        case CHANGEOPT:
+//            rectTmp = itemOperator->originalRect;
+//            ellipseItemTmp->setRect(rectTmp);
+//            ellipseItemTmp->calcOriGeometry(QPoint(0, 0),
+//                                            m_img.width(),m_img.height(),
+//                                            1, 0, false, false);
+//            break;
+//        case COLORCHAGNEOPT:
+//        {
+//            ellipseItemTmp->setColor(itemOperator->origiColor);
+//        }
+//            break;
+//        case LINEWIDTHCHANGEOPT:
+//        {
+//            ellipseItemTmp->setLineWidth(itemOperator->origiLineWidth);
+//        }
+//            break;
+//        case PENSTYLEOPT:
+//        {
+//            ellipseItemTmp->setPenStyle(itemOperator->oriPenStyle);
+//        }
+//            break;
+//        case FILLCHANGEOPT:
+//        {
+//            ellipseItemTmp->setFillStatus(itemOperator->oriBFill);
+//        }
+//            break;
+//        case FILLCOLORCHANGEOPT:
+//        {
+//            ellipseItemTmp->setFillColor(itemOperator->oriFillColor);
+//        }
+//            break;
+//        default:
+//            break;
+//        }
+    }
+    else if (LineItem *lineItemTmp = dynamic_cast<LineItem *> (geometryItemTmp))
+    {
+//        QLineF lineTmp;
+
+//        lineItemTmp->setItemStatus(NORMOAL);
+//        switch (itemOperator->type) {
+//        case ADDOPT:
+//        {
+//            m_geometryItemList.removeOne(lineItemTmp);
+//        }
+//            break;
+//        case MOVEOPT:
+//        {
+//            QPointF pt = itemOperator->originalPt;
+//            QPointF nPt = lineItemTmp->getOriLine().p1();
+
+//            QPointF offsetPt = nPt - pt;
+
+//            lineTmp = QLineF(pt, lineItemTmp->getOriLine().p2()-offsetPt);
+
+//            lineItemTmp->setLine(lineTmp);
+//            lineItemTmp->calcOriGeometry(QPoint(0, 0),
+//                                         m_img.width(),m_img.height(),
+//                                         1, 0, false, false);
+//        }
+//            break;
+//        case DELETEOPT:
+//            m_geometryItemList.push_back(lineItemTmp);
+//            break;
+//        case CHANGEOPT:
+//            lineTmp = itemOperator->originLine;
+//            lineItemTmp->setLine(lineTmp);
+//            lineItemTmp->calcOriGeometry(QPoint(0, 0),
+//                                         m_img.width(),m_img.height(),
+//                                         1, 0, false, false);
+//            break;
+//        case COLORCHAGNEOPT:
+//        {
+//            lineItemTmp->setColor(itemOperator->origiColor);
+//        }
+//            break;
+//        case LINEWIDTHCHANGEOPT:
+//        {
+//            lineItemTmp->setLineWidth(itemOperator->origiLineWidth);
+//        }
+//            break;
+//        case PENSTYLEOPT:
+//        {
+//            lineItemTmp->setPenStyle(itemOperator->oriPenStyle);
+//        }
+//            break;
+//        default:
+//            break;
+//        }
+    }
+
+    updateMeasureTable();
+
+    updateOperatorStatus();
+
+    update();
+}
+
+
+void MainWindow::doNextOperator(ItemOperator *itemOperator)
+{
+    GeometryItemBase *geometryItemTmp = itemOperator->geometryItem;
+
+    if (NULL == geometryItemTmp)
+        return;
+
+    if (RectItem *rectItemTmp = dynamic_cast<RectItem *> (geometryItemTmp))
+    {
+        QRectF rectTmp;
+
+        rectItemTmp->setItemStatus(NORMOAL);
+        switch (itemOperator->type) {
+        case ADDOPT:
+        {
+            m_geometryItemList.push_back(rectItemTmp);
+        }
+            break;
+        case MOVEOPT:
+        {
+            QPointF pt = itemOperator->movePt;
+            rectTmp = QRectF(pt.x(),
+                             pt.y(),
+                             rectItemTmp->getOriWidth(),
+                             rectItemTmp->getOriHeight());
+
+            rectItemTmp->setRect(rectTmp);
+
+            rectItemTmp->calcOriGeometry(getCurOffset(),
+                                         mCurImgWidth,
+                                         mCurImgHeight,
+                                         mScale,
+                                         mNeedRotate, mBFlip, mBMirror);
+        }
+            break;
+        case DELETEOPT:
+            m_geometryItemList.removeOne(rectItemTmp);
+            break;
+        case CHANGEOPT:
+            rectTmp = itemOperator->changedRect;
+            rectItemTmp->setRect(rectTmp);
+
+            rectItemTmp->calcOriGeometry(getCurOffset(),
+                                         mCurImgWidth,
+                                         mCurImgHeight,
+                                         mScale,
+                                         mNeedRotate, mBFlip, mBMirror);
+            break;
+        case COLORCHAGNEOPT:
+        {
+            rectItemTmp->setColor(itemOperator->changeColor);
+        }
+            break;
+        case LINEWIDTHCHANGEOPT:
+        {
+            rectItemTmp->setLineWidth(itemOperator->changeLineWidth);
+        }
+            break;
+        case PENSTYLEOPT:
+        {
+            rectItemTmp->setPenStyle(itemOperator->changePenStyle);
+        }
+            break;
+        case FILLCHANGEOPT:
+        {
+            rectItemTmp->setFillStatus(itemOperator->changeBFill);
+        }
+            break;
+        case FILLCOLORCHANGEOPT:
+        {
+            rectItemTmp->setFillColor(itemOperator->changeFillColor);
+        }
+            break;
+        default:
+            break;
+        }
+    }
+    else if (TextItem *textItemTmp = dynamic_cast<TextItem *> (geometryItemTmp))
+    {
+
+    }
+    else if (EllipseItem *ellipseItemTmp = dynamic_cast<EllipseItem *> (geometryItemTmp))
+    {
+//        QRectF rectTmp;
+
+//        ellipseItemTmp->setItemStatus(NORMOAL);
+//        switch (itemOperator->type) {
+//        case ADDOPT:
+//        {
+//            m_geometryItemList.push_back(ellipseItemTmp);
+//        }
+//            break;
+//        case MOVEOPT:
+//        {
+//            QPointF pt = itemOperator->movePt;
+//            rectTmp = QRectF(pt.x(),
+//                            pt.y(),
+//                            ellipseItemTmp->getOriWidth(),
+//                            ellipseItemTmp->getOriHeight());
+
+//            ellipseItemTmp->setRect(rectTmp);
+
+//            ellipseItemTmp->calcOriGeometry(QPoint(0, 0),
+//                                             m_img.width(),m_img.height(),
+//                                             1, 0, false, false);
+//        }
+//            break;
+//        case DELETEOPT:
+//            m_geometryItemList.removeOne(ellipseItemTmp);
+//            break;
+//        case CHANGEOPT:
+//            rectTmp = itemOperator->changedRect;
+//            ellipseItemTmp->setRect(rectTmp);
+
+//            ellipseItemTmp->calcOriGeometry(QPoint(0, 0),
+//                                             m_img.width(),m_img.height(),
+//                                             1, 0, false, false);
+//            break;
+//        case COLORCHAGNEOPT:
+//        {
+//            ellipseItemTmp->setColor(itemOperator->changeColor);
+//        }
+//            break;
+//        case LINEWIDTHCHANGEOPT:
+//        {
+//            ellipseItemTmp->setLineWidth(itemOperator->changeLineWidth);
+//        }
+//            break;
+//        case PENSTYLEOPT:
+//        {
+//            ellipseItemTmp->setPenStyle(itemOperator->changePenStyle);
+//        }
+//            break;
+//        case FILLCHANGEOPT:
+//        {
+//            ellipseItemTmp->setFillStatus(itemOperator->changeBFill);
+//        }
+//            break;
+//        case FILLCOLORCHANGEOPT:
+//        {
+//            ellipseItemTmp->setFillColor(itemOperator->changeFillColor);
+//        }
+//            break;
+//        default:
+//            break;
+//        }
+    }
+    else if (LineItem *lineItemTmp = dynamic_cast<LineItem *> (geometryItemTmp))
+    {
+//        QLineF lineTmp;
+
+//        lineItemTmp->setItemStatus(NORMOAL);
+//        switch (itemOperator->type) {
+//        case ADDOPT:
+//        {
+//            m_geometryItemList.push_back(lineItemTmp);
+//        }
+//            break;
+//        case MOVEOPT:
+//        {
+//            QPointF pt = itemOperator->movePt;
+//            QPointF nPt = lineItemTmp->getOriLine().p1();
+
+//            QPointF offsetPt = nPt - pt;
+
+//            lineTmp = QLineF(pt, lineItemTmp->getOriLine().p2()-offsetPt);
+
+//            lineItemTmp->setLine(lineTmp);
+
+//            lineItemTmp->calcOriGeometry(QPoint(0, 0),
+//                                         m_img.width(),m_img.height(),
+//                                         1, 0, false, false);
+//        }
+//            break;
+//        case DELETEOPT:
+//            m_geometryItemList.removeOne(lineItemTmp);
+//            break;
+//        case CHANGEOPT:
+//            lineTmp = itemOperator->changeLine;
+//            lineItemTmp->setLine(lineTmp);
+//            lineItemTmp->calcOriGeometry(QPoint(0, 0),
+//                                         m_img.width(),m_img.height(),
+//                                         1, 0, false, false);
+//            break;
+//        case COLORCHAGNEOPT:
+//        {
+//            lineItemTmp->setColor(itemOperator->changeColor);
+//        }
+//            break;
+//        case LINEWIDTHCHANGEOPT:
+//        {
+//            lineItemTmp->setLineWidth(itemOperator->changeLineWidth);
+//        }
+//            break;
+//        case PENSTYLEOPT:
+//        {
+//            lineItemTmp->setPenStyle(itemOperator->changePenStyle);
+//        }
+//            break;
+//        default:
+//            break;
+//        }
+    }
+
+    updateMeasureTable();
+
+    updateOperatorStatus();
+
+    update();
 }
 
 void MainWindow::mousePressArrowAction(QPoint pt)
@@ -2377,6 +2797,102 @@ void MainWindow::mouseReleaseArrowAction()
     setCursor(Qt::ArrowCursor);
     update();
 }
+
+
+ItemOperator *MainWindow::getPreOperator()
+{
+    ItemOperator *preOperator = NULL;
+
+    if (m_curOperatorIndex >= 0 &&
+        m_curOperatorIndex < m_ItemOperatorList.size())
+    {
+        preOperator = m_ItemOperatorList.at(m_curOperatorIndex);
+        m_curOperatorIndex -- ;
+    }
+
+    return preOperator;
+}
+
+ItemOperator *MainWindow::getNextOperator()
+{
+    ItemOperator *preOperator = NULL;
+
+    int operatorIndexTmp = m_curOperatorIndex + 1;
+    if (operatorIndexTmp >= 0 &&
+        operatorIndexTmp < m_ItemOperatorList.size())
+    {
+        preOperator = m_ItemOperatorList.at(operatorIndexTmp);
+        m_curOperatorIndex ++;
+    }
+
+    return preOperator;
+}
+
+void MainWindow::slot_btnPreToolClick()
+{
+    ItemOperator *itemOperator = getPreOperator();
+
+    if (NULL != itemOperator)
+    {
+        doPreOperator(itemOperator);
+    }
+}
+
+void MainWindow::slot_btnNextToolClick()
+{
+    ItemOperator *itemOperator = getNextOperator();
+
+    if (NULL != itemOperator)
+    {
+        doNextOperator(itemOperator);
+    }
+}
+
+void MainWindow::slot_btnDeleteToolClick()
+{
+    m_selectedIndex = -1;
+    m_eSldDragDirection = NONEDIR;
+
+    m_ItemOperatorList.clear();
+
+    m_geometryItemList.clear();
+
+//    updateMesureDlgCtr(NULL);
+
+    updateMeasureTable();
+
+    updateOperatorStatus();
+
+    update();
+}
+
+void MainWindow::slot_btnEraserToolClick()
+{
+    if (m_selectedIndex >= 0 && m_selectedIndex < m_geometryItemList.count())
+    {
+       GeometryItemBase *geometryItemBaseTmp = m_geometryItemList.at(m_selectedIndex);
+       geometryItemBaseTmp->setItemStatus(NORMOAL);
+       m_geometryItemList.removeOne(geometryItemBaseTmp);
+
+       m_selectedIndex = -1;
+       m_eSldDragDirection = NONEDIR;
+
+       //插入一个删除操作
+       m_itemOperatorTmp = new ItemOperator;
+       m_itemOperatorTmp->geometryItem = geometryItemBaseTmp;
+       m_itemOperatorTmp->type = DELETEOPT;
+       insetOperator(m_itemOperatorTmp);
+
+//       updateMesureDlgCtr(NULL);
+
+       updateMeasureTable();
+
+       updateOperatorStatus();
+
+       update();
+    }
+}
+
 
 void MainWindow::updateMeasureTable()
 {
@@ -3146,6 +3662,14 @@ MainWindow::~MainWindow()
         delete mGeyImgWdg;
         mGeyImgWdg = NULL;
     }
+
+	if (NULL != mColorWdg)
+	{
+		delete mColorWdg;
+		mColorWdg = NULL;
+	}
+
+
 
     //save config
     Appconfig::saveConfigFile();

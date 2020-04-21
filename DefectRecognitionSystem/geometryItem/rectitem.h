@@ -5,6 +5,8 @@
 #include "appconfig.h"
 #include "geometryitembase.h"
 
+#define PRINT_DEBUG  0
+
 class RectItem : public GeometryItemBase
 {
 public:

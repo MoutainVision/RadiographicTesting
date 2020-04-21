@@ -203,6 +203,22 @@ private slots:
     //模块tab 变化
     void slot_tabCurrentChanged(int index);
 
+//工具栏
+    //删除一个
+    void slot_btnEraserToolClick();
+
+    //撤销
+    void slot_btnPreToolClick();
+
+    //恢复
+    void slot_btnNextToolClick();
+
+    //清空
+    void slot_btnDeleteToolClick();
+
+
+
+
 
 protected:
     void resizeEvent(QResizeEvent *e);

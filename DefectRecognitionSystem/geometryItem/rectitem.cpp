@@ -114,14 +114,16 @@ void RectItem::changeToUnitType()
 
 void RectItem::calcOriGeometry(QPoint oriPt, int imgW, int imgH, float scale, int rotate, bool bFlip, bool bMirror)
 {
-    qDebug() << "==================";
+    if (PRINT_DEBUG)
+        qDebug() << "==================";
     //平移变换
     m_rectOri.setLeft(m_rect.left() - oriPt.x());
     m_rectOri.setRight(m_rect.right() - oriPt.x());
     m_rectOri.setTop(m_rect.top() - oriPt.y());
     m_rectOri.setBottom(m_rect.bottom() - oriPt.y());
 
-    qDebug() << "m_rect:" << m_rect << "m_rectOri" << m_rectOri << "oriPt" << oriPt;
+    if (PRINT_DEBUG)
+        qDebug() << "m_rect:" << m_rect << "m_rectOri" << m_rectOri << "oriPt" << oriPt;
 
     //缩放变换
     m_rectOri.setLeft((float)m_rectOri.left() / scale);
@@ -130,7 +132,8 @@ void RectItem::calcOriGeometry(QPoint oriPt, int imgW, int imgH, float scale, in
     m_rectOri.setBottom((float)m_rectOri.bottom() / scale);
 
 
-    qDebug() << "sssss:" << m_rectOri;
+    if (PRINT_DEBUG)
+        qDebug() << "sssss:" << m_rectOri;
 
 
 //--------------------------------------
@@ -146,7 +149,8 @@ void RectItem::calcOriGeometry(QPoint oriPt, int imgW, int imgH, float scale, in
     rectTempCpy.setTop(rectTempCpy.top() - imgCenterH / scale);
     rectTempCpy.setBottom(rectTempCpy.bottom() - imgCenterH / scale);
 
-    qDebug() << "rectTempCpy:" << rectTempCpy << "imgCenterH" << imgCenterH / scale << "imgCenterW" << imgCenterW / scale;
+    if (PRINT_DEBUG)
+        qDebug() << "rectTempCpy:" << rectTempCpy << "imgCenterH" << imgCenterH / scale << "imgCenterW" << imgCenterW / scale;
 
     QRectF rectT;
 
@@ -201,7 +205,8 @@ void RectItem::calcOriGeometry(QPoint oriPt, int imgW, int imgH, float scale, in
         rectTempCpy.setBottom(rectT.right());
     }
 
-    qDebug() << "rrrrrrrr:" << rectTempCpy;
+    if (PRINT_DEBUG)
+        qDebug() << "rrrrrrrr:" << rectTempCpy;
 
     //转化为图像0点坐标
     rectTempCpy.setLeft(rectTempCpy.left() + imgCenterW / scale);
@@ -211,7 +216,8 @@ void RectItem::calcOriGeometry(QPoint oriPt, int imgW, int imgH, float scale, in
 
     m_rectOri = rectTempCpy;
 
-    qDebug() << "000000000:" << rectTempCpy;
+    if (PRINT_DEBUG)
+        qDebug() << "000000000:" << rectTempCpy;
 
     //更新、计算相关信息
     m_oriWidth = m_rectOri.width();
@@ -230,8 +236,10 @@ void RectItem::updateGeometry(QPoint curOriPt, int imgW, int imgH, float scale,
 
     rectTempCpy = m_rectOri;
 
-    qDebug() << "-----------------------------------";
-    qDebug() << "m_rectOri:" << m_rectOri << "curOriPt" << curOriPt;
+    if (PRINT_DEBUG)
+        qDebug() << "-----------------------------------";
+    if (PRINT_DEBUG)
+        qDebug() << "m_rectOri:" << m_rectOri << "curOriPt" << curOriPt;
 
     //坐标变换， 图像中心坐标
     int imgCenterW = imgW / 2;
@@ -241,13 +249,23 @@ void RectItem::updateGeometry(QPoint curOriPt, int imgW, int imgH, float scale,
 
     rectT = rectTempCpy;
 
-    rectTempCpy.setLeft(rectTempCpy.left() - imgCenterW / scale);
-    rectTempCpy.setRight(rectTempCpy.right() - imgCenterW / scale);
-    rectTempCpy.setTop(rectTempCpy.top() - imgCenterH / scale);
-    rectTempCpy.setBottom(rectTempCpy.bottom() - imgCenterH / scale);
+    int type = rotate / 90;
+    if (type == 1 || type == 3)
+    {
+        rectTempCpy.setLeft(rectTempCpy.left() - imgCenterH / scale);
+        rectTempCpy.setRight(rectTempCpy.right() - imgCenterH / scale);
+        rectTempCpy.setTop(rectTempCpy.top() - imgCenterW / scale);
+        rectTempCpy.setBottom(rectTempCpy.bottom() - imgCenterW / scale);
+    }
+    else {
+        rectTempCpy.setLeft(rectTempCpy.left() - imgCenterW / scale);
+        rectTempCpy.setRight(rectTempCpy.right() - imgCenterW / scale);
+        rectTempCpy.setTop(rectTempCpy.top() - imgCenterH / scale);
+        rectTempCpy.setBottom(rectTempCpy.bottom() - imgCenterH / scale);
+    }
 
-
-    qDebug() << "rectTempCpy:" << rectTempCpy<< "imgCenterW:" << imgCenterW / scale<< "imgCenterH:" << imgCenterH / scale;
+    if (PRINT_DEBUG)
+        qDebug() << "rectTempCpy:" << rectTempCpy<< "imgCenterW:" << imgCenterW / scale<< "imgCenterH:" << imgCenterH / scale;
 
     if (bMirror)
     {
@@ -270,7 +288,6 @@ void RectItem::updateGeometry(QPoint curOriPt, int imgW, int imgH, float scale,
     }
 
     //旋转变换
-    int type = rotate / 90;
     if (type == 1)
     {
         rectT = rectTempCpy;
@@ -299,24 +316,17 @@ void RectItem::updateGeometry(QPoint curOriPt, int imgW, int imgH, float scale,
         rectTempCpy.setBottom(rectT.right());
     }
 
-    qDebug() << "rotate rectTempCpy:" << rectTempCpy;
+    if (PRINT_DEBUG)
+        qDebug() << "rotate rectTempCpy:" << rectTempCpy;
 
     //转化为图像0点坐标
-    if (type == 1 || type == 3)
-    {
-        rectTempCpy.setLeft(rectTempCpy.left()      + imgCenterH / scale);
-        rectTempCpy.setRight(rectTempCpy.right()    + imgCenterH / scale);
-        rectTempCpy.setTop(rectTempCpy.top()        + imgCenterW / scale);
-        rectTempCpy.setBottom(rectTempCpy.bottom()  + imgCenterW / scale);
-    }
-    else {
-        rectTempCpy.setLeft(rectTempCpy.left()      + imgCenterW / scale);
-        rectTempCpy.setRight(rectTempCpy.right()    + imgCenterW / scale);
-        rectTempCpy.setTop(rectTempCpy.top()        + imgCenterH / scale);
-        rectTempCpy.setBottom(rectTempCpy.bottom()  + imgCenterH / scale);
-    }
+    rectTempCpy.setLeft(rectTempCpy.left()      + imgCenterW / scale);
+    rectTempCpy.setRight(rectTempCpy.right()    + imgCenterW / scale);
+    rectTempCpy.setTop(rectTempCpy.top()        + imgCenterH / scale);
+    rectTempCpy.setBottom(rectTempCpy.bottom()  + imgCenterH / scale);
 
-    qDebug() << "00000 rectTempCpy:" << rectTempCpy;
+    if (PRINT_DEBUG)
+        qDebug() << "00000 rectTempCpy:" << rectTempCpy;
 
     //把图像坐标系转窗口坐标系 ，需要注意的是 curOriPt 已经经过放大缩小
     QRectF rectTemp;
@@ -327,7 +337,8 @@ void RectItem::updateGeometry(QPoint curOriPt, int imgW, int imgH, float scale,
     rectTemp.setTop(rectTempCpy.top()       + curOriPt.y()/scale);
     rectTemp.setBottom(rectTempCpy.bottom() + curOriPt.y()/scale);
 
-     qDebug() << "mmove rectTemp:" << rectTemp;
+    if (PRINT_DEBUG)
+        qDebug() << "mmove rectTemp:" << rectTemp;
 
     //缩放变换
     rectTemp.setLeft((float)rectTemp.left() * scale);
@@ -335,7 +346,8 @@ void RectItem::updateGeometry(QPoint curOriPt, int imgW, int imgH, float scale,
     rectTemp.setTop((float)rectTemp.top() * scale);
     rectTemp.setBottom((float)rectTemp.bottom() * scale);
 
-    qDebug() << "scale rectTemp:" << rectTemp << "scale:" << scale;
+    if (PRINT_DEBUG)
+        qDebug() << "scale rectTemp:" << rectTemp << "scale:" << scale;
 
     //刷新矩阵
     setRect(rectTemp);
