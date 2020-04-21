@@ -1352,10 +1352,19 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
 
                     if (RectItem *rectItemTmp = dynamic_cast<RectItem *> (geometryItemTmp))
                     {
-                        rectItemTmp->updateGeometry(getCurOffset(),
+                        if (mNeedRotate == 0 || mNeedRotate == 180) {
+
+                            rectItemTmp->updateGeometry(getCurOffset(),
                                                             mCurImgWidth,
                                                             mCurImgHeight, mScale,
                                                             mNeedRotate, mBFlip, mBMirror);
+                        }
+                        else {
+                            rectItemTmp->updateGeometry(getCurOffset(),
+                                                            mCurImgHeight,
+                                                            mCurImgWidth, mScale,
+                                                            mNeedRotate, mBFlip, mBMirror);
+                        }
 
                         QRectF rectTmp = rectItemTmp->getRect();
                         bool selectedFlag = false;
@@ -2577,7 +2586,7 @@ bool MainWindow::getDragDirection(QList<DragItem> &dragItemList,
 
 void MainWindow::mouseMoveArrowAction(QPoint pt)
 {
-//    QPoint imgPt = convertToImgPt(pt);
+//    QPoint imgPt = convertImgPt(pt);
     QPoint imgPt = pt;
 
     if (m_selectedIndex >= 0 && m_selectedIndex < m_geometryItemList.count())
@@ -2647,10 +2656,11 @@ void MainWindow::mouseMoveArrowAction(QPoint pt)
                     }
 
                     rectItemTmp->setRect(rectTmp);
-//                    rectItemTmp->calcOriGeometry(QPoint(m_PaintRect.topLeft().x(), m_PaintRect.topLeft().y()),
-//                                                 m_img.width(),
-//                                                 m_img.height(), m_scaleRate,
-//                                                 0, false, false);
+                    rectItemTmp->calcOriGeometry(getCurOffset(),
+                                                 mCurImgWidth,
+                                                 mCurImgHeight,
+                                                 mScale,
+                                                 mNeedRotate, mBFlip, mBMirror);
 
                     m_curPosPt = imgPt;
 
@@ -2693,10 +2703,11 @@ void MainWindow::mouseMoveArrowAction(QPoint pt)
                                           rectItemTmp->getHeight());
 
                     rectItemTmp->setRect(rectTmp);
-//                    rectItemTmp->calcOriGeometry(QPoint(m_PaintRect.topLeft().x(), m_PaintRect.topLeft().y()),
-//                                                 m_img.width(),
-//                                                 m_img.height(), m_scaleRate,
-//                                                 0, false, false);
+                    rectItemTmp->calcOriGeometry(getCurOffset(),
+                                                 mCurImgWidth,
+                                                 mCurImgHeight,
+                                                 mScale,
+                                                 mNeedRotate, mBFlip, mBMirror);
 
                     m_curPosPt = imgPt;
 

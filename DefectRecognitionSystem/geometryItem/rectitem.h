@@ -49,7 +49,6 @@ public:
     float getAreaUnit();			//面积
     float getOriWidthUnit();		//宽
     float getOriHeightUnit();       //高
-
 private:
     //
     QRectF				m_rectOri;	//原始矩形
