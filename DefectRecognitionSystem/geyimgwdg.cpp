@@ -79,6 +79,9 @@ bool GeyImgWdg::eventFilter(QObject *obj, QEvent *e)
             {
                 ui->label_grey->setText(QString("%1").arg(m_aIntensity.at(index)));
                 ui->label_pixel->setText(QString("%1").arg(index));
+
+                mCurIndex = index;
+                emit sig_curGreayPos();
             }
 
             update();

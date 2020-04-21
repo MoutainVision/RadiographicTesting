@@ -220,8 +220,8 @@ void RectItem::calcOriGeometry(QPoint oriPt, int imgW, int imgH, float scale, in
         qDebug() << "000000000:" << rectTempCpy;
 
     //更新、计算相关信息
-    m_oriWidth = m_rectOri.width();
-    m_oriHeight = m_rectOri.height();
+    m_oriWidth = m_rectOri.width() / scale;
+    m_oriHeight = m_rectOri.height()  / scale;
 
     m_circumference = 2 * (m_oriWidth + m_oriHeight);
     m_area = m_oriWidth * m_oriHeight;

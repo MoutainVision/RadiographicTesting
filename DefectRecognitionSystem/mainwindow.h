@@ -116,6 +116,8 @@ public:
 //----灰度分布图------
     QPoint convertImgPt(QPoint wPt);
 
+    QPoint convertWdgPt(QPoint iPt);
+
     //计算灰度分布
     void calcIntensityCurve(QPoint p1, QPoint p2);
 
@@ -268,6 +270,8 @@ private:
     float       m_angle;
 
     GeyImgWdg   *mGeyImgWdg;
+
+    RectItem    *mGreyRectItem;
 
     //--图像处理相关=------
     int     mCurImgWidth;

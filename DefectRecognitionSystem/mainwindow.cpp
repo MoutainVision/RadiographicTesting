@@ -116,6 +116,7 @@ MainWindow::MainWindow(QWidget *parent) :
     mBMeasureOpt = false;
 
     mGeyImgWdg = NULL;
+    mGreyRectItem = NULL;
 
     mRotate = 0;
 
@@ -235,7 +236,7 @@ void MainWindow::slot_sliderWinValueChange(int value)
         ui->label_winwidth->setText(QString("%1").arg(value));
     }
 
-//    delImg();
+    delImg();
 }
 
 void MainWindow::setDcmFileInfo()
@@ -591,6 +592,12 @@ QPoint MainWindow::convertImgPt(QPoint wPt)
                   wPt.y() - mPaintRectReal.y() + mSourceRect.y());
 }
 
+QPoint MainWindow::convertWdgPt(QPoint iPt)
+{
+    return QPoint(iPt.x() + mPaintRectReal.x() - mSourceRect.x(),
+                  iPt.y() + mPaintRectReal.y() - mSourceRect.y());
+}
+
 QPoint MainWindow::getCurOffset()
 {
     return QPoint(mPaintRectReal.x() - mSourceRect.x(),
@@ -631,10 +638,57 @@ void MainWindow::setIntensityCurveValues(vector<unsigned short> aIntensity)
     if (nullptr == mGeyImgWdg)
     {
         mGeyImgWdg = new GeyImgWdg;
+
+        connect(mGeyImgWdg, &GeyImgWdg::sig_curGreayPos, [=](){
+
+            int length = mGeyImgWdg->getCurIndex();
+
+            float abx = length * cos(m_angle);
+            float bcx = length * sin(m_angle);
+
+            QPoint tempIp;
+            QPoint tempWp;
+
+            if (m_iP1.x() < m_iP2.x())
+            {
+                if (m_angle < 0)
+                    tempIp = QPoint(m_iP1.x() - bcx, m_iP1.y() - abx);
+                else
+                    tempIp = QPoint(m_iP1.x() + bcx, m_iP1.y() + abx);
+            }
+            else
+            {
+                if (m_angle < 0)
+                    tempIp = QPoint(m_iP1.x() + bcx, m_iP1.y() + abx);
+                else
+                    tempIp = QPoint(m_iP1.x() - bcx, m_iP1.y() - abx);
+            }
+
+            tempWp = convertWdgPt(tempIp);
+
+            if (NULL != mGreyRectItem)
+            {
+                delete mGreyRectItem;
+                mGreyRectItem = NULL;
+            }
+
+            mGreyRectItem = new RectItem(QRectF(QPointF(tempWp.x()-7, tempWp.y()-7), QSizeF(14, 14)));
+
+            mGreyRectItem->calcOriGeometry(getCurOffset(),
+                                           mCurImgWidth,
+                                           mCurImgHeight,
+                                           mScale,
+                                           mNeedRotate, mBFlip, mBMirror);
+
+            update();
+        });
     }
 
     mGeyImgWdg->SetIntensityCurveValues(aIntensity, aIntensity.size());
+    mGeyImgWdg->move(QPoint(this->width() - mGeyImgWdg->width(), this->height() - mGeyImgWdg->height()));
     mGeyImgWdg->show();
+
+
 }
 
 void MainWindow::clearGreyLine()
@@ -663,8 +717,8 @@ void MainWindow::getIntensity(QPoint curPt)
             GetIntensity(intensity, m_pImgPro, mCurImgWidth, mCurImgHeight,
                 imgPt.x(), imgPt.y());
 
-            ui->label_X_Value->setText(QString("%1").arg(imgPt.x()));
-            ui->label_Y_Value->setText(QString("%1").arg(imgPt.y()));
+            ui->label_X_Value->setText(QString("%1").arg((int)(imgPt.x() / mScale)));
+            ui->label_Y_Value->setText(QString("%1").arg((int)(imgPt.y() / mScale)));
 
             ui->label_intensity->setText(QString("%1").arg(intensity));
         }
@@ -1022,7 +1076,8 @@ void MainWindow::delImg()
             Flip(m_pImgPro, mCurImgWidth, mCurImgHeight);
 
         //窗宽窗位
-//        WindowLevelTransform(m_pImgPro, mCurImgWidth, mCurImgHeight, mWinCentre, mWinWidth);
+        if (mWinCentre>1 && mWinWidth>1)
+            WindowLevelTransform(m_pImgPro, mCurImgWidth, mCurImgHeight, mWinCentre, mWinWidth);
 
         //resize
         reSize(mScale);
@@ -1492,6 +1547,22 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                 //灰色计算
                 p.drawLine(mGrayLine);
 
+                if (!mGrayLine.isNull())
+                {
+                    if (NULL != mGreyRectItem)
+                    {
+                        mGreyRectItem->updateGeometry(getCurOffset(),
+                                                      mCurImgWidth,
+                                                      mCurImgHeight, mScale,
+                                                      mNeedRotate, mBFlip, mBMirror);
+
+                        QRectF rectTmp = mGreyRectItem->getRect();
+
+                        p.drawLine(rectTmp.topLeft(), rectTmp.bottomRight());
+                        p.drawLine(rectTmp.bottomLeft(), rectTmp.topRight());
+                    }
+                }
+
                 //临时几何图像
                 switch (m_eCurAction) {
                 case RECTACTION:
@@ -1940,7 +2011,12 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
             setCursor(Qt::ArrowCursor);
             return true;
         }
-
+        else if (e->type() == QEvent::Resize)
+        {
+            if (dmfile.IsValid())
+                delImg();
+            return true;
+        }
     }
     else if(obj == ui->widget_tool)
     {
