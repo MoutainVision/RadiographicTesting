@@ -210,48 +210,21 @@
                </layout>
               </item>
               <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_3">
-                <property name="bottomMargin">
-                 <number>0</number>
-                </property>
-                <item>
-                 <widget class="QPushButton" name="pushButton_mag">
-                  <property name="text">
-                   <string> 放大镜</string>
-                  </property>
-                  <property name="checkable">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="pushButton_rotate">
-                  <property name="text">
-                   <string> 旋转</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
                <layout class="QHBoxLayout" name="horizontalLayout_16">
                 <property name="bottomMargin">
                  <number>0</number>
                 </property>
                 <item>
-                 <widget class="QPushButton" name="pushButton_measure">
+                 <widget class="QPushButton" name="pushButton_reset">
                   <property name="text">
-                   <string>测量</string>
-                  </property>
-                  <property name="checkable">
-                   <bool>true</bool>
+                   <string>恢复图像</string>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="pushButton_measure_table">
+                 <widget class="QPushButton" name="pushButton_measure">
                   <property name="text">
-                   <string>显示测量表格</string>
+                   <string>测量</string>
                   </property>
                   <property name="checkable">
                    <bool>true</bool>
@@ -265,6 +238,13 @@
                 <property name="bottomMargin">
                  <number>0</number>
                 </property>
+                <item>
+                 <widget class="QCheckBox" name="checkBox_measure_table">
+                  <property name="text">
+                   <string>显示测量表格</string>
+                  </property>
+                 </widget>
+                </item>
                 <item>
                  <widget class="QCheckBox" name="checkBox_gray_mesure">
                   <property name="text">
@@ -295,9 +275,9 @@
                  <number>0</number>
                 </property>
                 <item>
-                 <widget class="QPushButton" name="pushButton_reset">
+                 <widget class="QPushButton" name="pushButton_rotate">
                   <property name="text">
-                   <string>恢复图像</string>
+                   <string> 旋转</string>
                   </property>
                  </widget>
                 </item>
@@ -346,16 +326,38 @@
                  <number>0</number>
                 </property>
                 <item>
-                 <widget class="QPushButton" name="pushButton_defects">
+                 <widget class="QCheckBox" name="checkBox_contrast">
+                  <property name="minimumSize">
+                   <size>
+                    <width>100</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="text">
-                   <string>缺陷增强</string>
+                   <string>对比度增强：</string>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="pushButton_contrast">
+                 <widget class="QSlider" name="horizontalSlider_contrast">
+                  <property name="minimum">
+                   <number>1</number>
+                  </property>
+                  <property name="maximum">
+                   <number>100</number>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_contrast">
                   <property name="text">
-                   <string>对比度增强</string>
+                   <string>1</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
                   </property>
                  </widget>
                 </item>
@@ -372,7 +374,13 @@
                    <number>0</number>
                   </property>
                   <item>
-                   <widget class="QLabel" name="label">
+                   <widget class="QCheckBox" name="checkBox_wind">
+                    <property name="minimumSize">
+                     <size>
+                      <width>100</width>
+                      <height>0</height>
+                     </size>
+                    </property>
                     <property name="text">
                      <string>窗宽窗位：</string>
                     </property>
@@ -401,152 +409,201 @@
                  </layout>
                 </item>
                 <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_6">
-                  <item>
-                   <layout class="QVBoxLayout" name="verticalLayout_7">
-                    <property name="topMargin">
-                     <number>0</number>
-                    </property>
-                    <item>
-                     <widget class="QLabel" name="label_wincentre">
-                      <property name="text">
-                       <string>1</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <layout class="QHBoxLayout" name="horizontalLayout_8">
-                      <property name="spacing">
-                       <number>0</number>
-                      </property>
-                      <item>
-                       <spacer name="horizontalSpacer_4">
-                        <property name="orientation">
-                         <enum>Qt::Horizontal</enum>
-                        </property>
-                        <property name="sizeHint" stdset="0">
-                         <size>
-                          <width>40</width>
-                          <height>20</height>
-                         </size>
-                        </property>
-                       </spacer>
-                      </item>
-                      <item>
-                       <widget class="QSlider" name="verticalSlider_WinCentre">
-                        <property name="toolTip">
-                         <string>窗宽</string>
-                        </property>
-                        <property name="minimum">
-                         <number>1</number>
-                        </property>
-                        <property name="maximum">
-                         <number>65535</number>
-                        </property>
-                        <property name="invertedAppearance">
-                         <bool>true</bool>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <spacer name="horizontalSpacer_5">
-                        <property name="orientation">
-                         <enum>Qt::Horizontal</enum>
-                        </property>
-                        <property name="sizeHint" stdset="0">
-                         <size>
-                          <width>40</width>
-                          <height>20</height>
-                         </size>
-                        </property>
-                       </spacer>
-                      </item>
-                     </layout>
-                    </item>
-                   </layout>
-                  </item>
-                  <item>
-                   <layout class="QVBoxLayout" name="verticalLayout_8">
-                    <property name="topMargin">
-                     <number>0</number>
-                    </property>
-                    <item>
-                     <widget class="QLabel" name="label_winwidth">
-                      <property name="text">
-                       <string>1</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <layout class="QHBoxLayout" name="horizontalLayout_9">
-                      <property name="spacing">
-                       <number>0</number>
-                      </property>
-                      <item>
-                       <spacer name="horizontalSpacer_6">
-                        <property name="orientation">
-                         <enum>Qt::Horizontal</enum>
-                        </property>
-                        <property name="sizeHint" stdset="0">
-                         <size>
-                          <width>40</width>
-                          <height>20</height>
-                         </size>
-                        </property>
-                       </spacer>
-                      </item>
-                      <item>
-                       <widget class="QSlider" name="verticalSlider_WindWidth">
-                        <property name="minimumSize">
-                         <size>
-                          <width>0</width>
-                          <height>170</height>
-                         </size>
-                        </property>
-                        <property name="toolTip">
-                         <string>窗宽</string>
-                        </property>
-                        <property name="minimum">
-                         <number>1</number>
-                        </property>
-                        <property name="maximum">
-                         <number>65535</number>
-                        </property>
-                        <property name="value">
-                         <number>1</number>
-                        </property>
-                        <property name="orientation">
-                         <enum>Qt::Vertical</enum>
-                        </property>
-                        <property name="invertedAppearance">
-                         <bool>true</bool>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <spacer name="horizontalSpacer_8">
-                        <property name="orientation">
-                         <enum>Qt::Horizontal</enum>
-                        </property>
-                        <property name="sizeHint" stdset="0">
-                         <size>
-                          <width>40</width>
-                          <height>20</height>
-                         </size>
-                        </property>
-                       </spacer>
-                      </item>
-                     </layout>
-                    </item>
-                   </layout>
-                  </item>
-                 </layout>
+                 <widget class="QWidget" name="widget_wind" native="true">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <layout class="QHBoxLayout" name="horizontalLayout_3">
+                   <property name="spacing">
+                    <number>6</number>
+                   </property>
+                   <property name="leftMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="topMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="bottomMargin">
+                    <number>0</number>
+                   </property>
+                   <item>
+                    <layout class="QVBoxLayout" name="verticalLayout_7">
+                     <property name="topMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="bottomMargin">
+                      <number>0</number>
+                     </property>
+                     <item>
+                      <widget class="QLabel" name="label_wincentre">
+                       <property name="text">
+                        <string>1</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_8">
+                       <property name="spacing">
+                        <number>0</number>
+                       </property>
+                       <item>
+                        <spacer name="horizontalSpacer_4">
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>40</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                       <item>
+                        <widget class="QSlider" name="verticalSlider_WinCentre">
+                         <property name="toolTip">
+                          <string>窗宽</string>
+                         </property>
+                         <property name="minimum">
+                          <number>1</number>
+                         </property>
+                         <property name="maximum">
+                          <number>65535</number>
+                         </property>
+                         <property name="invertedAppearance">
+                          <bool>true</bool>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <spacer name="horizontalSpacer_5">
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>40</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                      </layout>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="label_4">
+                       <property name="text">
+                        <string>窗宽</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <layout class="QVBoxLayout" name="verticalLayout_8">
+                     <property name="topMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="bottomMargin">
+                      <number>0</number>
+                     </property>
+                     <item>
+                      <widget class="QLabel" name="label_winwidth">
+                       <property name="text">
+                        <string>1</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_9">
+                       <property name="spacing">
+                        <number>0</number>
+                       </property>
+                       <item>
+                        <spacer name="horizontalSpacer_6">
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>40</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                       <item>
+                        <widget class="QSlider" name="verticalSlider_WindWidth">
+                         <property name="minimumSize">
+                          <size>
+                           <width>0</width>
+                           <height>170</height>
+                          </size>
+                         </property>
+                         <property name="toolTip">
+                          <string>窗宽</string>
+                         </property>
+                         <property name="minimum">
+                          <number>1</number>
+                         </property>
+                         <property name="maximum">
+                          <number>65535</number>
+                         </property>
+                         <property name="value">
+                          <number>1</number>
+                         </property>
+                         <property name="orientation">
+                          <enum>Qt::Vertical</enum>
+                         </property>
+                         <property name="invertedAppearance">
+                          <bool>true</bool>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <spacer name="horizontalSpacer_8">
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>40</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                      </layout>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="label_7">
+                       <property name="text">
+                        <string>窗位</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                  </layout>
+                 </widget>
                 </item>
                </layout>
               </item>
@@ -569,12 +626,18 @@
                <number>6</number>
               </property>
               <item>
-               <layout class="QVBoxLayout" name="verticalLayout_20">
-                <property name="topMargin">
+               <layout class="QHBoxLayout" name="horizontalLayout_25">
+                <property name="bottomMargin">
                  <number>0</number>
                 </property>
                 <item>
                  <widget class="QLabel" name="label_5">
+                  <property name="minimumSize">
+                   <size>
+                    <width>85</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="text">
                    <string>灰度差阈值：</string>
                   </property>
@@ -582,6 +645,12 @@
                 </item>
                 <item>
                  <widget class="QSpinBox" name="spinBox_GreyDiff">
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="minimum">
                    <number>1000</number>
                   </property>
@@ -593,15 +662,34 @@
                   </property>
                  </widget>
                 </item>
+                <item>
+                 <spacer name="horizontalSpacer_16">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
                </layout>
               </item>
               <item>
-               <layout class="QVBoxLayout" name="verticalLayout_11">
-                <property name="topMargin">
+               <layout class="QHBoxLayout" name="horizontalLayout_29">
+                <property name="bottomMargin">
                  <number>0</number>
                 </property>
                 <item>
                  <widget class="QLabel" name="label_6">
+                  <property name="minimumSize">
+                   <size>
+                    <width>85</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="text">
                    <string>最小缺陷面积：</string>
                   </property>
@@ -609,6 +697,12 @@
                 </item>
                 <item>
                  <widget class="QSpinBox" name="spinBox_MinDefectArea">
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="minimum">
                    <number>1</number>
                   </property>
@@ -620,15 +714,34 @@
                   </property>
                  </widget>
                 </item>
+                <item>
+                 <spacer name="horizontalSpacer_17">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
                </layout>
               </item>
               <item>
-               <layout class="QVBoxLayout" name="verticalLayout_10">
-                <property name="topMargin">
+               <layout class="QHBoxLayout" name="horizontalLayout_30">
+                <property name="bottomMargin">
                  <number>0</number>
                 </property>
                 <item>
                  <widget class="QLabel" name="label_2">
+                  <property name="minimumSize">
+                   <size>
+                    <width>85</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="text">
                    <string>滤波半径：</string>
                   </property>
@@ -636,6 +749,12 @@
                 </item>
                 <item>
                  <widget class="QSpinBox" name="spinBox_FilterRadius">
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="minimum">
                    <number>5</number>
                   </property>
@@ -647,15 +766,34 @@
                   </property>
                  </widget>
                 </item>
+                <item>
+                 <spacer name="horizontalSpacer_18">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
                </layout>
               </item>
               <item>
-               <layout class="QVBoxLayout" name="verticalLayout_21">
-                <property name="topMargin">
+               <layout class="QHBoxLayout" name="horizontalLayout_31">
+                <property name="bottomMargin">
                  <number>0</number>
                 </property>
                 <item>
                  <widget class="QLabel" name="label_3">
+                  <property name="minimumSize">
+                   <size>
+                    <width>85</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="text">
                    <string>连通性：</string>
                   </property>
@@ -663,6 +801,12 @@
                 </item>
                 <item>
                  <widget class="QSpinBox" name="spinBox_ConnectThr">
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="minimum">
                    <number>1</number>
                   </property>
@@ -673,6 +817,19 @@
                    <number>1</number>
                   </property>
                  </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_19">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
                 </item>
                </layout>
               </item>
@@ -692,12 +849,15 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="pushButton_recog_show_table">
+                 <widget class="QCheckBox" name="checkBox_recog_show_table">
+                  <property name="minimumSize">
+                   <size>
+                    <width>100</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="text">
                    <string>显示识别表格</string>
-                  </property>
-                  <property name="checkable">
-                   <bool>true</bool>
                   </property>
                  </widget>
                 </item>
@@ -709,28 +869,22 @@
                  <number>0</number>
                 </property>
                 <item>
-                 <widget class="QPushButton" name="pushButton_show_defect">
+                 <widget class="QPushButton" name="pushButton_exe">
                   <property name="text">
-                   <string> 显示缺陷</string>
-                  </property>
-                  <property name="checkable">
-                   <bool>true</bool>
-                  </property>
-                  <property name="checked">
-                   <bool>true</bool>
+                   <string>执行</string>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="pushButton_show_defect_center">
+                 <widget class="QCheckBox" name="checkBox_show_defect">
+                  <property name="minimumSize">
+                   <size>
+                    <width>100</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="text">
-                   <string>显示中心线</string>
-                  </property>
-                  <property name="checkable">
-                   <bool>true</bool>
-                  </property>
-                  <property name="checked">
-                   <bool>true</bool>
+                   <string> 显示缺陷</string>
                   </property>
                  </widget>
                 </item>
@@ -742,16 +896,22 @@
                  <number>0</number>
                 </property>
                 <item>
-                 <widget class="QPushButton" name="pushButton_exe">
+                 <widget class="QPushButton" name="pushButton_recog_clear">
                   <property name="text">
-                   <string>执行</string>
+                   <string>清除</string>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="pushButton_recog_clear">
+                 <widget class="QCheckBox" name="checkBox_show_defect_center">
+                  <property name="minimumSize">
+                   <size>
+                    <width>100</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="text">
-                   <string>清除</string>
+                   <string>显示中心线</string>
                   </property>
                  </widget>
                 </item>

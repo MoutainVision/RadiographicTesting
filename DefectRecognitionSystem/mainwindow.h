@@ -283,7 +283,10 @@ private:
     bool    mBInvert;  //反相
     bool    mBFlip;    //翻转
     bool    mBMirror;  //镜像
+    bool    mBWind;  //窗宽
+    bool    mBContrast;  //对比度
 
+    int     mContrast; //对比度
     int     mWinCentre; //窗宽
     int     mWinWidth;  //窗位
 

@@ -105,6 +105,8 @@ MainWindow::MainWindow(QWidget *parent) :
     mBInvert = false;
     mBFlip   = false;
     mBMirror = false;
+    mBContrast = false;
+    mBWind = false;
 
     mBShowDefect = true;
     mBShowCenter = true;
@@ -112,8 +114,9 @@ MainWindow::MainWindow(QWidget *parent) :
     mSourceX = 0;
     mSourceY = 0;
 
-    m_eCurAction = ARROWACTION;
+    m_eCurAction = HANDACTION;
     mBMeasureOpt = false;
+    m_bIsPress = false;
 
     mGeyImgWdg = NULL;
     mGreyRectItem = NULL;
@@ -124,6 +127,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->pushButton_pre->hide();
     ui->pushButton_next->hide();
+
+    ui->widget_wind->hide();
 
     //
     mColorWdg = new ColorWdg();
@@ -154,25 +159,29 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->pushButton_measure, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_nomal, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_adapt, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
-    connect(ui->pushButton_measure_table, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+    connect(ui->checkBox_measure_table, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
 
     //调整
     connect(ui->pushButton_reset, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_invert, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_Mirror, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_Flip, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
-    connect(ui->pushButton_mag, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+//    connect(ui->pushButton_mag, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
 
     connect(ui->pushButton_rotate, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
 
     //
     connect(ui->pushButton_aoi, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
-    connect(ui->pushButton_recog_show_table, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+    connect(ui->checkBox_recog_show_table, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_exe, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_recog_clear, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
-    connect(ui->pushButton_show_defect, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
-    connect(ui->pushButton_show_defect_center, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+    connect(ui->checkBox_show_defect, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+    connect(ui->checkBox_show_defect_center, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+    connect(ui->checkBox_wind, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+    connect(ui->checkBox_contrast, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
 
+
+    connect(ui->horizontalSlider_contrast, SIGNAL(valueChanged(int)), this, SLOT(slot_sliderWinValueChange(int)));
 
     connect(ui->verticalSlider_WinCentre, SIGNAL(valueChanged(int)), this, SLOT(slot_sliderWinValueChange(int)));
     connect(ui->verticalSlider_WindWidth, SIGNAL(valueChanged(int)), this, SLOT(slot_sliderWinValueChange(int)));
@@ -229,14 +238,24 @@ void MainWindow::slot_sliderWinValueChange(int value)
     {
         mWinCentre = value;
         ui->label_wincentre->setText(QString("%1").arg(value));
+
+        delImg();
     }
     else if (QObject::sender() == ui->verticalSlider_WindWidth)
     {
         mWinWidth = value;
         ui->label_winwidth->setText(QString("%1").arg(value));
-    }
 
-    delImg();
+        delImg();
+    }
+    else if (QObject::sender() == ui->horizontalSlider_contrast)
+    {
+        mContrast = value;
+        ui->label_contrast->setText(QString("%1").arg(value));
+
+        if (mBContrast)
+            delImg();
+    }
 }
 
 void MainWindow::setDcmFileInfo()
@@ -249,10 +268,10 @@ void MainWindow::setDcmFileInfo()
     ui->verticalSlider_WindWidth->blockSignals(false);
 
     //reset
-    ui->pushButton_measure_table->setChecked(false);
+    ui->checkBox_measure_table->setChecked(false);
     ui->widget_measure->hide();
 
-    ui->pushButton_recog_show_table->setChecked(false);
+    ui->checkBox_recog_show_table->setChecked(false);
     ui->widget_recognize_table->hide();
 
     ui->pushButton_measure->setChecked(false);
@@ -266,6 +285,12 @@ void MainWindow::setDcmFileInfo()
 
     ui->pushButton_Flip->setChecked(false);
     mBFlip = false;
+
+    ui->checkBox_wind->setChecked(false);
+    mBWind = false;
+
+    ui->checkBox_contrast->setChecked(false);
+    mBContrast = false;
 
     mRotate = 0;
     mNeedRotate = 0;
@@ -358,6 +383,12 @@ void MainWindow::resetImg()
 
     ui->pushButton_Flip->setChecked(false);
     mBFlip = false;
+
+    ui->checkBox_wind->setChecked(false);
+    mBWind = false;
+
+    ui->checkBox_contrast->setChecked(false);
+    mBContrast = false;
 
     mRotate = 0;
     mNeedRotate = 0;
@@ -818,9 +849,9 @@ void MainWindow::slotBtnClick(bool bClick)
             }
         }
     }
-    else if (QObject::sender() == ui->pushButton_measure_table)
+    else if (QObject::sender() == ui->checkBox_measure_table)
     {
-        ui->widget_measure->setVisible(ui->pushButton_measure_table->isChecked());
+        ui->widget_measure->setVisible(ui->checkBox_measure_table->isChecked());
     }
     else if (QObject::sender() == ui->pushButton_search)
     {
@@ -943,20 +974,44 @@ void MainWindow::slotBtnClick(bool bClick)
     }
     else if (QObject::sender() == ui->pushButton_aoi)
     {
+        if (ui->checkBox_gray_mesure->isChecked())
+        {
+            m_ePreAction = m_eCurAction;
 
+            m_eCurAction = AOIACTION;
+            ui->widget_tool->setEnabled(false);
+        }
+        else
+        {
+            m_eCurAction = m_ePreAction;
+            ui->widget_tool->setEnabled(true);
+        }
     }
-    else if (QObject::sender() == ui->pushButton_recog_show_table)
+    else if (QObject::sender() == ui->checkBox_recog_show_table)
     {
-        ui->widget_recognize_table->setVisible(ui->pushButton_recog_show_table->isChecked());
+        ui->widget_recognize_table->setVisible(ui->checkBox_recog_show_table->isChecked());
     }
-    else if (QObject::sender() == ui->pushButton_show_defect)
+    else if (QObject::sender() == ui->checkBox_wind)
     {
-        mBShowDefect = ui->pushButton_show_defect->isChecked();
+        mBWind = ui->checkBox_wind->isChecked();
+        ui->widget_wind->setVisible(mBWind);
+
+        delImg();
+    }
+    else if (QObject::sender() == ui->checkBox_contrast)
+    {
+        mBContrast = ui->checkBox_contrast->isChecked();
+
+        delImg();
+    }
+    else if (QObject::sender() == ui->checkBox_show_defect)
+    {
+        mBShowDefect = ui->checkBox_show_defect->isChecked();
         update();
     }
-    else if (QObject::sender() == ui->pushButton_show_defect_center)
+    else if (QObject::sender() == ui->checkBox_show_defect_center)
     {
-        mBShowCenter = ui->pushButton_show_defect_center->isChecked();
+        mBShowCenter = ui->checkBox_show_defect_center->isChecked();
         update();
     }
     else if (QObject::sender() == ui->pushButton_exe)
@@ -969,7 +1024,42 @@ void MainWindow::slotBtnClick(bool bClick)
     }
     else if (QObject::sender() == ui->checkBox_gray_mesure)
     {
-        m_eCurAction = GREAYACTION;
+        if (ui->checkBox_gray_mesure->isChecked())
+        {
+            m_ePreAction = m_eCurAction;
+
+            m_eCurAction = GREAYACTION;
+            ui->widget_tool->setEnabled(false);
+
+            ui->pushButton_hand->setEnabled(false);
+            ui->pushButton_arrow->setEnabled(false);
+            ui->pushButton_ellipse->setEnabled(false);
+            ui->pushButton_rect->setEnabled(false);
+            ui->pushButton_line->setEnabled(false);
+        }
+        else
+        {
+            mGrayLine = QLine();
+			if (NULL != mGeyImgWdg)
+				mGeyImgWdg->close();
+
+            if (NULL != mGreyRectItem)
+            {
+                delete mGreyRectItem;
+                mGreyRectItem = NULL;
+            }
+
+            m_eCurAction = m_ePreAction;
+            ui->widget_tool->setEnabled(true);
+
+            ui->pushButton_hand->setEnabled(true);
+            ui->pushButton_arrow->setEnabled(true);
+            ui->pushButton_ellipse->setEnabled(true);
+            ui->pushButton_rect->setEnabled(true);
+            ui->pushButton_line->setEnabled(true);
+
+            update();
+        }
     }
     else if (QObject::sender() == ui->pushButton_color)
     {
@@ -1076,8 +1166,17 @@ void MainWindow::delImg()
             Flip(m_pImgPro, mCurImgWidth, mCurImgHeight);
 
         //窗宽窗位
-        if (mWinCentre>1 && mWinWidth>1)
-            WindowLevelTransform(m_pImgPro, mCurImgWidth, mCurImgHeight, mWinCentre, mWinWidth);
+        if (mBWind)
+        {
+            if (mWinCentre>1 && mWinWidth>1)
+                WindowLevelTransform(m_pImgPro, mCurImgWidth, mCurImgHeight, mWinCentre, mWinWidth);
+        }
+
+        //对比度
+        if (mBContrast)
+        {
+            ContrastEnhancement(m_pImgPro, mCurImgWidth, mCurImgHeight, mContrast);
+        }
 
         //resize
         reSize(mScale);
@@ -1142,9 +1241,22 @@ void MainWindow::slot_btnGroupClick(QAbstractButton *btn)
 
 void MainWindow::updateCursor()
 {
-    if (m_eCurAction == HANDACTION && mBMeasureOpt)
+    if (mBMeasureOpt)
     {
-        setCursor(Qt::OpenHandCursor);
+        if (m_eCurAction == HANDACTION)
+        {
+            if (mPaintRect.width() > ui->widget_img_pre->width() ||
+                mPaintRect.height() > ui->widget_img_pre->height())
+            {
+                setCursor(Qt::OpenHandCursor);
+            }
+            else {
+                setCursor(Qt::ArrowCursor);
+            }
+        }
+        else {
+            setCursor(Qt::ArrowCursor);
+        }
     }
     else
     {
@@ -1636,23 +1748,6 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                             m_beginPosPt = pt;
 
                             m_eDrawStatus = BEGINDRAW;
-
-//                            if (m_eCurAction == TEXTACTION)
-//                            {
-//                                m_bChangeText   = false;
-//                                //--绘制文字--
-//                                if (NULL == m_lineEditWdg)
-//                                {
-//                                    m_lineEditWdg = new QLineEdit(this);
-
-//                                    connect(m_lineEditWdg, SIGNAL(editingFinished()), this, SLOT(slot_lineEditFinished()));
-//                                }
-//                                m_lineEditWdg->clear();
-//                                m_lineEditWdg->move(pt);
-//                                m_lineEditWdg->show();
-//                                m_lineEditWdg->raise();
-//                                m_lineEditWdg->setFocus();
-//                            }
 //                        }
                     }
                         break;
@@ -1989,19 +2084,33 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
         }
         else if (e->type() == QEvent::Enter)
         {
-//            if (mBMeasureOpt)
-//                setCursor(Qt::OpenHandCursor);
-//            else {
-//                setCursor(Qt::ArrowCursor);
-//            }
-
-            if (mPaintRect.width() > ui->widget_img_pre->width() ||
-                mPaintRect.height() > ui->widget_img_pre->height())
+            if (mBMeasureOpt)
             {
-                setCursor(Qt::OpenHandCursor);
+                if (m_eCurAction == HANDACTION)
+                {
+                    if (mPaintRect.width() > ui->widget_img_pre->width() ||
+                        mPaintRect.height() > ui->widget_img_pre->height())
+                    {
+                        setCursor(Qt::OpenHandCursor);
+                    }
+                    else {
+                        setCursor(Qt::ArrowCursor);
+                    }
+                }
+                else {
+                    setCursor(Qt::ArrowCursor);
+                }
             }
-            else {
-                setCursor(Qt::ArrowCursor);
+            else
+            {
+                if (mPaintRect.width() > ui->widget_img_pre->width() ||
+                    mPaintRect.height() > ui->widget_img_pre->height())
+                {
+                    setCursor(Qt::OpenHandCursor);
+                }
+                else {
+                    setCursor(Qt::ArrowCursor);
+                }
             }
 
             return true;
