@@ -123,22 +123,99 @@ void EllipseItem::changeToUnitType()
 
 void EllipseItem::calcOriGeometry(QPoint oriPt, int imgW, int imgH, float scale, int rotate, bool bFlip, bool bMirror)
 {
+    //平移变换
+    m_rectOri.setLeft(m_rect.left() - oriPt.x());
+    m_rectOri.setRight(m_rect.right() - oriPt.x());
+    m_rectOri.setTop(m_rect.top() - oriPt.y());
+    m_rectOri.setBottom(m_rect.bottom() - oriPt.y());
+
+
     //转化为图像的坐标系统，需要注意的是oriPt 已经经过放大缩小
     //缩放变换
-    m_rectOri.setLeft((float)m_rect.left() / scale);
-    m_rectOri.setRight((float)m_rect.right() / scale);
-    m_rectOri.setTop((float)m_rect.top() / scale);
-    m_rectOri.setBottom((float)m_rect.bottom() / scale);
+    m_rectOri.setLeft((float)m_rectOri.left() / scale);
+    m_rectOri.setRight((float)m_rectOri.right() / scale);
+    m_rectOri.setTop((float)m_rectOri.top() / scale);
+    m_rectOri.setBottom((float)m_rectOri.bottom() / scale);
 
-    //平移变换
-    m_rectOri.setLeft(m_rectOri.left() - oriPt.x());
-    m_rectOri.setRight(m_rectOri.right() - oriPt.x());
-    m_rectOri.setTop(m_rectOri.top() - oriPt.y());
-    m_rectOri.setBottom(m_rectOri.bottom() - oriPt.y());
+//--------------------------------------
+    QRectF rectTempCpy;
+
+    rectTempCpy = m_rectOri;
+    //坐标变换， 图像中心坐标
+    int imgCenterW = imgW / 2;
+    int imgCenterH = imgH / 2;
+
+    rectTempCpy.setLeft(rectTempCpy.left() - imgCenterW / scale);
+    rectTempCpy.setRight(rectTempCpy.right() - imgCenterW / scale);
+    rectTempCpy.setTop(rectTempCpy.top() - imgCenterH / scale);
+    rectTempCpy.setBottom(rectTempCpy.bottom() - imgCenterH / scale);
+
+
+    QRectF rectT;
+
+    if (bMirror)
+    {
+        rectT = rectTempCpy;
+
+        rectTempCpy.setLeft(-rectT.right());
+        rectTempCpy.setRight(-rectT.left());
+        rectTempCpy.setTop(rectT.top());
+        rectTempCpy.setBottom(rectT.bottom());
+    }
+
+    if (bFlip)
+    {
+        rectT = rectTempCpy;
+
+        rectTempCpy.setLeft(rectT.left());
+        rectTempCpy.setRight(rectT.right());
+        rectTempCpy.setTop(-rectT.bottom());
+        rectTempCpy.setBottom(-rectT.top());
+    }
+
+    //旋转变换
+    int type = rotate / 90;
+    if (type == 1)
+    {
+        rectT = rectTempCpy;
+
+        rectTempCpy.setLeft(-rectT.bottom());
+        rectTempCpy.setRight(-rectT.top());
+        rectTempCpy.setTop(rectT.left());
+        rectTempCpy.setBottom(rectT.right());
+
+    }
+    else if (type == 2)
+    {
+        rectT = rectTempCpy;
+
+        rectTempCpy.setLeft(-rectT.right());
+        rectTempCpy.setRight(-rectT.left());
+        rectTempCpy.setTop(-rectT.bottom());
+        rectTempCpy.setBottom(-rectT.top());
+    }
+    else if (type == 3)
+    {
+        rectT = rectTempCpy;
+
+        rectTempCpy.setLeft(-rectT.bottom());
+        rectTempCpy.setRight(-rectT.top());
+        rectTempCpy.setTop(rectT.left());
+        rectTempCpy.setBottom(rectT.right());
+    }
+
+
+    //转化为图像0点坐标
+    rectTempCpy.setLeft(rectTempCpy.left() + imgCenterW / scale);
+    rectTempCpy.setRight(rectTempCpy.right() + imgCenterW / scale);
+    rectTempCpy.setTop(rectTempCpy.top() + imgCenterH / scale);
+    rectTempCpy.setBottom(rectTempCpy.bottom() + imgCenterH / scale);
+
+    m_rectOri = rectTempCpy;
 
     //更新、计算相关信息
-    m_oriWidth  = m_rectOri.width();
-    m_oriHeight = m_rectOri.height();
+    m_oriWidth  = m_rectOri.width() / scale;
+    m_oriHeight = m_rectOri.height()  / scale;
 
     changeToUnitType();
 }
@@ -146,13 +223,95 @@ void EllipseItem::calcOriGeometry(QPoint oriPt, int imgW, int imgH, float scale,
 void EllipseItem::updateGeometry(QPoint curOriPt, int imgW, int imgH, float scale, int rotate, bool bFlip, bool bMirror)
 {
     //把图像坐标系转窗口坐标系 ，需要注意的是 curOriPt 已经经过放大缩小
+    QRectF rectTempCpy;
+
+    rectTempCpy = m_rectOri;
+
+    //坐标变换， 图像中心坐标
+    int imgCenterW = imgW / 2;
+    int imgCenterH = imgH / 2;
+
+    QRectF rectT;
+
+    rectT = rectTempCpy;
+
+    int type = rotate / 90;
+    if (type == 1 || type == 3)
+    {
+        rectTempCpy.setLeft(rectTempCpy.left() - imgCenterH / scale);
+        rectTempCpy.setRight(rectTempCpy.right() - imgCenterH / scale);
+        rectTempCpy.setTop(rectTempCpy.top() - imgCenterW / scale);
+        rectTempCpy.setBottom(rectTempCpy.bottom() - imgCenterW / scale);
+    }
+    else {
+        rectTempCpy.setLeft(rectTempCpy.left() - imgCenterW / scale);
+        rectTempCpy.setRight(rectTempCpy.right() - imgCenterW / scale);
+        rectTempCpy.setTop(rectTempCpy.top() - imgCenterH / scale);
+        rectTempCpy.setBottom(rectTempCpy.bottom() - imgCenterH / scale);
+    }
+
+    if (bMirror)
+    {
+        rectT = rectTempCpy;
+
+        rectTempCpy.setLeft(-rectT.right());
+        rectTempCpy.setRight(-rectT.left());
+        rectTempCpy.setTop(rectT.top());
+        rectTempCpy.setBottom(rectT.bottom());
+    }
+
+    if (bFlip)
+    {
+        rectT = rectTempCpy;
+
+        rectTempCpy.setLeft(rectT.left());
+        rectTempCpy.setRight(rectT.right());
+        rectTempCpy.setTop(-rectT.bottom());
+        rectTempCpy.setBottom( -rectT.top());
+    }
+
+    //旋转变换
+    if (type == 1)
+    {
+        rectT = rectTempCpy;
+
+        rectTempCpy.setLeft(rectT.top());
+        rectTempCpy.setRight(rectT.bottom());
+        rectTempCpy.setTop(-rectT.right());
+        rectTempCpy.setBottom(-rectT.left());
+    }
+    else if (type == 2)
+    {
+        rectT = rectTempCpy;
+
+        rectTempCpy.setLeft(-rectT.right());
+        rectTempCpy.setRight(-rectT.left());
+        rectTempCpy.setTop(-rectT.bottom());
+        rectTempCpy.setBottom(-rectT.top());
+    }
+    else if (type == 3)
+    {
+        rectT = rectTempCpy;
+
+        rectTempCpy.setLeft(-rectT.bottom());
+        rectTempCpy.setRight(-rectT.top());
+        rectTempCpy.setTop(rectT.left());
+        rectTempCpy.setBottom(rectT.right());
+    }
+
+    //转化为图像0点坐标
+    rectTempCpy.setLeft(rectTempCpy.left()      + imgCenterW / scale);
+    rectTempCpy.setRight(rectTempCpy.right()    + imgCenterW / scale);
+    rectTempCpy.setTop(rectTempCpy.top()        + imgCenterH / scale);
+    rectTempCpy.setBottom(rectTempCpy.bottom()  + imgCenterH / scale);
+
     QRectF rectTemp;
 
     //平移
-    rectTemp.setLeft(m_rectOri.left() + curOriPt.x());
-    rectTemp.setRight(m_rectOri.right() + curOriPt.x());
-    rectTemp.setTop(m_rectOri.top() + curOriPt.y());
-    rectTemp.setBottom(m_rectOri.bottom() + curOriPt.y());
+    rectTemp.setLeft(rectTempCpy.left()     + curOriPt.x()/scale);
+    rectTemp.setRight(rectTempCpy.right()   + curOriPt.x()/scale);
+    rectTemp.setTop(rectTempCpy.top()       + curOriPt.y()/scale);
+    rectTemp.setBottom(rectTempCpy.bottom() + curOriPt.y()/scale);
 
     //缩放变换
     rectTemp.setLeft((float)rectTemp.left() * scale);

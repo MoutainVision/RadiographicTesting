@@ -59,30 +59,179 @@ void LineItem::changeToUnitType()
 
 void LineItem::calcOriGeometry(QPoint oriPt, int imgW, int imgH, float scale, int rotate, bool bFlip, bool bMirror)
 {
-    //转化为图像的坐标系统，需要注意的是oriPt 已经经过放大缩小
-    //缩放变换
-    m_lineOri.setP1(m_line.p1() / scale);
-    m_lineOri.setP2(m_line.p2() / scale);
-
     //平移变换
-    m_lineOri.setP1(QPointF(m_lineOri.p1().x() - oriPt.x(), m_lineOri.p1().y() - oriPt.y()));
-    m_lineOri.setP2(QPointF(m_lineOri.p2().x() - oriPt.x(), m_lineOri.p2().y() - oriPt.y()));
+    m_lineOri.setP1(QPointF(m_line.p1().x() - oriPt.x(), m_line.p1().y() - oriPt.y()));
+    m_lineOri.setP2(QPointF(m_line.p2().x() - oriPt.x(), m_line.p2().y() - oriPt.y()));
+
+
+
+    //缩放变换
+    m_lineOri.setP1(m_lineOri.p1() / scale);
+    m_lineOri.setP2(m_lineOri.p2() / scale);
+
+    //转化为图像的坐标系统，需要注意的是oriPt 已经经过放大缩小
+    QLineF              lineTemp;
+    lineTemp = m_lineOri;
+    //坐标变换， 图像中心坐标
+    int imgCenterW = imgW / 2;
+    int imgCenterH = imgH / 2;
+
+    lineTemp.setP1(QPointF(lineTemp.p1().x() - imgCenterW / scale,
+                           lineTemp.p1().y() - imgCenterH / scale));
+
+    lineTemp.setP2(QPointF(lineTemp.p2().x() - imgCenterW / scale,
+                           lineTemp.p2().y() - imgCenterH / scale));
+
+
+    if (bMirror)
+    {
+        lineTemp.setP1(QPointF(lineTemp.p1().x(),
+                               -lineTemp.p1().y()));
+
+        lineTemp.setP2(QPointF(lineTemp.p2().x(),
+                               -lineTemp.p2().y()));
+    }
+
+    if (bFlip)
+    {
+        lineTemp.setP1(QPointF(-lineTemp.p1().x(),
+                               lineTemp.p1().y()));
+
+        lineTemp.setP2(QPointF(-lineTemp.p2().x(),
+                               lineTemp.p2().y()));
+    }
+
+    int type = rotate / 90;
+    if (type == 1)
+    {
+        lineTemp.setP1(QPointF(lineTemp.p1().y(),
+                               -lineTemp.p1().x()));
+
+        lineTemp.setP2(QPointF(lineTemp.p2().y(),
+                               -lineTemp.p2().x()));
+
+    }
+    else if (type == 2)
+    {
+        lineTemp.setP1(QPointF(-lineTemp.p1().x(),
+                               -lineTemp.p1().y()));
+
+        lineTemp.setP2(QPointF(-lineTemp.p2().x(),
+                               -lineTemp.p2().y()));
+    }
+    else if (type == 3)
+    {
+        lineTemp.setP1(QPointF(-lineTemp.p1().y(),
+                               lineTemp.p1().x()));
+
+        lineTemp.setP2(QPointF(-lineTemp.p2().y(),
+                               lineTemp.p2().x()));
+    }
+
+    lineTemp.setP1(QPointF(lineTemp.p1().x() + imgCenterW / scale,
+                           lineTemp.p1().y() + imgCenterH / scale));
+
+    lineTemp.setP2(QPointF(lineTemp.p2().x() + imgCenterW / scale,
+                           lineTemp.p2().y() + imgCenterH / scale));
+
+    m_lineOri = lineTemp;
 
     //更新、计算相关信息
-    m_length = m_lineOri.length();
-    m_angle  = m_lineOri.angle();
+    m_length = m_lineOri.length() / scale;
+    m_angle  = m_lineOri.angle() / scale;
 
     changeToUnitType();
 }
 
 void LineItem::updateGeometry(QPoint curOriPt, int imgW, int imgH, float scale, int rotate, bool bFlip, bool bMirror)
 {
+    QLineF lineTempCpy;
+
+    lineTempCpy = m_lineOri;
+
+    //坐标变换， 图像中心坐标
+    int imgCenterW = imgW / 2;
+    int imgCenterH = imgH / 2;
+
+    int type = rotate / 90;
+    if (type == 1 || type == 3)
+    {
+        lineTempCpy.setP1(QPointF(lineTempCpy.p1().x() - imgCenterH / scale,
+                               lineTempCpy.p1().y() - imgCenterW / scale));
+
+        lineTempCpy.setP2(QPointF(lineTempCpy.p2().x() - imgCenterH / scale,
+                               lineTempCpy.p2().y() - imgCenterW / scale));
+
+    }
+    else {
+        lineTempCpy.setP1(QPointF(lineTempCpy.p1().x() - imgCenterW / scale,
+                               lineTempCpy.p1().y() - imgCenterH / scale));
+
+        lineTempCpy.setP2(QPointF(lineTempCpy.p2().x() - imgCenterW / scale,
+                               lineTempCpy.p2().y() - imgCenterH / scale));
+
+    }
+
+    if (bFlip)
+    {
+        lineTempCpy.setP1(QPointF(lineTempCpy.p1().x(),
+                               -lineTempCpy.p1().y()));
+
+        lineTempCpy.setP2(QPointF(lineTempCpy.p2().x(),
+                               -lineTempCpy.p2().y()));
+    }
+
+    if (bMirror)
+    {
+        lineTempCpy.setP1(QPointF(-lineTempCpy.p1().x(),
+                               lineTempCpy.p1().y()));
+
+        lineTempCpy.setP2(QPointF(-lineTempCpy.p2().x(),
+                               lineTempCpy.p2().y()));
+    }
+
+    if (type == 1)
+    {
+        lineTempCpy.setP1(QPointF(lineTempCpy.p1().y(),
+                               -lineTempCpy.p1().x()));
+
+        lineTempCpy.setP2(QPointF(lineTempCpy.p2().y(),
+                               -lineTempCpy.p2().x()));
+
+    }
+    else if (type == 2)
+    {
+        lineTempCpy.setP1(QPointF(-lineTempCpy.p1().x(),
+                               -lineTempCpy.p1().y()));
+
+        lineTempCpy.setP2(QPointF(-lineTempCpy.p2().x(),
+                               -lineTempCpy.p2().y()));
+    }
+    else if (type == 3)
+    {
+        lineTempCpy.setP1(QPointF(-lineTempCpy.p1().y(),
+                               lineTempCpy.p1().x()));
+
+        lineTempCpy.setP2(QPointF(-lineTempCpy.p2().y(),
+                               lineTempCpy.p2().x()));
+    }
+
+    lineTempCpy.setP1(QPointF(lineTempCpy.p1().x() + imgCenterW / scale,
+                           lineTempCpy.p1().y() + imgCenterH / scale));
+
+    lineTempCpy.setP2(QPointF(lineTempCpy.p2().x() + imgCenterW / scale,
+                           lineTempCpy.p2().y() + imgCenterH / scale));
+
+
     //把图像坐标系转窗口坐标系 ，需要注意的是 curOriPt 已经经过放大缩小
     QLineF lineTemp;
 
     //平移
-    lineTemp.setP1(QPointF(m_lineOri.p1().x() + curOriPt.x(), m_lineOri.p1().y() + curOriPt.y()));
-    lineTemp.setP2(QPointF(m_lineOri.p2().x() + curOriPt.x(), m_lineOri.p2().y() + curOriPt.y()));
+    lineTemp.setP1(QPointF(lineTempCpy.p1().x() + curOriPt.x()/scale,
+                           lineTempCpy.p1().y() + curOriPt.y()/scale));
+
+    lineTemp.setP2(QPointF(lineTempCpy.p2().x() + curOriPt.x()/scale,
+                           lineTempCpy.p2().y() + curOriPt.y()/scale));
 
     //缩放变换
     lineTemp.setP1(lineTemp.p1() * scale);
