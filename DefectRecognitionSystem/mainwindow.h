@@ -260,6 +260,8 @@ private:
 
     unsigned short *m_pImgDefect;  //´¦ÀíÍ¼Ïñ
 
+    RectItem    *mDefectRectItem;
+
     //»Ò¶ÈÍ¼Ïñ
     QPoint      m_iP1;
     QPoint      m_iP2;

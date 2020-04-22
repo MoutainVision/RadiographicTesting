@@ -886,6 +886,9 @@
                   <property name="text">
                    <string> 显示缺陷</string>
                   </property>
+                  <property name="checked">
+                   <bool>true</bool>
+                  </property>
                  </widget>
                 </item>
                </layout>
@@ -912,6 +915,9 @@
                   </property>
                   <property name="text">
                    <string>显示中心线</string>
+                  </property>
+                  <property name="checked">
+                   <bool>true</bool>
                   </property>
                  </widget>
                 </item>

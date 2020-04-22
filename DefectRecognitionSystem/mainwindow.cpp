@@ -235,6 +235,8 @@ MainWindow::MainWindow(QWidget *parent) :
     mGeyImgWdg = NULL;
     mGreyRectItem = NULL;
 
+    mDefectRectItem = NULL;
+
     mRotate = 0;
 
     ui->verticalSlider_diameter->setRange(5, 200);
@@ -1090,7 +1092,7 @@ void MainWindow::slotBtnClick(bool bClick)
     }
     else if (QObject::sender() == ui->pushButton_aoi)
     {
-        if (ui->checkBox_gray_mesure->isChecked())
+        if (ui->pushButton_aoi->isChecked())
         {
             m_ePreAction = m_eCurAction;
 
@@ -1132,6 +1134,10 @@ void MainWindow::slotBtnClick(bool bClick)
     }
     else if (QObject::sender() == ui->pushButton_exe)
     {
+        m_eCurAction = m_ePreAction;
+        ui->widget_tool->setEnabled(true);
+        ui->pushButton_aoi->setChecked(false);
+
         exeDefectImg();
     }
     else if (QObject::sender() == ui->pushButton_recog_clear)
@@ -1233,7 +1239,15 @@ void MainWindow::exeDefectImg()
 
     clearDefect();
 
-    ImageRect pRoi(50, 500, 50, 500);
+    ImageRect pRoi;
+    if (NULL != mDefectRectItem)
+    {
+        QRectF rect = mDefectRectItem->getOriRect();
+        pRoi.xs = rect.left();
+        pRoi.xe = rect.right();
+        pRoi.ys = rect.top();
+        pRoi.ye = rect.bottom();
+    }
 
     std::thread([&] {
 
@@ -2009,7 +2023,8 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
 
 
                 //灰色计算
-                p.drawLine(mGrayLine);
+                if (!mGrayLine.isNull())
+                    p.drawLine(mGrayLine);
 
                 if (!mGrayLine.isNull())
                 {
@@ -2027,9 +2042,23 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                     }
                 }
 
+                //
+                if (NULL != mDefectRectItem)
+                {
+                    mDefectRectItem->updateGeometry(getCurOffset(),
+                                                  mCurImgWidth,
+                                                  mCurImgHeight, mScale,
+                                                  mNeedRotate, mBFlip, mBMirror);
+
+                    QRectF rectTmp = mDefectRectItem->getRect();
+
+                    p.drawRect(rectTmp);
+                }
+
                 //临时几何图像
                 switch (m_eCurAction) {
                 case RECTACTION:
+                case AOIACTION:
                 {
                     if (m_eDrawStatus == BEGINDRAW)
                     {
@@ -2074,7 +2103,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
             QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(e);
             QPoint pt = mouseEvent->pos();
 
-            if (mBMeasureOpt || m_eCurAction==GREAYACTION)
+            if (mBMeasureOpt || m_eCurAction==GREAYACTION || m_eCurAction==AOIACTION)
             {
                 //测量模式
 //                hideColorWdg();
@@ -2087,6 +2116,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                     case ELLIPSEACTION:
                     case TEXTACTION:
                     case GREAYACTION:
+                    case AOIACTION:
                     {
 //                        //清空测量窗口信息
 //                        updateMesureDlgCtr(NULL);
@@ -2139,7 +2169,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
             QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(e);
             QPoint pt = mouseEvent->pos();
 
-            if (mBMeasureOpt || m_eCurAction==GREAYACTION)
+            if (mBMeasureOpt || m_eCurAction==GREAYACTION || m_eCurAction==AOIACTION)
             {
                 if (mouseEvent->button() == Qt::LeftButton)
                 {
@@ -2182,6 +2212,41 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
 //                            updateMesureDlgCtr(m_geometryItemBase);
 
                             updateMeasureTable();
+                        }
+
+                        m_rectTmp = QRectF();
+
+                        m_eDrawStatus = ENDDRAW;
+                    }
+                        break;
+                    case AOIACTION:
+                    {
+                        if (m_rectTmp.isValid() && m_eDrawStatus == BEGINDRAW && m_rectTmp.width() > 2 && m_rectTmp.height() > 2)
+                        {
+                            if (NULL != mDefectRectItem)
+                            {
+                                delete mDefectRectItem;
+                                mDefectRectItem = NULL;
+                            }
+
+                            mDefectRectItem = new RectItem(m_rectTmp);
+                            mDefectRectItem->setColor(mColorWdg->getCurColor());
+                            mDefectRectItem->setLineWidth(ui->comboBox_linebold->currentText().toInt());
+//                            m_geometryItemBase->setPenStyle(m_measureSetting.measureObjectSet.penStyle);
+//                            m_geometryItemBase->setCurLabelType(m_measureSetting.measureObjectSet.rectLabelType);
+
+//                            m_geometryItemBase->setSpatialResolution(g_scanner.getSpatialResolution());
+//                            m_geometryItemBase->setUnit(m_measureSetting.lengthUnit);
+
+                            mDefectRectItem->calcOriGeometry(getCurOffset(),
+                                                                mCurImgWidth,
+                                                                mCurImgHeight,
+                                                                mScale,
+                                                                mNeedRotate, mBFlip, mBMirror);
+
+
+                            //置为选中态
+                            mDefectRectItem->setItemStatus(SELECTEDNOMOVE);
                         }
 
                         m_rectTmp = QRectF();
@@ -2328,12 +2393,28 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
             //灰度
             getIntensity(pt);
 
-            if (mBMeasureOpt || m_eCurAction==GREAYACTION)
+            if (mBMeasureOpt || m_eCurAction==GREAYACTION || m_eCurAction==AOIACTION)
             {
                 QPoint imgPt = pt;
 
                 switch (m_eCurAction) {
                 case RECTACTION:
+                {
+                    if (m_eDrawStatus == BEGINDRAW)
+                    {
+                        int x, y , w, h;
+                        x = m_beginPosPt.x();
+                        y = m_beginPosPt.y();
+                        w = imgPt.x() - x;
+                        h = imgPt.y() - y;
+
+                        m_rectTmp = QRect(x, y, w, h);
+
+                        update();
+                    }
+                }
+                    break;
+                case AOIACTION:
                 {
                     if (m_eDrawStatus == BEGINDRAW)
                     {
