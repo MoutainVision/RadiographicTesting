@@ -1143,6 +1143,14 @@ void MainWindow::slotBtnClick(bool bClick)
     else if (QObject::sender() == ui->pushButton_recog_clear)
     {
         clearDefect();
+
+        if (NULL != mDefectRectItem)
+        {
+            delete mDefectRectItem;
+            mDefectRectItem = NULL;
+        }
+
+        update();
     }
     else if (QObject::sender() == ui->checkBox_gray_mesure)
     {

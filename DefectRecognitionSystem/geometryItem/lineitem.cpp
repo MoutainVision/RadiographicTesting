@@ -59,6 +59,8 @@ void LineItem::changeToUnitType()
 
 void LineItem::calcOriGeometry(QPoint oriPt, int imgW, int imgH, float scale, int rotate, bool bFlip, bool bMirror)
 {
+    int type = rotate / 90;
+
     //平移变换
     m_lineOri.setP1(QPointF(m_line.p1().x() - oriPt.x(), m_line.p1().y() - oriPt.y()));
     m_lineOri.setP2(QPointF(m_line.p2().x() - oriPt.x(), m_line.p2().y() - oriPt.y()));
@@ -76,11 +78,21 @@ void LineItem::calcOriGeometry(QPoint oriPt, int imgW, int imgH, float scale, in
     int imgCenterW = imgW / 2;
     int imgCenterH = imgH / 2;
 
-    lineTemp.setP1(QPointF(lineTemp.p1().x() - imgCenterW / scale,
-                           lineTemp.p1().y() - imgCenterH / scale));
+//    if (type == 1 || type == 3)
+//    {
+//    lineTemp.setP1(QPointF(lineTemp.p1().x() - imgCenterH / scale,
+//                           lineTemp.p1().y() - imgCenterW / scale));
 
-    lineTemp.setP2(QPointF(lineTemp.p2().x() - imgCenterW / scale,
-                           lineTemp.p2().y() - imgCenterH / scale));
+//    lineTemp.setP2(QPointF(lineTemp.p2().x() - imgCenterH / scale,
+//                           lineTemp.p2().y() - imgCenterW / scale));
+//    }
+//    else {
+        lineTemp.setP1(QPointF(lineTemp.p1().x() - imgCenterW / scale,
+                               lineTemp.p1().y() - imgCenterH / scale));
+
+        lineTemp.setP2(QPointF(lineTemp.p2().x() - imgCenterW / scale,
+                               lineTemp.p2().y() - imgCenterH / scale));
+//    }
 
 
     if (bMirror)
@@ -101,14 +113,14 @@ void LineItem::calcOriGeometry(QPoint oriPt, int imgW, int imgH, float scale, in
                                lineTemp.p2().y()));
     }
 
-    int type = rotate / 90;
+
     if (type == 1)
     {
-        lineTemp.setP1(QPointF(lineTemp.p1().y(),
-                               -lineTemp.p1().x()));
+        lineTemp.setP1(QPointF(-lineTemp.p2().y(),
+                               lineTemp.p1().x()));
 
-        lineTemp.setP2(QPointF(lineTemp.p2().y(),
-                               -lineTemp.p2().x()));
+        lineTemp.setP2(QPointF(-lineTemp.p1().y(),
+                               lineTemp.p2().x()));
 
     }
     else if (type == 2)
@@ -128,11 +140,22 @@ void LineItem::calcOriGeometry(QPoint oriPt, int imgW, int imgH, float scale, in
                                lineTemp.p2().x()));
     }
 
-    lineTemp.setP1(QPointF(lineTemp.p1().x() + imgCenterW / scale,
-                           lineTemp.p1().y() + imgCenterH / scale));
+    if (type == 1 || type == 3)
+    {
+        lineTemp.setP1(QPointF(lineTemp.p1().x() + imgCenterH / scale,
+                               lineTemp.p1().y() + imgCenterW / scale));
 
-    lineTemp.setP2(QPointF(lineTemp.p2().x() + imgCenterW / scale,
-                           lineTemp.p2().y() + imgCenterH / scale));
+        lineTemp.setP2(QPointF(lineTemp.p2().x() + imgCenterH / scale,
+                               lineTemp.p2().y() + imgCenterW / scale));
+    }
+    else {
+        lineTemp.setP1(QPointF(lineTemp.p1().x() + imgCenterW / scale,
+                               lineTemp.p1().y() + imgCenterH / scale));
+
+        lineTemp.setP2(QPointF(lineTemp.p2().x() + imgCenterW / scale,
+                               lineTemp.p2().y() + imgCenterH / scale));
+    }
+
 
     m_lineOri = lineTemp;
 

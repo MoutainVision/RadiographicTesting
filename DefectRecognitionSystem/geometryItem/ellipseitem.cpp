@@ -206,10 +206,19 @@ void EllipseItem::calcOriGeometry(QPoint oriPt, int imgW, int imgH, float scale,
 
 
     //转化为图像0点坐标
-    rectTempCpy.setLeft(rectTempCpy.left() + imgCenterW / scale);
-    rectTempCpy.setRight(rectTempCpy.right() + imgCenterW / scale);
-    rectTempCpy.setTop(rectTempCpy.top() + imgCenterH / scale);
-    rectTempCpy.setBottom(rectTempCpy.bottom() + imgCenterH / scale);
+    if (type == 1 || type == 3)
+    {
+        rectTempCpy.setLeft(rectTempCpy.left() + imgCenterH / scale);
+        rectTempCpy.setRight(rectTempCpy.right() + imgCenterH / scale);
+        rectTempCpy.setTop(rectTempCpy.top() + imgCenterW / scale);
+        rectTempCpy.setBottom(rectTempCpy.bottom() + imgCenterW / scale);
+    }
+    else {
+        rectTempCpy.setLeft(rectTempCpy.left() + imgCenterW / scale);
+        rectTempCpy.setRight(rectTempCpy.right() + imgCenterW / scale);
+        rectTempCpy.setTop(rectTempCpy.top() + imgCenterH / scale);
+        rectTempCpy.setBottom(rectTempCpy.bottom() + imgCenterH / scale);
+    }
 
     m_rectOri = rectTempCpy;
 
