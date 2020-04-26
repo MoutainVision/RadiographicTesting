@@ -464,5 +464,9 @@
         <file>imgs/next_normal_big.png</file>
         <file>imgs/prev_normal_big.png</file>
         <file>imgs/colorwdg.png</file>
+        <file>imgs/left_grey.png</file>
+        <file>imgs/left_nomal.png</file>
+        <file>imgs/right_grey.png</file>
+        <file>imgs/right_nomal.png</file>
     </qresource>
 </RCC>

@@ -203,7 +203,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->horizontalScrollBar->hide();
     ui->verticalScrollBar->hide();
 
+    ui->tabWidget->removeTab(1);
     ui->tabWidget->setCurrentIndex(0);
+
 
     mRecognizeWdg  = nullptr;
     mReCheckWdg = nullptr;
@@ -236,6 +238,9 @@ MainWindow::MainWindow(QWidget *parent) :
     mGreyRectItem = NULL;
 
     mDefectRectItem = NULL;
+
+    //人工， 初始化有信号
+    hEvent = CreateEvent(NULL, TRUE, TRUE, NULL);
 
     mRotate = 0;
 
@@ -306,7 +311,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->horizontalScrollBar, SIGNAL(valueChanged(int)), this, SLOT(slot_scrollAreaXChange(int)));
     connect(ui->verticalScrollBar, SIGNAL(valueChanged(int)), this, SLOT(slot_scrollAreaYChange(int)));
 
-    connect(ui->verticalSlider_diameter, SIGNAL(sliderReleased()), this, SLOT(slot_sliderReleased()));
+    connect(ui->verticalSlider_diameter, SIGNAL(valueChanged(int)), this, SLOT(slot_sliderValuechange(int)));
 
     connect(ui->buttonGroup, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(slot_btnGroupClick(QAbstractButton*)));
     connect(ui->pushButton_pre, SIGNAL(clicked()), this, SLOT(slot_btnPreToolClick()));
@@ -325,7 +330,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::slot_tabCurrentChanged(int index)
 {
-    if (index == 0 || index == 1)
+    //if (index == 0 || index == 1)
+    if (index == 0)
     {
         ui->pushButton_pre_big->show();
         ui->pushButton_next_big->show();
@@ -337,9 +343,9 @@ void MainWindow::slot_tabCurrentChanged(int index)
     }
 }
 
-void MainWindow::slot_sliderReleased()
+void MainWindow::slot_sliderValuechange(int value)
 {
-    int value = ui->verticalSlider_diameter->value();
+//    int value = ui->verticalSlider_diameter->value();
     mScale = (float)value / 100;
 
     ui->lineEdit_diameter->setText(QString("%1").arg(value));
@@ -1276,13 +1282,40 @@ void MainWindow::exeDefectImg()
 
 void MainWindow::delImg()
 {
-//    std::thread([=] {
+    if (!dmfile.IsValid())
+        return ;
+
+    mDelImgLock.lock();
+    mBDelImging = false;
+    mDelImgLock.unlock();
+
+    DWORD dReturn = WaitForSingleObject(hEvent,INFINITE);
+
+    if (WAIT_OBJECT_0 == dReturn)
+    {
+        ResetEvent(hEvent);
+
+        mDelImgLock.lock();
+        mBDelImging = true;
+        mDelImgLock.unlock();
+    }
+
+    std::thread([=] {
         //删除
         if (nullptr != m_pImgPro)
         {
             delete []m_pImgPro;
             m_pImgPro = NULL;
         }
+
+        mDelImgLock.lock();
+        if (!mBDelImging)
+        {
+            mDelImgLock.unlock();
+            SetEvent(hEvent);
+            return ;
+        }
+        mDelImgLock.unlock();
 
         //拷贝
         m_pImgPro = new unsigned short[mSrcImgWidth * mSrcImgHeight];
@@ -1295,13 +1328,40 @@ void MainWindow::delImg()
         if (mBInvert)
             Invert(m_pImgPro, mCurImgWidth, mCurImgHeight);
 
+        mDelImgLock.lock();
+        if (!mBDelImging)
+        {
+            mDelImgLock.unlock();
+            SetEvent(hEvent);
+            return ;
+        }
+        mDelImgLock.unlock();
+
         //镜像
         if (mBMirror)
             Mirror(m_pImgPro, mCurImgWidth, mCurImgHeight);
 
+        mDelImgLock.lock();
+        if (!mBDelImging)
+        {
+            mDelImgLock.unlock();
+            SetEvent(hEvent);
+            return ;
+        }
+        mDelImgLock.unlock();
+
         //翻转
         if (mBFlip)
             Flip(m_pImgPro, mCurImgWidth, mCurImgHeight);
+
+        mDelImgLock.lock();
+        if (!mBDelImging)
+        {
+            mDelImgLock.unlock();
+            SetEvent(hEvent);
+            return ;
+        }
+        mDelImgLock.unlock();
 
         //窗宽窗位
         if (mBWind)
@@ -1310,14 +1370,41 @@ void MainWindow::delImg()
                 WindowLevelTransform(m_pImgPro, mCurImgWidth, mCurImgHeight, mWinCentre, mWinWidth);
         }
 
+        mDelImgLock.lock();
+        if (!mBDelImging)
+        {
+            mDelImgLock.unlock();
+            SetEvent(hEvent);
+            return ;
+        }
+        mDelImgLock.unlock();
+
         //对比度
         if (mBContrast)
         {
             ContrastEnhancement(m_pImgPro, mCurImgWidth, mCurImgHeight, mContrast);
         }
 
+        mDelImgLock.lock();
+        if (!mBDelImging)
+        {
+            mDelImgLock.unlock();
+            SetEvent(hEvent);
+            return ;
+        }
+        mDelImgLock.unlock();
+
         //resize
         reSize(mScale);
+
+        mDelImgLock.lock();
+        if (!mBDelImging)
+        {
+            mDelImgLock.unlock();
+            SetEvent(hEvent);
+            return ;
+        }
+        mDelImgLock.unlock();
 
         //旋转
         if (mNeedRotate == 90)
@@ -1327,7 +1414,14 @@ void MainWindow::delImg()
         else if (mNeedRotate == 270)
             Rotate270(m_pImgPro, mCurImgWidth, mCurImgHeight);
 
-        mBDelImging = false;
+        mDelImgLock.lock();
+        if (!mBDelImging)
+        {
+            mDelImgLock.unlock();
+            SetEvent(hEvent);
+            return ;
+        }
+        mDelImgLock.unlock();
 
         FunctionTransfer::runInMainThread([=]()
         {
@@ -1335,7 +1429,9 @@ void MainWindow::delImg()
             showImg(m_pImgPro, mCurImgWidth, mCurImgHeight);
         });
 
-//    }).detach();
+        SetEvent(hEvent);
+
+    }).detach();
 
 }
 
@@ -4262,6 +4358,8 @@ void MainWindow::updateOperatorStatus()
 
 MainWindow::~MainWindow()
 {
+    CloseHandle(hEvent);
+
     if (nullptr != mModel)
     {
         delete mModel;

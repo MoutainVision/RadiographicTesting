@@ -13,6 +13,77 @@
   <property name="windowTitle">
    <string>射线检测缺陷识别系统</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">
+/**********菜单栏**********/
+QMenuBar {
+        background: rgb(187, 212, 238);
+        border: 1px solid rgb(111, 156, 207);
+        border-left: none;
+        border-right: none;
+}
+QMenuBar::item {
+        border: 1px solid transparent;
+        padding: 5px 10px 5px 10px;
+        background: transparent;
+}
+QMenuBar::item:enabled {
+        color: rgb(2, 65, 132);
+}
+QMenuBar::item:!enabled {
+        color: rgb(155, 155, 155);
+}
+QMenuBar::item:enabled:selected {
+        border-top-color: rgb(111, 156, 207);
+        border-bottom-color: rgb(111, 156, 207);
+        background: rgb(198, 224, 252);
+}
+
+/**********菜单**********/
+QMenu {
+        border: 1px solid rgb(111, 156, 207);
+        background: rgb(232, 241, 250);
+}
+QMenu::item {
+        height: 22px;
+        padding: 0px 25px 0px 20px;
+}
+QMenu::item:enabled {
+        color: rgb(84, 84, 84);
+}
+QMenu::item:!enabled {
+        color: rgb(155, 155, 155);
+}
+QMenu::item:enabled:selected {
+        color: rgb(2, 65, 132);
+        background: rgba(255, 255, 255, 200);
+}
+QMenu::separator {
+        height: 1px;
+        background: rgb(111, 156, 207);
+}
+QMenu::indicator {
+        width: 13px;
+        height: 13px;
+}
+QMenu::icon {
+        padding-left: 2px;
+        padding-right: 2px;
+}
+
+/**********状态栏**********/
+QStatusBar {
+        background: rgb(187, 212, 238);
+        border: 1px solid rgb(111, 156, 207);
+        border-left: none;
+        border-right: none;
+        border-bottom: none;
+}
+QStatusBar::item {
+    border: none;
+    border-right: 1px solid rgb(111, 156, 207);
+}</string>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
     <property name="spacing">
@@ -38,6 +109,308 @@
         <height>0</height>
        </size>
       </property>
+      <property name="styleSheet">
+       <string notr="true">/**********分组框**********/
+QGroupBox {
+        font-size: 15px;
+        border: 1px solid rgb(111, 156, 207);
+        border-radius: 4px;
+        margin-top: 10px;
+}
+QGroupBox::title {
+        color: rgb(56, 99, 154);
+        top: -8px;
+        left: 10px;
+}
+
+/**********页签项**********/
+QTabWidget::pane {
+        border: none;
+        border-top: 3px solid rgb(0, 78, 161);
+        background: rgb(187, 212, 238);
+}
+QTabWidget::tab-bar {
+        border: none;
+}
+QTabBar::tab {
+        border: none;
+        border-top-left-radius: 4px;
+        border-bottom-left-radius: 4px;
+        color: white;
+        background: rgb(120, 170, 220);
+        height: 60px;
+        min-width: 28px;
+        margin-bottom: 1px;
+        padding-top: 5px;
+        padding-bottom: 5px;
+}
+QTabBar::tab:hover {
+        background: rgb(0, 78, 161);
+}
+QTabBar::tab:selected {
+        color: white;
+        background: rgb(0, 78, 161);
+}
+
+QTabWidget#tabWidget::pane {
+        border: 1px solid rgb(111, 156, 207);
+        background: rgb(232, 241, 252);
+        margin-top: -1px;
+}
+
+QTabBar#tabBar::tab {
+        border: 1px solid rgb(111, 156, 207);
+        border-bottom: none;
+        color: rgb(70, 71, 73);
+        background: transparent;
+}
+QTabBar#tabBar::tab:hover {
+        color: rgb(2, 65, 132);
+}
+QTabBar#tabBar::tab:selected {
+        color: rgb(2, 65, 132);
+        background: rgb(232, 241, 252);
+}
+
+/**********输入框**********/
+QLineEdit {
+        border-radius: 4px;
+        height: 25px;
+        border: 1px solid rgb(111, 156, 207);
+        background: white;
+}
+QLineEdit:enabled {
+        color: rgb(84, 84, 84);
+}
+QLineEdit:enabled:hover, QLineEdit:enabled:focus {
+        color: rgb(51, 51, 51);
+}
+QLineEdit:!enabled {
+        color: rgb(80, 80, 80);
+}
+
+QLabel
+{
+    height:26px;
+    font-size:10pt;
+    font-family:&quot;Arial&quot;;
+    color:#245c9f;
+}
+
+
+/**********选择**********/
+QCheckBox
+{
+    height:26px;
+    font-size:10pt;
+    font-family:&quot;Arial&quot;;
+    color:#245c9f;
+}
+
+QCheckBox::indicator:enabled:unchecked {
+    image: url(:/imgs/checkbox_unchecked.png);
+}
+QCheckBox::indicator:enabled:checked {
+    image: url(:/imgs/checkbox_checked.png);
+}
+QCheckBox::indicator:enabled:indeterminate:hover {
+    image: url(:/imgs/checkbox_checked.png);
+}
+
+QCheckBox::indicator:enabled:indeterminate:pressed {
+    image: url(:/imgs/checkbox_checked.png);
+}
+
+QCheckBox::indicator:!enabled:unchecked {
+    image: url(:/imgs/checkbox_unchecked_gray.png);
+}
+QCheckBox::indicator:!enabled:checked {
+    image: url(:/imgs/checkbox_checked_gray.png);
+}
+QCheckBox::indicator:!enabled:indeterminate:hover {
+    image: url(:/imgs/checkbox_checked_gray.png);
+}
+
+QCheckBox::indicator:!enabled:indeterminate:pressed {
+    image: url(:/imgs/checkbox_checked_gray.png);
+}
+
+/*SpinBox*/
+QSpinBox
+{
+    font-family:&quot;Arial&quot;;
+    font-size:11pt;
+
+height:25px;
+
+    color:#969799;
+    background-color:#ffffff;
+
+    border-radius:4px;
+
+    border-top:1px solid #969799;
+
+    border-bottom:2px solid qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                            stop:0 #c2c3c5,stop:1 #f7f7f8);
+
+    border-left:1px solid qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                        stop:0 #969799,stop:1 #c2c3c5);
+
+    border-right:1px solid qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                        stop:0 #969799,stop:1 #c2c3c5);
+
+    padding-left:2px;
+    selection-color:white;
+    selection-background-color:#add6ff;
+}
+
+QSpinBox:!enabled
+{
+    background-color:rgb(230,230,230);
+}
+
+ QSpinBox::up-button {
+     subcontrol-origin: border;
+     subcontrol-position: top right;
+
+     width: 23px;
+     height:13px;
+     border-image: url(:/imgs/Adjust_btn_up_normal.png);
+ }
+
+ QSpinBox::up-button:hover {
+     border-image: url(:/imgs/Adjust_btn_up_hover.png);
+ }
+
+ QSpinBox::up-button:pressed {
+     border-image: url(:/imgs/Adjust_btn_up_active.png);
+ }
+
+ QSpinBox::up-button:!enabled {
+     border-image: url(:/imgs/Adjust_btn_up_gray.png);
+ }
+
+ QSpinBox::down-button {
+     subcontrol-origin: border;
+     subcontrol-position: bottom right;
+
+     padding-bottom:2px;
+     margin-bottom:1px;
+
+     width: 23px;
+     height:12px;
+     border-image: url(:/imgs/Adjust_btn_down_normal.png);
+ }
+
+ QSpinBox::down-button:hover {
+     border-image: url(:/imgs/Adjust_btn_down_hover.png);
+ }
+
+ QSpinBox::down-button:pressed {
+     border-image: url(:/imgs/Adjust_btn_down_active.png);
+ }
+
+ QSpinBox::down-button:!enabled {
+     border-image: url(:/imgs/Adjust_btn_down_gray.png);
+ }
+
+/**********按钮**********/
+QPushButton{
+        border-radius: 4px;
+        border: none;
+        width: 75px;
+        height: 25px;
+}
+QPushButton:enabled {
+        background: rgb(120, 170, 220);
+        color: white;
+}
+QPushButton:!enabled {
+        background: rgb(180, 180, 180);
+        color: white;
+}
+QPushButton:enabled:hover{
+        background: rgb(100, 160, 220);
+}
+QPushButton:enabled:pressed{
+        background: rgb(0, 78, 161);
+}
+QPushButton:enabled:checked{
+        background: rgb(0, 78, 161);
+}
+
+QPushButton#blueButton {
+        color: white;
+}
+QPushButton#blueButton:enabled {
+        background: rgb(0, 78, 161);
+        color: white;
+}
+QPushButton:!enabled {
+        background: rgb(180, 180, 180);
+        color: white;
+}
+
+
+
+/************滑块**************/
+QSlider:vertical {
+    width: 32px;
+    border-image:url(:/imgs/Z_Slider_bg.png);
+}
+
+QSlider::groove:vertical {
+    subcontrol-origin:content;
+    width:32px;
+    background:transparent;
+ }
+
+ QSlider::handle:vertical {
+     image:url(:/imgs/Z_Slider_btn.png);
+ }
+
+/*滑块滑前*/
+QSlider::add-page:vertical {
+   
+ }
+
+/*滑块滑后*/
+ QSlider::sub-page:vertical {
+	 border-radius:4px;
+    background-color:rgb(0 ,136,255);
+    margin:1px 12px 2px 12px;
+ }
+
+QSlider:horizontal {
+    height: 32px;
+        border-width: 0px 10px 0px 10px;
+    border-image:url(:/imgs/h_Slider_bg.png)0 10 0 10 repeat repeat;
+}
+
+QSlider::groove:horizontal {
+    subcontrol-origin:content;
+    height:32px;
+    background:transparent;
+ }
+
+ QSlider::handle:horizontal {
+     image:url(:/imgs/h_Slider_btn.png);
+     margin:0px -10px 0px -11px;
+ }
+
+/*滑块滑前*/
+QSlider::add-page:horizontal {
+
+ }
+
+/*滑块滑后*/
+ QSlider::sub-page:horizontal {
+    border-radius:4px;
+    background-color:rgb(0 ,134,252);
+    margin:12px 0px 12px -7px;
+ }
+</string>
+      </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <property name="spacing">
         <number>0</number>
@@ -60,7 +433,7 @@
           <enum>QTabWidget::West</enum>
          </property>
          <property name="currentIndex">
-          <number>2</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="tab">
           <attribute name="title">
@@ -81,6 +454,12 @@
            </property>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_4">
+             <property name="spacing">
+              <number>2</number>
+             </property>
+             <property name="leftMargin">
+              <number>5</number>
+             </property>
              <item>
               <widget class="QLineEdit" name="lineEdit_search">
                <property name="placeholderText">
@@ -90,6 +469,18 @@
              </item>
              <item>
               <widget class="QPushButton" name="pushButton_search">
+               <property name="minimumSize">
+                <size>
+                 <width>30</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>30</width>
+                 <height>16777215</height>
+                </size>
+               </property>
                <property name="text">
                 <string>...</string>
                </property>
@@ -98,7 +489,75 @@
             </layout>
            </item>
            <item>
-            <widget class="QTreeView" name="treeView"/>
+            <widget class="QTreeView" name="treeView">
+             <property name="styleSheet">
+              <string notr="true">/**********表头**********/
+QHeaderView{
+        border: none;
+        border-bottom: 3px solid rgb(0, 78, 161);
+        background: transparent;
+        min-height: 30px;
+}
+QHeaderView::section:horizontal {
+        border: none;
+        color: rgb(2, 65, 132);
+        background: transparent;
+        padding-left: 5px;
+}
+QHeaderView::section:horizontal:hover {
+        color: white;
+        background: rgb(0, 78, 161);
+}
+QHeaderView::section:horizontal:pressed {
+        color: white;
+        background: rgb(6, 94, 187);
+}
+QHeaderView::up-arrow {
+        width: 13px;
+        height: 11px;
+        padding-right: 5px;
+        image: url(:/White/topArrow);
+        subcontrol-position: center right;
+}
+QHeaderView::up-arrow:hover, QHeaderView::up-arrow:pressed {
+        image: url(:/White/topArrowHover);
+}
+QHeaderView::down-arrow {
+        width: 13px;
+        height: 11px;
+        padding-right: 5px;
+        image: url(:/White/bottomArrow);
+        subcontrol-position: center right;
+}
+QHeaderView::down-arrow:hover, QHeaderView::down-arrow:pressed {
+        image: url(:/White/bottomArrowHover);
+}
+
+/**********表格**********/
+QTableView {
+        border: 1px solid rgb(111, 156, 207);
+        background: rgb(224, 238, 255);
+        gridline-color: rgb(111, 156, 207);
+}
+QTableView::item {
+        padding-left: 5px;
+        padding-right: 5px;
+        border: none;
+        background: white;
+		alternate-background-color: #f6f6f6;
+		color:#000000;
+        border-right: 1px solid rgb(111, 156, 207);
+        border-bottom: 1px solid rgb(111, 156, 207);
+}
+QTableView::item:selected {
+        background: rgba(255, 255, 255, 100);
+}
+QTableView::indicator {
+        width: 20px;
+        height: 20px;
+}</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -153,8 +612,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>444</width>
-                <height>828</height>
+                <width>440</width>
+                <height>818</height>
                </rect>
               </property>
              </widget>
@@ -167,6 +626,9 @@
            <string>识别</string>
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_9">
+           <property name="spacing">
+            <number>10</number>
+           </property>
            <item>
             <widget class="QGroupBox" name="groupBox">
              <property name="minimumSize">
@@ -248,7 +710,7 @@
                 <item>
                  <widget class="QCheckBox" name="checkBox_gray_mesure">
                   <property name="text">
-                   <string> 灰度测量</string>
+                   <string>灰度测量</string>
                   </property>
                  </widget>
                 </item>
@@ -353,11 +815,23 @@
                 </item>
                 <item>
                  <widget class="QLabel" name="label_contrast">
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>25</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
                   <property name="text">
                    <string>1</string>
                   </property>
                   <property name="alignment">
-                   <set>Qt::AlignCenter</set>
+                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                   </property>
                  </widget>
                 </item>
@@ -634,7 +1108,7 @@
                  <widget class="QLabel" name="label_5">
                   <property name="minimumSize">
                    <size>
-                    <width>85</width>
+                    <width>91</width>
                     <height>0</height>
                    </size>
                   </property>
@@ -647,7 +1121,7 @@
                  <widget class="QSpinBox" name="spinBox_GreyDiff">
                   <property name="minimumSize">
                    <size>
-                    <width>60</width>
+                    <width>65</width>
                     <height>0</height>
                    </size>
                   </property>
@@ -686,7 +1160,7 @@
                  <widget class="QLabel" name="label_6">
                   <property name="minimumSize">
                    <size>
-                    <width>85</width>
+                    <width>91</width>
                     <height>0</height>
                    </size>
                   </property>
@@ -699,7 +1173,7 @@
                  <widget class="QSpinBox" name="spinBox_MinDefectArea">
                   <property name="minimumSize">
                    <size>
-                    <width>60</width>
+                    <width>65</width>
                     <height>0</height>
                    </size>
                   </property>
@@ -738,7 +1212,7 @@
                  <widget class="QLabel" name="label_2">
                   <property name="minimumSize">
                    <size>
-                    <width>85</width>
+                    <width>91</width>
                     <height>0</height>
                    </size>
                   </property>
@@ -751,7 +1225,7 @@
                  <widget class="QSpinBox" name="spinBox_FilterRadius">
                   <property name="minimumSize">
                    <size>
-                    <width>60</width>
+                    <width>65</width>
                     <height>0</height>
                    </size>
                   </property>
@@ -790,7 +1264,7 @@
                  <widget class="QLabel" name="label_3">
                   <property name="minimumSize">
                    <size>
-                    <width>85</width>
+                    <width>91</width>
                     <height>0</height>
                    </size>
                   </property>
@@ -803,7 +1277,7 @@
                  <widget class="QSpinBox" name="spinBox_ConnectThr">
                   <property name="minimumSize">
                    <size>
-                    <width>60</width>
+                    <width>65</width>
                     <height>0</height>
                    </size>
                   </property>
@@ -884,7 +1358,7 @@
                    </size>
                   </property>
                   <property name="text">
-                   <string> 显示缺陷</string>
+                   <string>显示缺陷</string>
                   </property>
                   <property name="checked">
                    <bool>true</bool>
@@ -1171,15 +1645,39 @@ QPushButton#pushButton_next:!enabled
         border-image:url(:/imgs/redo_disable.png);
 }
 
-QPushButton#pushButton_pre_big
-{
-        border-image:url(:/imgs/prev_normal_big.png);
-}
-
 QPushButton#pushButton_next_big
 {
-        border-image:url(:/imgs/next_normal_big.png);
+        border-image:url(:/imgs/right_nomal.png);
 }
+
+QPushButton#pushButton_next_big:hover
+{
+        border-image:url(:/imgs/right_hover.png);
+}
+
+QPushButton#pushButton_next_big:!enabled
+{
+        border-image:url(:/imgs/right_grey.png);
+}
+
+QPushButton#pushButton_pre_big
+{
+        border-image:url(:/imgs/left_nomal.png);
+}
+
+QPushButton#pushButton_pre_big:hover
+{
+        border-image:url(:/imgs/left_hover.png);
+}
+
+QPushButton#pushButton_pre_big:!enabled
+{
+        border-image:url(:/imgs/left_grey.png);
+}
+
+
+
+
 
 QPushButton#pushButton_delete
 {
@@ -2197,6 +2695,73 @@ QScrollBar::add-line:!enabled:vertical{
                  </item>
                  <item>
                   <widget class="QTableWidget" name="tableWidget_measure">
+                   <property name="styleSheet">
+                    <string notr="true">/**********表头**********/
+QHeaderView{
+        border: none;
+        border-bottom: 3px solid rgb(0, 78, 161);
+        background: transparent;
+        min-height: 30px;
+}
+QHeaderView::section:horizontal {
+        border: none;
+        color: rgb(2, 65, 132);
+        background: transparent;
+        padding-left: 5px;
+}
+QHeaderView::section:horizontal:hover {
+        color: white;
+        background: rgb(0, 78, 161);
+}
+QHeaderView::section:horizontal:pressed {
+        color: white;
+        background: rgb(6, 94, 187);
+}
+QHeaderView::up-arrow {
+        width: 13px;
+        height: 11px;
+        padding-right: 5px;
+        image: url(:/White/topArrow);
+        subcontrol-position: center right;
+}
+QHeaderView::up-arrow:hover, QHeaderView::up-arrow:pressed {
+        image: url(:/White/topArrowHover);
+}
+QHeaderView::down-arrow {
+        width: 13px;
+        height: 11px;
+        padding-right: 5px;
+        image: url(:/White/bottomArrow);
+        subcontrol-position: center right;
+}
+QHeaderView::down-arrow:hover, QHeaderView::down-arrow:pressed {
+        image: url(:/White/bottomArrowHover);
+}
+
+/**********表格**********/
+QTableView {
+        border: 1px solid rgb(111, 156, 207);
+        background: rgb(224, 238, 255);
+        gridline-color: rgb(111, 156, 207);
+}
+QTableView::item {
+        padding-left: 5px;
+        padding-right: 5px;
+        border: none;
+        background: white;
+		alternate-background-color: #f6f6f6;
+		color:#000000;
+        border-right: 1px solid rgb(111, 156, 207);
+        border-bottom: 1px solid rgb(111, 156, 207);
+}
+QTableView::item:selected {
+        background: rgba(255, 255, 255, 100);
+}
+QTableView::indicator {
+        width: 20px;
+        height: 20px;
+}</string>
+                   </property>
                    <property name="editTriggers">
                     <set>QAbstractItemView::NoEditTriggers</set>
                    </property>
@@ -2356,6 +2921,73 @@ QScrollBar::add-line:!enabled:vertical{
                  </item>
                  <item>
                   <widget class="QTableWidget" name="tableWidget_recognize">
+                   <property name="styleSheet">
+                    <string notr="true">/**********表头**********/
+QHeaderView{
+        border: none;
+        border-bottom: 3px solid rgb(0, 78, 161);
+        background: transparent;
+        min-height: 30px;
+}
+QHeaderView::section:horizontal {
+        border: none;
+        color: rgb(2, 65, 132);
+        background: transparent;
+        padding-left: 5px;
+}
+QHeaderView::section:horizontal:hover {
+        color: white;
+        background: rgb(0, 78, 161);
+}
+QHeaderView::section:horizontal:pressed {
+        color: white;
+        background: rgb(6, 94, 187);
+}
+QHeaderView::up-arrow {
+        width: 13px;
+        height: 11px;
+        padding-right: 5px;
+        image: url(:/White/topArrow);
+        subcontrol-position: center right;
+}
+QHeaderView::up-arrow:hover, QHeaderView::up-arrow:pressed {
+        image: url(:/White/topArrowHover);
+}
+QHeaderView::down-arrow {
+        width: 13px;
+        height: 11px;
+        padding-right: 5px;
+        image: url(:/White/bottomArrow);
+        subcontrol-position: center right;
+}
+QHeaderView::down-arrow:hover, QHeaderView::down-arrow:pressed {
+        image: url(:/White/bottomArrowHover);
+}
+
+/**********表格**********/
+QTableView {
+        border: 1px solid rgb(111, 156, 207);
+        background: rgb(224, 238, 255);
+        gridline-color: rgb(111, 156, 207);
+}
+QTableView::item {
+        padding-left: 5px;
+        padding-right: 5px;
+        border: none;
+        background: white;
+		alternate-background-color: #f6f6f6;
+		color:#000000;
+        border-right: 1px solid rgb(111, 156, 207);
+        border-bottom: 1px solid rgb(111, 156, 207);
+}
+QTableView::item:selected {
+        background: rgba(255, 255, 255, 100);
+}
+QTableView::indicator {
+        width: 20px;
+        height: 20px;
+}</string>
+                   </property>
                    <property name="editTriggers">
                     <set>QAbstractItemView::NoEditTriggers</set>
                    </property>
@@ -2567,7 +3199,7 @@ QScrollBar::add-line:!enabled:vertical{
      <x>0</x>
      <y>0</y>
      <width>1347</width>
-     <height>22</height>
+     <height>30</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_file">

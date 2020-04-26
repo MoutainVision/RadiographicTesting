@@ -16,6 +16,17 @@ int main(int argc, char *argv[])
     Appconfig::InitAllDataPath();
     Appconfig::loadConfigFile();
 
+//    QString fileName;
+//    fileName = ":/qss/main_view.qss";
+
+//    QFile file(fileName);
+
+//    if(file.open(QIODevice::ReadOnly))
+//    {
+//        a.setStyleSheet(file.readAll());
+//        file.close();
+//    }
+
 
     LoginDlg dlg;
     MainWindow w;

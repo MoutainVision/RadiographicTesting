@@ -43,6 +43,8 @@
 
 #include "colorwdg.h"
 
+#include "Windows.h"
+
 
 
 #define MAX_PRE_WIDGET_WIDTH 100
@@ -194,7 +196,7 @@ private slots:
     void slot_scrollAreaYChange(int value);
 
     //放大缩小
-    void slot_sliderReleased();
+    void slot_sliderValuechange(int value);
 
     //窗宽窗位变化
     void slot_sliderWinValueChange(int value);
@@ -230,6 +232,8 @@ protected:
 private:
     Ui::MainWindow *ui;
 
+    HANDLE hEvent;
+
     //颜色
     ColorWdg *mColorWdg;
 
@@ -250,7 +254,7 @@ private:
     DcmFileNode mCurDcmFileInfo;
     QList<PreWdg *> mPreWdgList;
 
-    QMutex     mDelImgLock;
+
 
     //缺陷
     vector<Defect> mADefectList;
@@ -298,6 +302,7 @@ private:
 
     bool    mBMeasureOpt;
     bool    mBDelImging;
+    QMutex     mDelImgLock;
 
     //
     //**绘制相关***
