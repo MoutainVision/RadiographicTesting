@@ -234,10 +234,14 @@ MainWindow::MainWindow(QWidget *parent) :
     mBMeasureOpt = false;
     m_bIsPress = false;
 
+    mCurDefectIndex = -1;
+
     mGeyImgWdg = NULL;
     mGreyRectItem = NULL;
 
     mDefectRectItem = NULL;
+
+    m_loadingDlg = NULL;
 
     //人工， 初始化有信号
     hEvent = CreateEvent(NULL, TRUE, TRUE, NULL);
@@ -324,8 +328,25 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->tabWidget, SIGNAL(currentChanged(int)), this, SLOT(slot_tabCurrentChanged(int)));
 
+    connect(ui->tableWidget_recognize, SIGNAL(cellClicked(int, int)), this, SLOT(slot_tableCellClicked(int, int)));
+}
 
+void MainWindow::showLoading(QString msg)
+{
+    if (NULL == m_loadingDlg)
+    {
+        m_loadingDlg = new Loading(this);
+    }
 
+    m_loadingDlg->setWaitMsg(msg);
+
+    m_loadingDlg->showLoading();
+}
+
+void MainWindow::closeLoading()
+{
+    if (NULL != m_loadingDlg)
+        m_loadingDlg->closeLoading();
 }
 
 void MainWindow::slot_tabCurrentChanged(int index)
@@ -353,6 +374,15 @@ void MainWindow::slot_sliderValuechange(int value)
     delImg();
 }
 
+void MainWindow::slot_tableCellClicked(int row, int col)
+{
+    if (QObject::sender() == ui->tableWidget_recognize)
+    {
+        mCurDefectIndex = row;
+
+        update();
+    }
+}
 
 void MainWindow::slot_sliderWinValueChange(int value)
 {
@@ -734,6 +764,7 @@ void MainWindow::textChanged(QString text)
 
 void MainWindow::clearDefect()
 {
+    mCurDefectIndex = -1;
     mADefectList.clear();
     ui->tableWidget_recognize->clearContents();
     ui->tableWidget_recognize->setRowCount(0);
@@ -1211,6 +1242,9 @@ void MainWindow::slotBtnClick(bool bClick)
 
 void MainWindow::exeDefectImg()
 {
+    showLoading(QStringLiteral("正在查找缺陷，请稍等"));
+
+
     if (nullptr != m_pImgDefect)
     {
         delete []m_pImgDefect;
@@ -1236,6 +1270,12 @@ void MainWindow::exeDefectImg()
     //翻转
     if (mBFlip)
         Flip(m_pImgDefect, imgW, imgH);
+
+    //对比度
+    if (mBContrast)
+    {
+        ContrastEnhancement(m_pImgPro, mCurImgWidth, mCurImgHeight, mContrast);
+    }
 
     //旋转
     if (mNeedRotate == 90)
@@ -1273,6 +1313,8 @@ void MainWindow::exeDefectImg()
             {
                 setRecognizeValue(i, mADefectList.at(i).feat);
             }
+
+            closeLoading();
 
             update();
         });
@@ -1719,7 +1761,17 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                             QPoint centerPt = QPoint(mADefectList.at(i).center.x * mScale,
                                                      mADefectList.at(i).center.y * mScale);
 
-                            p.setPen(QColor("#ff0000"));
+
+                            if (mCurDefectIndex == i)
+                            {
+                                QPen pen;
+                                pen.setWidth(3);
+                                pen.setColor(QColor("#0000ff"));
+                                p.setPen(pen);
+                            }
+                            else
+                                p.setPen(QColor("#ff0000"));
+
                             p.drawLine(centerPt.x() - mSourceRect.x() -length + mPaintRectReal.x(),
                                        centerPt.y() - mSourceRect.y() + mPaintRectReal.y(),
                                        centerPt.x() - mSourceRect.x() + length + mPaintRectReal.x(),
@@ -2157,6 +2209,19 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                     QRectF rectTmp = mDefectRectItem->getRect();
 
                     p.drawRect(rectTmp);
+
+                    float value = mDefectRectItem->getOriWidth();
+
+                    QString labelStr = QString("W:%1").arg(QString::number(value, 'f', 2));
+
+                    p.drawText(rectTmp.topRight().x()+2, rectTmp.topRight().y(), labelStr);
+
+                    //--
+                    value = mDefectRectItem->getOriHeight();
+
+                    labelStr = QString("H:%1").arg(QString::number(value, 'f', 2));
+
+                    p.drawText(rectTmp.topRight().x()+2, rectTmp.topRight().y()+12+2, labelStr);
                 }
 
                 //临时几何图像
@@ -4399,6 +4464,11 @@ MainWindow::~MainWindow()
 		mColorWdg = NULL;
 	}
 
+    if (NULL != m_loadingDlg)
+    {
+        delete m_loadingDlg;
+        m_loadingDlg = NULL;
+    }
 
 
     //save config

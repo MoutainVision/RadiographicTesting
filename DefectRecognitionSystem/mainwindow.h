@@ -43,6 +43,8 @@
 
 #include "colorwdg.h"
 
+#include "loading.h"
+
 #include "Windows.h"
 
 
@@ -62,6 +64,10 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
+    void showLoading(QString msg);
+
+    void closeLoading();
 
     //预览相关
     void calcPreWdgPos();
@@ -185,6 +191,8 @@ private slots:
 
     void textChanged(QString text);
 
+    void slot_tableCellClicked(int row, int col);
+
     //资源树点击
     void clicked(QModelIndex index);
 
@@ -232,6 +240,8 @@ protected:
 private:
     Ui::MainWindow *ui;
 
+    Loading *m_loadingDlg;
+
     HANDLE hEvent;
 
     //颜色
@@ -261,6 +271,8 @@ private:
     QList<QColor>  mDefectClassColor;
     bool           mBShowDefect;
     bool           mBShowCenter;
+
+    int            mCurDefectIndex;
 
     unsigned short *m_pImgDefect;  //处理图像
 

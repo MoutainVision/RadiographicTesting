@@ -108,6 +108,9 @@
     <ClCompile Include="colorwdg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="loading.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Base\FunctionTransfer.h">
@@ -138,6 +141,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="colorwdg.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="loading.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

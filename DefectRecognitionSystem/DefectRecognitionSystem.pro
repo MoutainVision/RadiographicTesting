@@ -74,7 +74,8 @@ SOURCES += \
     logindlg.cpp \
     prewdg.cpp \
     geyimgwdg.cpp \
-    colorwdg.cpp
+    colorwdg.cpp \
+    loading.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -95,7 +96,8 @@ HEADERS += \
     logindlg.h \
     prewdg.h \
     geyimgwdg.h \
-    colorwdg.h
+    colorwdg.h \
+    loading.h
 
 FORMS += \
     mainwindow.ui \

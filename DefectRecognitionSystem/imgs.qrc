@@ -468,5 +468,6 @@
         <file>imgs/left_nomal.png</file>
         <file>imgs/right_grey.png</file>
         <file>imgs/right_nomal.png</file>
+        <file>imgs/load.gif</file>
     </qresource>
 </RCC>
