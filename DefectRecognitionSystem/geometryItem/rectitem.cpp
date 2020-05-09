@@ -140,6 +140,8 @@ void RectItem::calcOriGeometry(QPoint oriPt, int imgW, int imgH, float scale, in
     QRectF rectTempCpy;
 
     rectTempCpy = m_rectOri;
+    int type = rotate / 90;
+
     //坐标变换， 图像中心坐标
     int imgCenterW = imgW / 2;
     int imgCenterH = imgH / 2;
@@ -175,16 +177,19 @@ void RectItem::calcOriGeometry(QPoint oriPt, int imgW, int imgH, float scale, in
     }
 
     //旋转变换
-    int type = rotate / 90;
     if (type == 1)
     {
         rectT = rectTempCpy;
+
+        qDebug() << "topLeft:" << rectTempCpy.topLeft() << "bottomRight:"  <<  rectTempCpy.bottomRight();
 
         rectTempCpy.setLeft(-rectT.bottom());
         rectTempCpy.setRight(-rectT.top());
         rectTempCpy.setTop(rectT.left());
         rectTempCpy.setBottom(rectT.right());
 
+
+        qDebug() << "topLeft:" << rectTempCpy.topLeft() << "bottomRight:"  <<  rectTempCpy.bottomRight();
     }
     else if (type == 2)
     {
@@ -209,10 +214,19 @@ void RectItem::calcOriGeometry(QPoint oriPt, int imgW, int imgH, float scale, in
         qDebug() << "rrrrrrrr:" << rectTempCpy;
 
     //转化为图像0点坐标
-    rectTempCpy.setLeft(rectTempCpy.left() + imgCenterW / scale);
-    rectTempCpy.setRight(rectTempCpy.right() + imgCenterW / scale);
-    rectTempCpy.setTop(rectTempCpy.top() + imgCenterH / scale);
-    rectTempCpy.setBottom(rectTempCpy.bottom() + imgCenterH / scale);
+    if (type == 1 || type == 3)
+    {
+        rectTempCpy.setLeft(rectTempCpy.left() + imgCenterH / scale);
+        rectTempCpy.setRight(rectTempCpy.right() + imgCenterH / scale);
+        rectTempCpy.setTop(rectTempCpy.top() + imgCenterW / scale);
+        rectTempCpy.setBottom(rectTempCpy.bottom() + imgCenterW / scale);
+    }
+    else {
+        rectTempCpy.setLeft(rectTempCpy.left() + imgCenterW / scale);
+        rectTempCpy.setRight(rectTempCpy.right() + imgCenterW / scale);
+        rectTempCpy.setTop(rectTempCpy.top() + imgCenterH / scale);
+        rectTempCpy.setBottom(rectTempCpy.bottom() + imgCenterH / scale);
+    }
 
     m_rectOri = rectTempCpy;
 

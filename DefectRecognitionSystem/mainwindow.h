@@ -43,6 +43,10 @@
 
 #include "colorwdg.h"
 
+#include "loading.h"
+
+#include "Windows.h"
+
 
 
 #define MAX_PRE_WIDGET_WIDTH 100
@@ -60,6 +64,10 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
+    void showLoading(QString msg);
+
+    void closeLoading();
 
     //预览相关
     void calcPreWdgPos();
@@ -183,6 +191,8 @@ private slots:
 
     void textChanged(QString text);
 
+    void slot_tableCellClicked(int row, int col);
+
     //资源树点击
     void clicked(QModelIndex index);
 
@@ -194,7 +204,7 @@ private slots:
     void slot_scrollAreaYChange(int value);
 
     //放大缩小
-    void slot_sliderReleased();
+    void slot_sliderValuechange(int value);
 
     //窗宽窗位变化
     void slot_sliderWinValueChange(int value);
@@ -230,6 +240,10 @@ protected:
 private:
     Ui::MainWindow *ui;
 
+    Loading *m_loadingDlg;
+
+    HANDLE hEvent;
+
     //颜色
     ColorWdg *mColorWdg;
 
@@ -250,13 +264,15 @@ private:
     DcmFileNode mCurDcmFileInfo;
     QList<PreWdg *> mPreWdgList;
 
-    QMutex     mDelImgLock;
+
 
     //缺陷
     vector<Defect> mADefectList;
     QList<QColor>  mDefectClassColor;
     bool           mBShowDefect;
     bool           mBShowCenter;
+
+    int            mCurDefectIndex;
 
     unsigned short *m_pImgDefect;  //处理图像
 
@@ -298,6 +314,7 @@ private:
 
     bool    mBMeasureOpt;
     bool    mBDelImging;
+    QMutex     mDelImgLock;
 
     //
     //**绘制相关***

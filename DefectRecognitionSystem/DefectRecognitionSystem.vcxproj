@@ -201,6 +201,7 @@
     <ClCompile Include="geometryItem\rectitem.cpp" />
     <ClCompile Include="geometryItem\textitem.cpp" />
     <ClCompile Include="geyimgwdg.cpp" />
+    <ClCompile Include="loading.cpp" />
     <ClCompile Include="logindlg.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mainwindow.cpp" />
@@ -228,6 +229,7 @@
     <QtMoc Include="logindlg.h" />
     <QtMoc Include="prewdg.h" />
     <QtMoc Include="geyimgwdg.h" />
+    <QtMoc Include="loading.h" />
     <ClInclude Include="readdcmfile.h" />
     <QtMoc Include="recheckwdg.h">
     </QtMoc>

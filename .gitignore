@@ -38,3 +38,5 @@ Bins/Debug/LibDefectRecognition.pdb
 Bins/Debug/LibDefectRecognition.exp
 Bins/Debug/LibDefectRecognition.ilk
 Bins/Release/LibDefectRecognition.pdb
+可执行程序/RadiographicTesting/shortFreq.txt
+可执行程序/RadiographicTesting/ucFreq.txt

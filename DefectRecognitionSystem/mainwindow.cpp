@@ -203,7 +203,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->horizontalScrollBar->hide();
     ui->verticalScrollBar->hide();
 
+    ui->tabWidget->removeTab(1);
     ui->tabWidget->setCurrentIndex(0);
+
 
     mRecognizeWdg  = nullptr;
     mReCheckWdg = nullptr;
@@ -232,10 +234,17 @@ MainWindow::MainWindow(QWidget *parent) :
     mBMeasureOpt = false;
     m_bIsPress = false;
 
+    mCurDefectIndex = -1;
+
     mGeyImgWdg = NULL;
     mGreyRectItem = NULL;
 
     mDefectRectItem = NULL;
+
+    m_loadingDlg = NULL;
+
+    //人工， 初始化有信号
+    hEvent = CreateEvent(NULL, TRUE, TRUE, NULL);
 
     mRotate = 0;
 
@@ -306,7 +315,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->horizontalScrollBar, SIGNAL(valueChanged(int)), this, SLOT(slot_scrollAreaXChange(int)));
     connect(ui->verticalScrollBar, SIGNAL(valueChanged(int)), this, SLOT(slot_scrollAreaYChange(int)));
 
-    connect(ui->verticalSlider_diameter, SIGNAL(sliderReleased()), this, SLOT(slot_sliderReleased()));
+    connect(ui->verticalSlider_diameter, SIGNAL(valueChanged(int)), this, SLOT(slot_sliderValuechange(int)));
 
     connect(ui->buttonGroup, SIGNAL(buttonClicked(QAbstractButton*)), this, SLOT(slot_btnGroupClick(QAbstractButton*)));
     connect(ui->pushButton_pre, SIGNAL(clicked()), this, SLOT(slot_btnPreToolClick()));
@@ -319,13 +328,31 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->tabWidget, SIGNAL(currentChanged(int)), this, SLOT(slot_tabCurrentChanged(int)));
 
+    connect(ui->tableWidget_recognize, SIGNAL(cellClicked(int, int)), this, SLOT(slot_tableCellClicked(int, int)));
+}
 
+void MainWindow::showLoading(QString msg)
+{
+    if (NULL == m_loadingDlg)
+    {
+        m_loadingDlg = new Loading(this);
+    }
 
+    m_loadingDlg->setWaitMsg(msg);
+
+    m_loadingDlg->showLoading();
+}
+
+void MainWindow::closeLoading()
+{
+    if (NULL != m_loadingDlg)
+        m_loadingDlg->closeLoading();
 }
 
 void MainWindow::slot_tabCurrentChanged(int index)
 {
-    if (index == 0 || index == 1)
+    //if (index == 0 || index == 1)
+    if (index == 0)
     {
         ui->pushButton_pre_big->show();
         ui->pushButton_next_big->show();
@@ -337,9 +364,9 @@ void MainWindow::slot_tabCurrentChanged(int index)
     }
 }
 
-void MainWindow::slot_sliderReleased()
+void MainWindow::slot_sliderValuechange(int value)
 {
-    int value = ui->verticalSlider_diameter->value();
+//    int value = ui->verticalSlider_diameter->value();
     mScale = (float)value / 100;
 
     ui->lineEdit_diameter->setText(QString("%1").arg(value));
@@ -347,6 +374,15 @@ void MainWindow::slot_sliderReleased()
     delImg();
 }
 
+void MainWindow::slot_tableCellClicked(int row, int col)
+{
+    if (QObject::sender() == ui->tableWidget_recognize)
+    {
+        mCurDefectIndex = row;
+
+        update();
+    }
+}
 
 void MainWindow::slot_sliderWinValueChange(int value)
 {
@@ -728,6 +764,7 @@ void MainWindow::textChanged(QString text)
 
 void MainWindow::clearDefect()
 {
+    mCurDefectIndex = -1;
     mADefectList.clear();
     ui->tableWidget_recognize->clearContents();
     ui->tableWidget_recognize->setRowCount(0);
@@ -1143,6 +1180,14 @@ void MainWindow::slotBtnClick(bool bClick)
     else if (QObject::sender() == ui->pushButton_recog_clear)
     {
         clearDefect();
+
+        if (NULL != mDefectRectItem)
+        {
+            delete mDefectRectItem;
+            mDefectRectItem = NULL;
+        }
+
+        update();
     }
     else if (QObject::sender() == ui->checkBox_gray_mesure)
     {
@@ -1197,6 +1242,9 @@ void MainWindow::slotBtnClick(bool bClick)
 
 void MainWindow::exeDefectImg()
 {
+    showLoading(QStringLiteral("正在查找缺陷，请稍等"));
+
+
     if (nullptr != m_pImgDefect)
     {
         delete []m_pImgDefect;
@@ -1222,6 +1270,12 @@ void MainWindow::exeDefectImg()
     //翻转
     if (mBFlip)
         Flip(m_pImgDefect, imgW, imgH);
+
+    //对比度
+    if (mBContrast)
+    {
+        ContrastEnhancement(m_pImgPro, mCurImgWidth, mCurImgHeight, mContrast);
+    }
 
     //旋转
     if (mNeedRotate == 90)
@@ -1260,6 +1314,8 @@ void MainWindow::exeDefectImg()
                 setRecognizeValue(i, mADefectList.at(i).feat);
             }
 
+            closeLoading();
+
             update();
         });
 
@@ -1268,13 +1324,40 @@ void MainWindow::exeDefectImg()
 
 void MainWindow::delImg()
 {
-//    std::thread([=] {
+    if (!dmfile.IsValid())
+        return ;
+
+    mDelImgLock.lock();
+    mBDelImging = false;
+    mDelImgLock.unlock();
+
+    DWORD dReturn = WaitForSingleObject(hEvent,INFINITE);
+
+    if (WAIT_OBJECT_0 == dReturn)
+    {
+        ResetEvent(hEvent);
+
+        mDelImgLock.lock();
+        mBDelImging = true;
+        mDelImgLock.unlock();
+    }
+
+    std::thread([=] {
         //删除
         if (nullptr != m_pImgPro)
         {
             delete []m_pImgPro;
             m_pImgPro = NULL;
         }
+
+        mDelImgLock.lock();
+        if (!mBDelImging)
+        {
+            mDelImgLock.unlock();
+            SetEvent(hEvent);
+            return ;
+        }
+        mDelImgLock.unlock();
 
         //拷贝
         m_pImgPro = new unsigned short[mSrcImgWidth * mSrcImgHeight];
@@ -1287,13 +1370,40 @@ void MainWindow::delImg()
         if (mBInvert)
             Invert(m_pImgPro, mCurImgWidth, mCurImgHeight);
 
+        mDelImgLock.lock();
+        if (!mBDelImging)
+        {
+            mDelImgLock.unlock();
+            SetEvent(hEvent);
+            return ;
+        }
+        mDelImgLock.unlock();
+
         //镜像
         if (mBMirror)
             Mirror(m_pImgPro, mCurImgWidth, mCurImgHeight);
 
+        mDelImgLock.lock();
+        if (!mBDelImging)
+        {
+            mDelImgLock.unlock();
+            SetEvent(hEvent);
+            return ;
+        }
+        mDelImgLock.unlock();
+
         //翻转
         if (mBFlip)
             Flip(m_pImgPro, mCurImgWidth, mCurImgHeight);
+
+        mDelImgLock.lock();
+        if (!mBDelImging)
+        {
+            mDelImgLock.unlock();
+            SetEvent(hEvent);
+            return ;
+        }
+        mDelImgLock.unlock();
 
         //窗宽窗位
         if (mBWind)
@@ -1302,14 +1412,41 @@ void MainWindow::delImg()
                 WindowLevelTransform(m_pImgPro, mCurImgWidth, mCurImgHeight, mWinCentre, mWinWidth);
         }
 
+        mDelImgLock.lock();
+        if (!mBDelImging)
+        {
+            mDelImgLock.unlock();
+            SetEvent(hEvent);
+            return ;
+        }
+        mDelImgLock.unlock();
+
         //对比度
         if (mBContrast)
         {
             ContrastEnhancement(m_pImgPro, mCurImgWidth, mCurImgHeight, mContrast);
         }
 
+        mDelImgLock.lock();
+        if (!mBDelImging)
+        {
+            mDelImgLock.unlock();
+            SetEvent(hEvent);
+            return ;
+        }
+        mDelImgLock.unlock();
+
         //resize
         reSize(mScale);
+
+        mDelImgLock.lock();
+        if (!mBDelImging)
+        {
+            mDelImgLock.unlock();
+            SetEvent(hEvent);
+            return ;
+        }
+        mDelImgLock.unlock();
 
         //旋转
         if (mNeedRotate == 90)
@@ -1319,7 +1456,14 @@ void MainWindow::delImg()
         else if (mNeedRotate == 270)
             Rotate270(m_pImgPro, mCurImgWidth, mCurImgHeight);
 
-        mBDelImging = false;
+        mDelImgLock.lock();
+        if (!mBDelImging)
+        {
+            mDelImgLock.unlock();
+            SetEvent(hEvent);
+            return ;
+        }
+        mDelImgLock.unlock();
 
         FunctionTransfer::runInMainThread([=]()
         {
@@ -1327,7 +1471,9 @@ void MainWindow::delImg()
             showImg(m_pImgPro, mCurImgWidth, mCurImgHeight);
         });
 
-//    }).detach();
+        SetEvent(hEvent);
+
+    }).detach();
 
 }
 
@@ -1615,7 +1761,17 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                             QPoint centerPt = QPoint(mADefectList.at(i).center.x * mScale,
                                                      mADefectList.at(i).center.y * mScale);
 
-                            p.setPen(QColor("#ff0000"));
+
+                            if (mCurDefectIndex == i)
+                            {
+                                QPen pen;
+                                pen.setWidth(3);
+                                pen.setColor(QColor("#0000ff"));
+                                p.setPen(pen);
+                            }
+                            else
+                                p.setPen(QColor("#ff0000"));
+
                             p.drawLine(centerPt.x() - mSourceRect.x() -length + mPaintRectReal.x(),
                                        centerPt.y() - mSourceRect.y() + mPaintRectReal.y(),
                                        centerPt.x() - mSourceRect.x() + length + mPaintRectReal.x(),
@@ -2053,6 +2209,19 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                     QRectF rectTmp = mDefectRectItem->getRect();
 
                     p.drawRect(rectTmp);
+
+                    float value = mDefectRectItem->getOriWidth();
+
+                    QString labelStr = QString("W:%1").arg(QString::number(value, 'f', 2));
+
+                    p.drawText(rectTmp.topRight().x()+2, rectTmp.topRight().y(), labelStr);
+
+                    //--
+                    value = mDefectRectItem->getOriHeight();
+
+                    labelStr = QString("H:%1").arg(QString::number(value, 'f', 2));
+
+                    p.drawText(rectTmp.topRight().x()+2, rectTmp.topRight().y()+12+2, labelStr);
                 }
 
                 //临时几何图像
@@ -4254,6 +4423,8 @@ void MainWindow::updateOperatorStatus()
 
 MainWindow::~MainWindow()
 {
+    CloseHandle(hEvent);
+
     if (nullptr != mModel)
     {
         delete mModel;
@@ -4293,6 +4464,11 @@ MainWindow::~MainWindow()
 		mColorWdg = NULL;
 	}
 
+    if (NULL != m_loadingDlg)
+    {
+        delete m_loadingDlg;
+        m_loadingDlg = NULL;
+    }
 
 
     //save config
