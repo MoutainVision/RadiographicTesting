@@ -16,20 +16,21 @@
 using std::string;
 
 #pragma pack(1)
+//DCM文件特征
 struct LIBIMGIO_API DCMFileFeat
 {
-	unsigned short nW;
-	unsigned short nH;
-	unsigned short nBpp;
-	unsigned short winC;
-	unsigned short winW;
-	unsigned short nSpp;
+	unsigned short nW;//图像像素宽度
+	unsigned short nH;//图像像素高度
+	unsigned short nBpp;//图像位深
+	unsigned short winC;//图像的窗位
+	unsigned short winW;//图像的窗宽
+	unsigned short nSpp;//图像中每个样本的位深
 	unsigned nLen;
 	//string strPI;
-	unsigned short nAveG;
-	unsigned short nMinG;
-	unsigned short nNonZeroMinG;
-	unsigned short nMaxG;
+	unsigned short nAveG;//图像的平均亮度
+	unsigned short nMinG;//图像的最小亮度值
+	unsigned short nNonZeroMinG;//图像的最小非零亮度值
+	unsigned short nMaxG;//图像的最大亮度值
 
 	DCMFileFeat()
 		: nW(0)
@@ -78,9 +79,32 @@ struct LIBIMGIO_API DCMFileFeat
 				  << nNonZeroMinG << "\t"
 				  << nMaxG << std::endl;
 	}
+
+	bool operator==(const DCMFileFeat &rhs)
+	{
+		if (this == &rhs)
+		{
+			return true;
+		}
+
+		if (nW != rhs.nW)		return false;
+		if (nH != rhs.nH)		return false;
+		if (nBpp != rhs.nBpp)	return false;
+		if (winC != rhs.winC)	return false;
+		if (winW != rhs.winW)	return false;
+		if (nSpp != rhs.nSpp)	return false;
+		if (nLen != rhs.nLen)	return false;
+		if (nAveG != rhs.nAveG)	return false;
+		if (nMinG != rhs.nMinG)	return false;
+		if (nNonZeroMinG != rhs.nNonZeroMinG)	return false;
+		if (nMaxG != rhs.nMaxG)	return false;
+		
+		return true;
+	}
 };
 #pragma pack()
 
+//DCM文件类
 class LIBIMGIO_API DCMFile
 {
 private:
@@ -190,8 +214,10 @@ public:
 		return (NULL != m_pImgBuf && 0 < m_nImgWidth && 0 < m_nImgHeight);
 	}
 
+	//从外部文件加载
 	virtual bool Load(const char *szSrcFileName);
 
+	//保存到外部文件
 	virtual bool Save(const char *szDstFileName);
 
 	virtual DcmFileFormat& getDCMFileFormat()
@@ -244,9 +270,12 @@ public:
 		return m_nDataLength;
 	}
 
+	//转换为CxImage对象，便于显示
 	virtual bool Convert(CxImage &dstImg);
 
+	//获得文件特征
 	virtual DCMFileFeat getFileFeature();
 
+	//与给定DCM文件进行匹配，返回匹配的相似度
 	virtual bool Match(double &dSimilarity, DCMFile &file);
 };

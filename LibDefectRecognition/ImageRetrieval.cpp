@@ -5,8 +5,10 @@
 
 #include<io.h>
 #include<direct.h>
+#include<vector>
 
 using std::fstream;
+using std::vector;
 
 string::size_type FindSubStrWithNoCase(string str, string substr)
 {
@@ -101,42 +103,61 @@ bool GetIndexList(vector<DCMFileIndex> &aIdxList, const char*szIndexFile)
 		{
 			aIdxList.push_back(DCMFileIndex(str, nOff, nLen));
 		}
+
+		return true;
 	}
 
-	return true;
+	return false;
 }
 
-bool FileFeatEqual(const DCMFileFeat &f1, const DCMFileFeat &f2)
+bool FileFeatEqual(DCMFileFeat &f1, const DCMFileFeat &f2)
 {
-	return false;
+	return (f1 == f2);
 }
 
 bool DefectListEqual(vector<Defect> &aDL1, vector<DefectFeat> &aDL2)
 {
+	for (size_t k1 = 0; k1 != aDL1.size(); ++k1)
+	{
+		for (size_t k2 = 0; k2 != aDL2.size(); ++k2)
+		{
+			if (aDL1.at(k1).feat == aDL2.at(k2))
+			{
+				return true;
+			}
+		}
+	}
+
 	return false;
 }
 
 
 void Search(vector<RetrievalResult> &aResult, DCMFile &dfile, 
-	const string &strImgLibrary, 
+	const string &strIndexFile, 
 	const string &strIndexDataFile)
 {
-	vector<string> aFileList;
-	GetFileList(aFileList, strImgLibrary, ".idx");
+	if (!dfile.IsValid())
+	{
+		return;
+	}
 
+	//加载数据库的索引列表（为效率起见，该动作应该在函数外完成）
 	vector<DCMFileIndex> aIdxList;
-	if (!GetIndexList(aIdxList, aFileList[0].c_str()))
+	if (!GetIndexList(aIdxList, strIndexFile.c_str()))
 	{
 		return;
 	}
 
 	RetrievalResult r;
 
+	//取得文件的特征
 	DCMFileFeat df = dfile.getFileFeature();
 
+	//缺陷检测
 	vector<Defect> aDefect;
 	DetectDefect(aDefect, dfile.GetBuffer(), dfile.GetWidth(), dfile.GetHeight());
 
+	//先对比文件特征和包含的缺陷特征列表
 	for (size_t k = 0; k != aIdxList.size(); k++)
 	{
 		DCMFileIndexingData data;

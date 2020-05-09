@@ -1,5 +1,9 @@
 #include "stdafx.h"
 #include "DefectRecognition.h"
+#include<fstream>
+
+using std::ofstream;
+using std::ifstream;
 
 bool GetBoundingBox(ImageRect &r, const vector<POINT> &aPt, size_t ns, size_t ne)
 {
@@ -318,7 +322,99 @@ bool DetectDefect(vector<Defect> &aDefectList, unsigned short *pImg, int nW, int
 }
 
 
+bool SaveDefect(vector<Defect> &aDefectList, const char *szDefFile)
+{
+	ofstream ofs(szDefFile);
+	if (ofs)
+	{
+		ofs << aDefectList.size() << std::endl;
 
+		for (size_t k = 0; k != aDefectList.size(); ++k)
+		{
+			ofs << k << std::endl;
+
+			ofs << aDefectList.at(k).iClass << std::endl;
+
+			ofs << aDefectList.at(k).feat.area << "\t"
+				<< aDefectList.at(k).feat.aveGrey << "\t"
+				<< aDefectList.at(k).feat.grey_contrast << "\t"
+				<< aDefectList.at(k).feat.length << "\t"
+				<< aDefectList.at(k).feat.peri << "\t"
+				<< aDefectList.at(k).feat.peri_area_ratio << "\t"
+				<< aDefectList.at(k).feat.rectness << "\t"
+				<< aDefectList.at(k).feat.rndness << "\t"
+				<< aDefectList.at(k).feat.width << "\n";
+
+			ofs << aDefectList.at(k).center.x << "\t" << aDefectList.at(k).center.y << "\n";
+
+			ofs << aDefectList.at(k).aPt.size() << std::endl;
+
+			for (size_t n = 0; n != aDefectList.at(k).aPt.size(); ++n)
+			{
+				ofs << aDefectList.at(k).aPt.at(n).x << "\t" << aDefectList.at(k).aPt.at(n).y << "\n";
+			}
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
+
+bool LoadDefect(vector<Defect> &aDefectList, const char *szDefFile)
+{
+	ifstream ifs(szDefFile);
+	if (ifs)
+	{
+		aDefectList.clear();
+
+
+		int nDef;
+		ifs >> nDef;
+
+		Defect d;
+
+		for (int k = 0; k != nDef; ++k)
+		{
+			int i;
+
+			ifs >> i;
+
+			ifs >> d.iClass;
+
+			ifs >> d.feat.area 
+				>> d.feat.aveGrey 
+				>> d.feat.grey_contrast
+				>> d.feat.length 
+				>> d.feat.peri 
+				>> d.feat.peri_area_ratio 
+				>> d.feat.rectness 
+				>> d.feat.rndness 
+				>> d.feat.width;
+
+			ifs >> d.center.x >> d.center.y;
+
+			int nPt;
+			ifs >> nPt;
+
+			POINT pt;
+
+			for (size_t n = 0; n != nPt; ++n)
+			{
+				ifs >> pt.x >> pt.y;
+
+				d.aPt.push_back(pt);
+			}
+
+			aDefectList.push_back(d);
+		}
+
+		return true;
+	}
+
+	return false;
+}
 
 
 DefectRecognition::DefectRecognition()

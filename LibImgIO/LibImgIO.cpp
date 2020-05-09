@@ -100,34 +100,52 @@ bool DCMFile::Load(const char *szSrcFileName)
 		DcmDataset *dataset = fileformat.getDataset();	//得到Dicom的数据集，所有的数据都存储在数据集当中
 
 		unsigned short bit_count(0);
-		dataset->findAndGetUint16(DCM_BitsStored, bit_count);	//获取像素的位数 bit
+		OFCondition result = dataset->findAndGetUint16(DCM_BitsStored, bit_count);	//获取像素的位数 bit
 		//std::cout << "bit_count :" << bit_count << std::endl;
 
 		OFString isRGB;
-		dataset->findAndGetOFString(DCM_PhotometricInterpretation, isRGB);//DCM图片的图像模式
+		result = dataset->findAndGetOFString(DCM_PhotometricInterpretation, isRGB);//DCM图片的图像模式
 		//std::cout << "isrgb :" << isRGB << std::endl;
 
 		unsigned short img_bits(0);
-		dataset->findAndGetUint16(DCM_SamplesPerPixel, img_bits);	//单个像素占用多少byte
+		result = dataset->findAndGetUint16(DCM_SamplesPerPixel, img_bits);	//单个像素占用多少byte
 		//std::cout << "img_bits :" << img_bits << std::endl;
 		//DicomImage* img_xfer = new DicomImage(xfer, 0, 0, 1);		//由传输语法得到图像的帧
 
 		unsigned short m_width;		//获取图像的窗宽高
 		unsigned short m_height;
-		dataset->findAndGetUint16(DCM_Rows, m_height);
-		dataset->findAndGetUint16(DCM_Columns, m_width);
+		result = dataset->findAndGetUint16(DCM_Rows, m_height);
+		if (result.bad())
+		{
+			std::cout << "Failed to retrieve the height!" << std::endl;
+		}
+		result = dataset->findAndGetUint16(DCM_Columns, m_width);
+		if (result.bad())
+		{
+			std::cout << "Failed to retrieve the width!" << std::endl;
+		}
 		//std::cout << "width :" << m_width << std::endl;
 		//std::cout << "height " << m_height << std::endl;
 
 		unsigned short center, width;  //获取源图像中的窗位和窗宽
-		dataset->findAndGetUint16(DCM_WindowCenter, center);
-		dataset->findAndGetUint16(DCM_WindowWidth, width);
+		result = dataset->findAndGetUint16(DCM_WindowCenter, center);
+		if (result.bad())
+		{
+			std::cout << "Failed to retrieve the window centre!" << std::endl;
+			std::cout << string(result.text()) << std::endl;
+		}
+		result = dataset->findAndGetUint16(DCM_WindowWidth, width);
+		if (result.bad())
+		{
+			std::cout << "Failed to retrieve the window width!" << std::endl;
+			std::cout << string(result.text()) << std::endl;
+		}
 
 		DcmElement* element = NULL;    //读取dcm中的像素值
-		OFCondition result = dataset->findAndGetElement(DCM_PixelData, element);
+		result = dataset->findAndGetElement(DCM_PixelData, element);
 		if (result.bad() || element == NULL)
 		{
-			//std::cout << "findAndGetElement result  bad. " << std::endl;
+			std::cout << "findAndGetElement result  bad. " << std::endl;
 			return false;
 		}
 
@@ -138,7 +156,7 @@ bool DCMFile::Load(const char *szSrcFileName)
 		result = element->getUint16Array(pixData16);
 		if (result.bad())
 		{
-			//std::cout << "getUint16Array result  bad. " << std::endl;
+			std::cout << "getUint16Array result  bad. " << std::endl;
 			return false;
 		}
 
@@ -146,11 +164,33 @@ bool DCMFile::Load(const char *szSrcFileName)
 
 		m_nImgWidth = m_width;
 		m_nImgHeight = m_height;
-		m_pImgBuf = new unsigned short[m_nImgWidth*m_nImgHeight];
-		memcpy(m_pImgBuf, pixData16, m_nImgWidth*m_nImgHeight * sizeof(unsigned short));
+		size_t N = (size_t)m_nImgWidth*m_nImgHeight;
+		m_pImgBuf = new unsigned short[N];
+		memcpy(m_pImgBuf, pixData16, N * sizeof(unsigned short));
 		m_nImgBPP = bit_count;
-		m_nWinCentre = center;
-		m_nWinWidth = width;
+		if (0 == center && 0 == width)
+		{
+			unsigned short nMin = 65535, nMax = 0;
+			for (size_t n = 0; n < N; n++)
+			{
+				if (m_pImgBuf[n] < nMin)
+				{
+					nMin = m_pImgBuf[n];
+				}
+				if (m_pImgBuf[n] > nMax)
+				{
+					nMax = m_pImgBuf[n];
+				}
+			}
+
+			m_nWinWidth = (nMax - nMin + 1) / 2;
+			m_nWinCentre= (nMax + nMin + 1) / 2;
+		}
+		else
+		{ 
+			m_nWinCentre = center;
+			m_nWinWidth = width;
+		}
 		m_nDataLength = nElemLen;
 		m_nSamplesPerPixel = img_bits;
 		m_strPhotoInterp = isRGB.c_str();
@@ -338,11 +378,18 @@ DCMFileFeat DCMFile::getFileFeature()
 		ffeat.nAveG = (unsigned short)(dAveG / N);
 	}
 
-
 	return ffeat;
 }
 
+
 bool DCMFile::Match(double &dSimilarity, DCMFile &file)
 {
+	if (!IsValid())
+	{
+		return false;
+	}
+
+	//ImageRect aoi()
+
 	return false;
 }
