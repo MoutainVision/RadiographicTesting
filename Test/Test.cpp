@@ -73,7 +73,7 @@ int main()
 		DCMFileIndexingData indexData;
 
 		vector<string> aFileList;
-		GetFileList(aFileList, "D:\\czp\\aobo\\doc\\µ×Æ¬É¨Ãè\\A", ".dcm");
+		GetFileList(aFileList, "G:\\DCM\\µ×Æ¬É¨Ãè\\A\\Test", ".dcm");
 		for (size_t k = 0; k < aFileList.size(); ++k)
 		{
 			//¼ÓÔØDCMÎÄ¼þ

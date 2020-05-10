@@ -200,6 +200,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->widget_measure->hide();
     ui->widget_tool->hide();
 
+    ui->widget_recheck->hide();
+
     ui->horizontalScrollBar->hide();
     ui->verticalScrollBar->hide();
 
@@ -242,6 +244,17 @@ MainWindow::MainWindow(QWidget *parent) :
     mDefectRectItem = NULL;
 
     m_loadingDlg = NULL;
+
+    mIndexFilePath = Appconfig::AppDataPath_Data + "index.idx";
+    mIndexDataFilePath = Appconfig::AppDataPath_Data + "DcmIndex.dat";
+
+    mIndexFileOfs.open(mIndexFilePath.toStdString(), ios::app | ios::out);
+
+    QFile indexDataFile(mIndexDataFilePath);
+    if (!indexDataFile.exists())
+    {
+        DCMIndexingFile::Create(mIndexDataFilePath.toStdString().c_str());
+    }
 
     //人工， 初始化有信号
     hEvent = CreateEvent(NULL, TRUE, TRUE, NULL);
@@ -304,7 +317,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->checkBox_show_defect_center, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->checkBox_wind, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->checkBox_contrast, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
-
+    connect(ui->pushButton_add_db, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+    connect(ui->pushButton_recheck, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
 
     connect(ui->horizontalSlider_contrast, SIGNAL(valueChanged(int)), this, SLOT(slot_sliderWinValueChange(int)));
 
@@ -356,11 +370,24 @@ void MainWindow::slot_tabCurrentChanged(int index)
     {
         ui->pushButton_pre_big->show();
         ui->pushButton_next_big->show();
+
+        ui->widget_recheck->hide();
+    }
+    else if (index == 2)
+    {
+        ui->pushButton_pre_big->hide();
+        ui->pushButton_next_big->hide();
+        ui->widget_measure->hide();
+        ui->widget_tool->hide();
+
+        ui->widget_recheck->show();
     }
     else
     {
         ui->pushButton_pre_big->hide();
         ui->pushButton_next_big->hide();
+
+        ui->widget_recheck->hide();
     }
 }
 
@@ -471,15 +498,16 @@ void MainWindow::setDcmFileInfo()
 
         FunctionTransfer::runInMainThread([=]()
         {
-            ui->verticalSlider_WinCentre->setValue(mCurDcmFileInfo.winCentre);
-            ui->verticalSlider_WindWidth->setValue(mCurDcmFileInfo.windWidth);
-
             m_pSrcImg = dmfile.GetBuffer();
             mSrcImgWidth = dmfile.GetWidth();
             mSrcImgHeight = dmfile.GetHeight();
 
             m_pImgPro = new unsigned short[mSrcImgWidth * mSrcImgHeight];
             memcpy(m_pImgPro, m_pSrcImg, mSrcImgWidth*mSrcImgHeight*sizeof(unsigned short));
+
+			ui->verticalSlider_WinCentre->setValue(mCurDcmFileInfo.winCentre);
+			ui->verticalSlider_WindWidth->setValue(mCurDcmFileInfo.windWidth);
+
 
             this->showAdapt();
         });
@@ -917,6 +945,33 @@ void MainWindow::getIntensity(QPoint curPt)
 	}   
 }
 
+void MainWindow::addRetrievalResultValues(vector<RetrievalResult> aRes)
+{
+    for (size_t k = 0; k != aRes.size(); ++k)
+    {
+        int row = ui->tableWidget_recheck->rowCount();
+        ui->tableWidget_recheck->setRowCount(row + 1);
+
+        QTableWidgetItem *indexItem = new QTableWidgetItem;
+        indexItem->setText(QString("%1").arg(k));
+        indexItem->setTextAlignment(Qt::AlignCenter);
+
+
+        QTableWidgetItem *areaItem = new QTableWidgetItem;
+        areaItem->setText(QString("%1").arg(aRes[k].strMatchedFile.c_str()));
+        areaItem->setTextAlignment(Qt::AlignCenter);
+
+        QTableWidgetItem *periItem = new QTableWidgetItem;
+        periItem->setText(QString("%1").arg(aRes[k].dSimilarity));
+        periItem->setTextAlignment(Qt::AlignCenter);
+
+        ui->tableWidget_recheck->setItem(row, 0, indexItem);
+        ui->tableWidget_recheck->setItem(row, 1, areaItem);
+        ui->tableWidget_recheck->setItem(row, 2, periItem);
+    }
+
+}
+
 void MainWindow::setRecognizeValue(int index, DefectFeat feat)
 {
     int row = ui->tableWidget_recognize->rowCount();
@@ -1177,6 +1232,65 @@ void MainWindow::slotBtnClick(bool bClick)
 
         exeDefectImg();
     }
+    else if (QObject::sender() == ui->pushButton_add_db)
+    {
+
+        if (mADefectList.size() >= 0 && dmfile.IsValid())
+        {
+            if (!mIndexFileOfs.is_open())
+                mIndexFileOfs.open(mIndexFilePath.toStdString(), ios::app | ios::out);
+
+            mIndexData.strFullPath = mCurDcmFileInfo.filePath.toLocal8Bit().toStdString();
+            mIndexData.fileFeat = dmfile.getFileFeature();
+
+            for (size_t n = 0; n != mADefectList.size(); ++n)
+            {
+                mIndexData.aDefectList.push_back(mADefectList.at(n).feat);
+            }
+
+            string strDefFile = mIndexData.strFullPath + ".def";
+
+            //保存缺陷文件
+            SaveDefect(mADefectList, strDefFile.c_str());
+
+
+            DCMFileIndex idx;
+            DCMIndexingFile::Write(idx, mIndexDataFilePath.toStdString().c_str(), mIndexData);
+
+            //把当前文件的索引信息写入所以文件中
+//            mIndexFileOfs << mCurDcmFileInfo.filePath.toStdString() << "\t" << idx.nOffset << "\t" << idx.nLength << "\n";
+            mIndexFileOfs << mCurDcmFileInfo.filePath.toStdString() << "\t" << idx.nOffset << "\t" << idx.nLength << "\n";
+            mIndexFileOfs.close();
+
+            QMessageBox::information(this, (QStringLiteral("提示")),  (QStringLiteral("加入数据库成功。")));
+        }
+    }
+    else if (QObject::sender() == ui->pushButton_recheck)
+    {
+        if (dmfile.IsValid())
+        {
+            showLoading(QStringLiteral("正在查重，请稍等"));
+
+            std::thread([&] {
+
+                //查重
+                vector<RetrievalResult> aRes;
+
+                Search(aRes, dmfile, mIndexFilePath.toStdString().c_str(), mIndexDataFilePath.toStdString().c_str());
+
+                FunctionTransfer::runInMainThread([=]()
+                {
+                    ui->tableWidget_recheck->clearContents();
+                    ui->tableWidget_recheck->setRowCount(0);
+
+                    addRetrievalResultValues(aRes);
+
+                    closeLoading();
+                });
+
+            }).detach();
+        }
+    }
     else if (QObject::sender() == ui->pushButton_recog_clear)
     {
         clearDefect();
@@ -1358,6 +1472,9 @@ void MainWindow::delImg()
             return ;
         }
         mDelImgLock.unlock();
+
+        if (mSrcImgWidth <= 0 || mSrcImgHeight <= 0)
+            return ;
 
         //拷贝
         m_pImgPro = new unsigned short[mSrcImgWidth * mSrcImgHeight];
@@ -4469,6 +4586,8 @@ MainWindow::~MainWindow()
         delete m_loadingDlg;
         m_loadingDlg = NULL;
     }
+
+    mIndexFileOfs.close();
 
 
     //save config

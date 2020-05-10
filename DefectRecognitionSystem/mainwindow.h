@@ -23,6 +23,10 @@
 
 #include <thread>
 
+#include<iostream>
+#include<fstream>
+
+
 #include "recognizewdg.h"
 #include "recheckwdg.h"
 #include "readdcmfile.h"
@@ -32,6 +36,8 @@
 #include "prewdg.h"
 
 #include "DefectRecognition.h"
+#include "DCMIndexingFile.h"
+#include "ImageRetrieval.h"
 
 //**绘图**
 #include "rectitem.h"
@@ -120,6 +126,9 @@ public:
 
     //清楚缺陷
     void clearDefect();
+
+    //----查重------
+    void addRetrievalResultValues(vector<RetrievalResult> aRes);
 
 //----灰度分布图------
     QPoint convertImgPt(QPoint wPt);
@@ -263,6 +272,14 @@ private:
 
     DcmFileNode mCurDcmFileInfo;
     QList<PreWdg *> mPreWdgList;
+
+    //查重
+    QString mIndexFilePath;
+    QString mIndexDataFilePath;
+    ofstream mIndexFileOfs;
+
+    //检索数据
+    DCMFileIndexingData mIndexData;
 
 
 

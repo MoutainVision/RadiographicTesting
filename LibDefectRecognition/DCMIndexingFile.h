@@ -175,13 +175,19 @@ public:
 
 		fs.read((char*)&data.fileFeat, sizeof(data.fileFeat));
 
+		std::cout << data.strFullPath << std::endl;
+
 		unsigned nDefect;
 		fs.read((char*)&nDefect, sizeof(nDefect));
 
-		for (unsigned n = 0; n < nDefect; n++)
+		if (data.aDefectList.size() >= nDefect)
 		{
-			fs.read((char*)&data.aDefectList[n], sizeof(data.aDefectList[n]));
+			for (unsigned n = 0; n < nDefect; n++)
+			{
+				fs.read((char*)&data.aDefectList[n], sizeof(data.aDefectList[n]));
+			}
 		}
+		
 
 		fs.close();
 		

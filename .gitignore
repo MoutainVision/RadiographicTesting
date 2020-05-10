@@ -40,3 +40,13 @@ Bins/Debug/LibDefectRecognition.ilk
 Bins/Release/LibDefectRecognition.pdb
 可执行程序/RadiographicTesting/shortFreq.txt
 可执行程序/RadiographicTesting/ucFreq.txt
+Test
+DefectRecognitionSystem/DefectRecognitionSystem.pro.user.4.9-pre1
+Test/Test.cpp
+Bins/Debug/Test.ilk
+Bins/Debug/Test.exe
+Bins/Debug/Test.pdb
+Bins/Release/Test.exe
+Bins/Release/Test.iobj
+Bins/Release/Test.ipdb
+Bins/Release/Test.pdb
