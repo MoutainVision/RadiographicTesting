@@ -202,6 +202,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->widget_recheck->hide();
 
+    ui->tableWidget_recheck->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+
+
     ui->horizontalScrollBar->hide();
     ui->verticalScrollBar->hide();
 
@@ -244,6 +247,8 @@ MainWindow::MainWindow(QWidget *parent) :
     mDefectRectItem = NULL;
 
     m_loadingDlg = NULL;
+
+    mPreWdg = NULL;
 
     mIndexFilePath = Appconfig::AppDataPath_Data + "index.idx";
     mIndexDataFilePath = Appconfig::AppDataPath_Data + "DcmIndex.dat";
@@ -343,6 +348,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->tabWidget, SIGNAL(currentChanged(int)), this, SLOT(slot_tabCurrentChanged(int)));
 
     connect(ui->tableWidget_recognize, SIGNAL(cellClicked(int, int)), this, SLOT(slot_tableCellClicked(int, int)));
+
+    connect(ui->tableWidget_recheck, SIGNAL(cellClicked(int, int)), this, SLOT(slot_tableCellClicked(int, int)));
 }
 
 void MainWindow::showLoading(QString msg)
@@ -408,6 +415,42 @@ void MainWindow::slot_tableCellClicked(int row, int col)
         mCurDefectIndex = row;
 
         update();
+    }
+    else if (QObject::sender() == ui->tableWidget_recheck)
+    {
+        QString filePath = ui->tableWidget_recheck->item(row, 2)->text();
+        std::thread([=] {
+
+            qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));          //设置随机数种子
+            int rand = qrand() % 10000;
+
+            QString dateTimeStr = QDateTime::currentDateTime().toString("MM-dd hh-mm-ss-zzz");
+            QString outFileName = QString(QStringLiteral("%1/%2_%3.jpg")).arg(Appconfig::AppDataPath_Tmp).arg(dateTimeStr).arg(rand);
+
+            std::string errorStr;
+            ReadDCMFile::readDCMFileLib(filePath.toLocal8Bit().toStdString(), outFileName.toLocal8Bit().toStdString(), errorStr);
+
+            FunctionTransfer::runInMainThread([=]()
+            {
+                DcmFileNode info;
+                info.transFilePath = outFileName;
+
+                if (NULL == mPreWdg)
+                    mPreWdg = new PreWdg;
+
+                mPreWdg->setParent(ui->widget_recheck_pre);
+                mPreWdg->setDCMFileInfo(info);
+
+                int perWidth  = ui->widget_recheck_pre->width();
+                int perHeight = ui->widget_recheck_pre->height();
+
+                mPreWdg->setFixedSize(perWidth, perHeight);
+                mPreWdg->setGeometry(0, 0, perWidth, perHeight);
+                mPreWdg->show();
+
+            });
+
+        }).detach();
     }
 }
 
@@ -477,8 +520,29 @@ void MainWindow::setDcmFileInfo()
     //清空缺陷
     clearDefect();
 
+    if (NULL != mDefectRectItem)
+    {
+        delete mDefectRectItem;
+        mDefectRectItem = NULL;
+    }
+
     //清空几何图像
     slot_btnDeleteToolClick();
+
+    //清空查重表格
+    ui->tableWidget_recheck->clearContents();
+    ui->tableWidget_recheck->setRowCount(0);
+
+    //灰度测量
+    mGrayLine = QLine();
+    if (NULL != mGeyImgWdg)
+        mGeyImgWdg->close();
+
+    if (NULL != mGreyRectItem)
+    {
+        delete mGreyRectItem;
+        mGreyRectItem = NULL;
+    }
 
     //load
     std::thread([=] {
@@ -956,18 +1020,24 @@ void MainWindow::addRetrievalResultValues(vector<RetrievalResult> aRes)
         indexItem->setText(QString("%1").arg(k));
         indexItem->setTextAlignment(Qt::AlignCenter);
 
+        QTableWidgetItem *dbIndexItem = new QTableWidgetItem;
+        dbIndexItem->setText(QString("%1").arg(aRes[k].index));
+        dbIndexItem->setTextAlignment(Qt::AlignCenter);
 
-        QTableWidgetItem *areaItem = new QTableWidgetItem;
-        areaItem->setText(QString("%1").arg(aRes[k].strMatchedFile.c_str()));
-        areaItem->setTextAlignment(Qt::AlignCenter);
+        QTableWidgetItem *pathItem = new QTableWidgetItem;
+        pathItem->setText(QString("%1").arg(aRes[k].strMatchedFile.c_str()));
+        pathItem->setTextAlignment(Qt::AlignCenter);
 
-        QTableWidgetItem *periItem = new QTableWidgetItem;
-        periItem->setText(QString("%1").arg(aRes[k].dSimilarity));
-        periItem->setTextAlignment(Qt::AlignCenter);
+        QTableWidgetItem *similarItem = new QTableWidgetItem;
+        similarItem->setText(QString("%1%").arg(aRes[k].dSimilarity*100));
+        similarItem->setTextAlignment(Qt::AlignCenter);
 
         ui->tableWidget_recheck->setItem(row, 0, indexItem);
-        ui->tableWidget_recheck->setItem(row, 1, areaItem);
-        ui->tableWidget_recheck->setItem(row, 2, periItem);
+        ui->tableWidget_recheck->setItem(row, 1, dbIndexItem);
+        ui->tableWidget_recheck->setItem(row, 2, pathItem);
+        ui->tableWidget_recheck->setItem(row, 3, similarItem);
+
+
     }
 
 }
@@ -1235,7 +1305,7 @@ void MainWindow::slotBtnClick(bool bClick)
     else if (QObject::sender() == ui->pushButton_add_db)
     {
 
-        if (mADefectList.size() >= 0 && dmfile.IsValid())
+        if (mADefectList.size() > 0 && dmfile.IsValid())
         {
             if (!mIndexFileOfs.is_open())
                 mIndexFileOfs.open(mIndexFilePath.toStdString(), ios::app | ios::out);

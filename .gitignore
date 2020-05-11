@@ -40,16 +40,6 @@ Bins/Debug/LibDefectRecognition.ilk
 Bins/Release/LibDefectRecognition.pdb
 可执行程序/RadiographicTesting/shortFreq.txt
 可执行程序/RadiographicTesting/ucFreq.txt
-*.dll
-*.pdb
-*.lib
-*.tlog
-*.dll
-*.pch
-*.obj
-*.dll
-*.qm
-*.zip
 可执行程序/RadiographicTesting18/shortFreq.txt
 可执行程序/RadiographicTesting18/ucFreq.txt
 Bins/Release/Test.iobj
@@ -67,3 +57,8 @@ Bins/Release/LibImgIO.pdb
 Bins/Release/LibImgProc.dll
 Bins/Release/LibImgProc.lib
 Bins/Release/LibImgProc.pdb
+Test
+Bins/Debug/Test.exe
+Bins/Debug/Test.ilk
+DefectRecognitionSystem/DefectRecognitionSystem.pro.user.4.9-pre1
+Bins/Release/Test.pdb

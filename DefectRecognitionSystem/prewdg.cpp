@@ -26,6 +26,8 @@ void PreWdg::setDCMFileInfo(DcmFileNode info)
 
     mPreviewPixImg.load(info.transFilePath);
 
+    update();
+
 //    std::thread([&] {
 //        std::string errorStr;
 

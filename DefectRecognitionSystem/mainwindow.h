@@ -20,6 +20,8 @@
 #include <QPaintEvent>
 #include <QPainter>
 #include <QSplitter>
+#include <QTabWidget>
+#include <QHeaderView>
 
 #include <thread>
 
@@ -277,6 +279,8 @@ private:
     QString mIndexFilePath;
     QString mIndexDataFilePath;
     ofstream mIndexFileOfs;
+
+    PreWdg *mPreWdg;
 
     //¼ìË÷Êý¾Ý
     DCMFileIndexingData mIndexData;

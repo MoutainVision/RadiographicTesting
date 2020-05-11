@@ -175,9 +175,10 @@ public:
 		if (nFileNameLength > 0)
 		{
 			char *szBuf = nullptr;
-			szBuf = new char[nFileNameLength];
+			szBuf = new char[nFileNameLength+1];
 			fs.read(szBuf, nFileNameLength);
-			data.strFullPath = szBuf;
+			szBuf[nFileNameLength] = '\0';
+			data.strFullPath = szBuf;// +'\0';
 			delete []szBuf;
 		}
 
