@@ -169,18 +169,26 @@ public:
 
 		fs.seekg(index.nOffset, std::ios_base::beg);
 
-		unsigned nSz;
-		fs.read((char*)&nSz, sizeof(nSz));
-		fs.read((char*)&data.strFullPath, nSz);
+		unsigned nFileNameLength;
+		fs.read((char*)&nFileNameLength, sizeof(nFileNameLength));
+		char *szBuf = nullptr;
+		if (nFileNameLength > 0)
+		{
+			szBuf = new char[nFileNameLength];
+		}
+		fs.read(szBuf, nFileNameLength);
+		data.strFullPath = szBuf;
 
 		fs.read((char*)&data.fileFeat, sizeof(data.fileFeat));
 
 		unsigned nDefect;
 		fs.read((char*)&nDefect, sizeof(nDefect));
 
+		DefectFeat df;
 		for (unsigned n = 0; n < nDefect; n++)
 		{
-			fs.read((char*)&data.aDefectList[n], sizeof(data.aDefectList[n]));
+			fs.read((char*)&df, sizeof(df));
+			data.aDefectList.push_back(df);
 		}
 
 		fs.close();

@@ -131,14 +131,14 @@ bool DCMFile::Load(const char *szSrcFileName)
 		result = dataset->findAndGetUint16(DCM_WindowCenter, center);
 		if (result.bad())
 		{
-			std::cout << "Failed to retrieve the window centre!" << std::endl;
-			std::cout << string(result.text()) << std::endl;
+			//std::cout << "Failed to retrieve the window centre!" << std::endl;
+			//std::cout << string(result.text()) << std::endl;
 		}
 		result = dataset->findAndGetUint16(DCM_WindowWidth, width);
 		if (result.bad())
 		{
-			std::cout << "Failed to retrieve the window width!" << std::endl;
-			std::cout << string(result.text()) << std::endl;
+			//std::cout << "Failed to retrieve the window width!" << std::endl;
+			//std::cout << string(result.text()) << std::endl;
 		}
 
 		DcmElement* element = NULL;    //读取dcm中的像素值
@@ -170,21 +170,21 @@ bool DCMFile::Load(const char *szSrcFileName)
 		m_nImgBPP = bit_count;
 		if (0 == center && 0 == width)
 		{
-			unsigned short nMin = 65535, nMax = 0;
-			for (size_t n = 0; n < N; n++)
-			{
-				if (m_pImgBuf[n] < nMin)
-				{
-					nMin = m_pImgBuf[n];
-				}
-				if (m_pImgBuf[n] > nMax)
-				{
-					nMax = m_pImgBuf[n];
-				}
-			}
+			//unsigned short nMin = 65535, nMax = 0;
+			//for (size_t n = 0; n < N; n++)
+			//{
+			//	if (m_pImgBuf[n] < nMin)
+			//	{
+			//		nMin = m_pImgBuf[n];
+			//	}
+			//	if (m_pImgBuf[n] > nMax)
+			//	{
+			//		nMax = m_pImgBuf[n];
+			//	}
+			//}
 
-			m_nWinWidth = (nMax - nMin + 1) / 2;
-			m_nWinCentre= (nMax + nMin + 1) / 2;
+			//m_nWinWidth = (nMax - nMin + 1) / 2;
+			//m_nWinCentre= (nMax + nMin + 1) / 2;
 		}
 		else
 		{ 

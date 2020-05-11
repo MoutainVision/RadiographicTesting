@@ -147,6 +147,11 @@ void Search(vector<RetrievalResult> &aResult, DCMFile &dfile,
 	{
 		return;
 	}
+	//for (size_t k = 0; k != aIdxList.size(); ++k)
+	//{
+	//	std::cout << aIdxList[k].strFullPath << "\t" << aIdxList[k].nOffset << "\t" << aIdxList[k].nLength << "\n";
+	//}
+
 
 	RetrievalResult r;
 
@@ -155,7 +160,7 @@ void Search(vector<RetrievalResult> &aResult, DCMFile &dfile,
 
 	//缺陷检测
 	vector<Defect> aDefect;
-	DetectDefect(aDefect, dfile.GetBuffer(), dfile.GetWidth(), dfile.GetHeight());
+	//DetectDefect(aDefect, dfile.GetBuffer(), dfile.GetWidth(), dfile.GetHeight());
 
 	//先对比文件特征和包含的缺陷特征列表
 	for (size_t k = 0; k != aIdxList.size(); k++)

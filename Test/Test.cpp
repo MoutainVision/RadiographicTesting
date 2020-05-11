@@ -73,7 +73,8 @@ int main()
 		DCMFileIndexingData indexData;
 
 		vector<string> aFileList;
-		GetFileList(aFileList, "D:\\czp\\aobo\\doc\\底片扫描\\A", ".dcm");
+		//GetFileList(aFileList, "D:\\czp\\aobo\\doc\\底片扫描\\A\\A - 13_11_2015 - 12", ".dcm");
+		GetFileList(aFileList, "D:\\czp\\aobo\\DROriginalImages", ".dcm");
 		for (size_t k = 0; k < aFileList.size(); ++k)
 		{
 			//加载DCM文件
@@ -120,6 +121,7 @@ int main()
 			}
 		}
 
+		ofs.close();
 
 		std::cout << std::endl;
 		std::cout << std::endl;
@@ -128,24 +130,48 @@ int main()
 		////////////////////////////////////////////////////////////////////////////////////
 		//查重测试
 
-		//加载索引列表
-		vector<DCMFileIndex> aIdx;
-		LoadIndexFile(aIdx, strIndexFile.c_str());
+		////加载索引列表
+		//vector<DCMFileIndex> aIdx;
+		//if (!LoadIndexFile(aIdx, strIndexFile.c_str()))
+		//{
+		//	return -1;
+		//}
+
+		//for (size_t k = 0; k != aIdx.size(); ++k)
+		//{
+		//	std::cout << aIdx[k].strFullPath << "\t" << aIdx[k].nOffset << "\t" << aIdx[k].nLength << "\n";
+		//}
+
+		////加载索引数据
+		//for (size_t k = 0; k != aIdx.size(); k++)
+		//{
+		//	DCMFileIndexingData data;
+		//	if (DCMIndexingFile::Read(data, strIndexDataFile.c_str(), aIdx[k]))
+		//	{
+		//		data.fileFeat.Output2();
+		//	}
+		//}
+
+		//std::cout << std::endl;
 
 		//加载DCM文件
-		DCMFile df("newimg.dcm");
+		DCMFile df("1-A.dcm");
 		if (df.IsValid())
 		{
+			std::cout << "查重進行中，請等待...\n";
 			//查重
 			vector<RetrievalResult> aRes;
 			Search(aRes, df, strIndexFile, strIndexDataFile);
+
+			std::cout << "查重結束，結果如下：\n";
 			for (size_t k = 0; k != aRes.size(); ++k)
 			{
-				std::cout << k << "\t" << aRes[k].strMatchedFile << "\t" << aRes[k].dSimilarity << std::endl;
+				std::cout << k << "\t" << aRes[k].strMatchedFile << "\t" << aRes[k].dSimilarity*100 << "%" << std::endl;
 			}
 		}
 	}
 
+	return 0;
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu

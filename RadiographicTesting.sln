@@ -10,6 +10,10 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DefectRecognitionSystem", "DefectRecognitionSystem\DefectRecognitionSystem.vcxproj", "{E1F52C99-60ED-3A51-BB5B-378839663549}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LibDefectRecognition", "LibDefectRecognition\LibDefectRecognition.vcxproj", "{DA1E4DE6-6551-41CA-A4BE-677A76E1FDB1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A1BD2A92-C7D5-47CE-9AF4-787FC31A3507} = {A1BD2A92-C7D5-47CE-9AF4-787FC31A3507}
+		{C6B8BFE8-14A7-4C50-B4E8-EF68C1F77A6A} = {C6B8BFE8-14A7-4C50-B4E8-EF68C1F77A6A}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test\Test.vcxproj", "{3C0CC53F-1BDF-4F3F-BF7A-F345D6D18606}"
 	ProjectSection(ProjectDependencies) = postProject
