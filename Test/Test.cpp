@@ -158,12 +158,12 @@ int main()
 		DCMFile df("1-A.dcm");
 		if (df.IsValid())
 		{
-			std::cout << "�����M���У�Ո�ȴ�...\n";
-			//����
+			std::cout << "查重进行中，请等待...\n";
+			//
 			vector<RetrievalResult> aRes;
 			Search(aRes, df, strIndexFile, strIndexDataFile);
 
-			std::cout << "���ؽY�����Y�����£�\n";
+			std::cout << "查重结束，结果如下：\n";
 			for (size_t k = 0; k != aRes.size(); ++k)
 			{
 				std::cout << k << "\t" << aRes[k].strMatchedFile << "\t" << aRes[k].dSimilarity*100 << "%" << std::endl;
