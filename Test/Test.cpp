@@ -18,7 +18,7 @@ using namespace std;
 
 int main()
 {
-    std::cout << "Hello World!\n"; 
+    std::cout << "Hello World!\n";
 
 	if (true)
 	{
@@ -49,51 +49,51 @@ int main()
 
 	if (true)
 	{
-		//ÒÔÏÂÊ¾ÀýÑÝÊ¾ÁËÈçºÎÉú³ÉÒ»¸öÊý¾Ý¿â£¬ÒÔ¼°ÔÚ¸ÃÊý¾Ý¿âÉÏ½øÐÐ²éÖØ²Ù×÷
+		//ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½Ý¿â£¬ï¿½Ô¼ï¿½ï¿½Ú¸ï¿½ï¿½ï¿½ï¿½Ý¿ï¿½ï¿½Ï½ï¿½ï¿½Ð²ï¿½ï¿½Ø²ï¿½ï¿½ï¿½
 
 		////////////////////////////////////////////////////////////////////////////////////
-		//Ê×ÏÈÉú³ÉÊý¾Ý¿â¡£¸ÃÊý¾Ý¿âÓÉÒÔÏÂ¼¸²¿·ÖÊý¾Ý¹¹³É£º
-		//1. DCMÍ¼ÏñÎÄ¼þ¼¯ºÏ
-		//2. Ã¿¸öDCMÍ¼ÏñÎÄ¼þ¶ÔÓ¦µÄÈ±ÏÝÎÄ¼þ£¨½øÐÐÈ±ÏÝ¼ì²âºóÉú³É£¬ÓëÍ¼ÏñÎÄ¼þÍ¬Ãû£¬ºó×ºÎª.def£©
-		//3. Í¼Ïñ¼¯ºÏÖÐÃ¿¸öÍ¼ÏñµÄ»ù±¾ÐÅÏ¢Ëù¹¹³ÉµÄ¼ìË÷Êý¾ÝÎÄ¼þ£¨.dat£©
-		//4. Í¼Ïñ¼¯ºÏÖÐÃ¿¸öÍ¼ÏñµÄË÷ÒýÐÅÏ¢¹¹³ÉµÄÎÄ¼þ£¨.idx£©
+		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý¿â¡£ï¿½ï¿½ï¿½ï¿½ï¿½Ý¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý¹ï¿½ï¿½É£ï¿½
+		//1. DCMÍ¼ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½
+		//2. Ã¿ï¿½ï¿½DCMÍ¼ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½È±ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È±ï¿½Ý¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É£ï¿½ï¿½ï¿½Í¼ï¿½ï¿½ï¿½Ä¼ï¿½Í¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ºÎª.defï¿½ï¿½
+		//3. Í¼ï¿½ñ¼¯ºï¿½ï¿½ï¿½Ã¿ï¿½ï¿½Í¼ï¿½ï¿½ï¿½Ä»ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½ï¿½ÉµÄ¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½.datï¿½ï¿½
+		//4. Í¼ï¿½ñ¼¯ºï¿½ï¿½ï¿½Ã¿ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½Éµï¿½ï¿½Ä¼ï¿½ï¿½ï¿½.idxï¿½ï¿½
 
-		//Éú³ÉË÷ÒýÎÄ¼þ¡£¸ÃÎÄ¼þ¼ÇÂ¼ÁËÄ¿Ç°Êý¾Ý¿âÖÐÃ¿¸öÍ¼ÏñµÄË÷ÒýÐÅÏ¢£¨DCMFileIndex£©£¬ÓÃ»§¸ù¾ÝÕâÐ©Ë÷ÒýÐÅÏ¢È¥ÏÂÃæµÄ¼ìË÷Êý¾ÝÎÄ¼þ
-		//ÖÐ¶ÁÈ¡¸ÃÍ¼ÏñµÄÍ¼Ïñ»ù±¾ÐÅÏ¢£¬ÒÔ½øÐÐÏÔÊ¾¡¢²éÖØµÈµÈ
+		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½Â¼ï¿½ï¿½Ä¿Ç°ï¿½ï¿½ï¿½Ý¿ï¿½ï¿½ï¿½Ã¿ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½DCMFileIndexï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð©ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢È¥ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½
+		//ï¿½Ð¶ï¿½È¡ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½Ô½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ØµÈµï¿½
 		string strIndexFile = "index.idx";
 		ofstream ofs(strIndexFile.c_str());
 
-		//Í¼Ïñ¼ìË÷Êý¾ÝÎÄ¼þ¡£´æ´¢ÁËÊý¾Ý¿âÖÐÃ¿¸öÍ¼ÏñµÄÍ¼Ïñ»ù±¾ÐÅÏ¢£¨DCMFileIndexingData£©¡£
+		//Í¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½æ´¢ï¿½ï¿½ï¿½ï¿½ï¿½Ý¿ï¿½ï¿½ï¿½Ã¿ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½DCMFileIndexingDataï¿½ï¿½ï¿½ï¿½
 		string strIndexDataFile = "DcmIndex.dat";
 
-		//´´½¨¼ìË÷Êý¾ÝÎÄ¼þ
+		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½
 		DCMIndexingFile::Create(strIndexDataFile.c_str());
 
-		//¼ìË÷Êý¾Ý
+		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		DCMFileIndexingData indexData;
 
 		vector<string> aFileList;
-		//GetFileList(aFileList, "D:\\czp\\aobo\\doc\\µ×Æ¬É¨Ãè\\A\\A - 13_11_2015 - 12", ".dcm");
+		//GetFileList(aFileList, "D:\\czp\\aobo\\doc\\ï¿½ï¿½Æ¬É¨ï¿½ï¿½\\A\\A - 13_11_2015 - 12", ".dcm");
 		GetFileList(aFileList, "D:\\czp\\aobo\\DROriginalImages", ".dcm");
 		for (size_t k = 0; k < aFileList.size(); ++k)
 		{
-			//¼ÓÔØDCMÎÄ¼þ
+			//ï¿½ï¿½ï¿½ï¿½DCMï¿½Ä¼ï¿½
 			DCMFile df(aFileList[k].c_str());
 			if (df.IsValid())
 			{
-				//Êä³öÎÄ¼þÌØÕ÷
+				//ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½
 				df.getFileFeature().Output2();
 
 				CxImage dstImg;
 				if (df.Convert(dstImg))
-				{				
+				{
 					dstImg.Save(string(aFileList[k]+".jpg").c_str(), CXIMAGE_FORMAT_JPG);
 				}
 
 				indexData.strFullPath = aFileList.at(k);
 				indexData.fileFeat = df.getFileFeature();
 
-				//È±ÏÝ¼ì²â
+				//È±ï¿½Ý¼ï¿½ï¿½ï¿½
 				ImageRect aoi(df.GetWidth() / 20 * 10, df.GetWidth() / 20 * 11, df.GetHeight() / 20 * 10, df.GetHeight() / 20 * 11);
 				DetectParam dp;
 				vector<Defect> aDefList;
@@ -108,15 +108,15 @@ int main()
 
 					string strDefFile = aFileList.at(k) + ".def";
 
-					//±£´æÈ±ÏÝÎÄ¼þ
+					//ï¿½ï¿½ï¿½ï¿½È±ï¿½ï¿½ï¿½Ä¼ï¿½
 					SaveDefect(aDefList, strDefFile.c_str());
 				}
 
-				//°Ñµ±Ç°ÎÄ¼þµÄ»ù±¾ÐÅÏ¢Ð´Èë¼ìË÷Êý¾ÝÎÄ¼þÖÐ
+				//ï¿½Ñµï¿½Ç°ï¿½Ä¼ï¿½ï¿½Ä»ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢Ð´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½
 				DCMFileIndex idx;
 				DCMIndexingFile::Write(idx, strIndexDataFile.c_str(), indexData);
 
-				//°Ñµ±Ç°ÎÄ¼þµÄË÷ÒýÐÅÏ¢Ð´ÈëËùÒÔÎÄ¼þÖÐ
+				//ï¿½Ñµï¿½Ç°ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢Ð´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½
 				ofs << idx.strFullPath << "\t" << idx.nOffset << "\t" << idx.nLength << "\n";
 			}
 		}
@@ -128,9 +128,9 @@ int main()
 
 
 		////////////////////////////////////////////////////////////////////////////////////
-		//²éÖØ²âÊÔ
+		//ï¿½ï¿½ï¿½Ø²ï¿½ï¿½ï¿½
 
-		////¼ÓÔØË÷ÒýÁÐ±í
+		////ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð±ï¿½
 		//vector<DCMFileIndex> aIdx;
 		//if (!LoadIndexFile(aIdx, strIndexFile.c_str()))
 		//{
@@ -142,7 +142,7 @@ int main()
 		//	std::cout << aIdx[k].strFullPath << "\t" << aIdx[k].nOffset << "\t" << aIdx[k].nLength << "\n";
 		//}
 
-		////¼ÓÔØË÷ÒýÊý¾Ý
+		////ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		//for (size_t k = 0; k != aIdx.size(); k++)
 		//{
 		//	DCMFileIndexingData data;
@@ -154,16 +154,16 @@ int main()
 
 		//std::cout << std::endl;
 
-		//¼ÓÔØDCMÎÄ¼þ
+		//ï¿½ï¿½ï¿½ï¿½DCMï¿½Ä¼ï¿½
 		DCMFile df("1-A.dcm");
 		if (df.IsValid())
 		{
-			std::cout << "²éÖØßMÐÐÖÐ£¬ÕˆµÈ´ý...\n";
-			//²éÖØ
+			std::cout << "ï¿½ï¿½ï¿½ï¿½ï¿½Mï¿½ï¿½ï¿½Ð£ï¿½Õˆï¿½È´ï¿½...\n";
+			//ï¿½ï¿½ï¿½ï¿½
 			vector<RetrievalResult> aRes;
 			Search(aRes, df, strIndexFile, strIndexDataFile);
 
-			std::cout << "²éÖØ½YÊø£¬½Y¹ûÈçÏÂ£º\n";
+			std::cout << "ï¿½ï¿½ï¿½Ø½Yï¿½ï¿½ï¿½ï¿½ï¿½Yï¿½ï¿½ï¿½ï¿½ï¿½Â£ï¿½\n";
 			for (size_t k = 0; k != aRes.size(); ++k)
 			{
 				std::cout << k << "\t" << aRes[k].strMatchedFile << "\t" << aRes[k].dSimilarity*100 << "%" << std::endl;
@@ -177,7 +177,7 @@ int main()
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
 // Debug program: F5 or Debug > Start Debugging menu
 
-// Tips for Getting Started: 
+// Tips for Getting Started:
 //   1. Use the Solution Explorer window to add/manage files
 //   2. Use the Team Explorer window to connect to source control
 //   3. Use the Output window to see build output and other messages

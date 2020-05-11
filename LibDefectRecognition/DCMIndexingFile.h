@@ -19,7 +19,7 @@ using std::fstream;
 using std::iostream;
 using std::ios;
 
-//DCM文件索引结构体。存放了某个文件索引数据的大小（以字节为单位）及其在索引文件中的偏移
+//DCM锟侥硷拷锟斤拷锟斤拷锟结构锟藉。锟斤拷锟斤拷锟斤拷某锟斤拷锟侥硷拷锟斤拷锟斤拷锟斤拷锟捷的达拷小锟斤拷锟斤拷锟街斤拷为锟斤拷位锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟侥硷拷锟叫碉拷偏锟斤拷
 struct LIBDEFECTRECOGNITION_API DCMFileIndex
 {
 	string strFullPath;
@@ -44,11 +44,11 @@ struct LIBDEFECTRECOGNITION_API DCMFileIndex
 };
 
 
-//读取索引文件
+//锟斤拷取锟斤拷锟斤拷锟侥硷拷
 LIBDEFECTRECOGNITION_API bool LoadIndexFile(vector<DCMFileIndex> &aIdx, const char *szIndexFile = "index.idx");
 
 
-//DCM文件索引数据结构体。
+//DCM锟侥硷拷锟斤拷锟斤拷锟斤拷锟捷结构锟藉。
 struct LIBDEFECTRECOGNITION_API DCMFileIndexingData
 {
 	string strFullPath;
@@ -59,15 +59,15 @@ struct LIBDEFECTRECOGNITION_API DCMFileIndexingData
 };
 
 
-//DCM索引文件类。用于索引数据文件的读写，该索引数据文件由一系列文件索引数据（DCMFileIndexingData结构体）构成，
-//每一笔数据对应于一个DCM文件
+//DCM锟斤拷锟斤拷锟侥硷拷锟洁。锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟侥硷拷锟侥讹拷写锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟侥硷拷锟斤拷一系锟斤拷锟侥硷拷锟斤拷锟斤拷锟斤拷锟捷ｏ拷DCMFileIndexingData锟结构锟藉）锟斤拷锟缴ｏ拷
+//每一锟斤拷锟斤拷锟捷讹拷应锟斤拷一锟斤拷DCM锟侥硷拷
 class LIBDEFECTRECOGNITION_API DCMIndexingFile
 {
 public:
 	DCMIndexingFile();
 	virtual ~DCMIndexingFile();
 
-	//创建一个新的指定名的索引文件
+	//锟斤拷锟斤拷一锟斤拷锟铰碉拷指锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟侥硷拷
 	static bool Create(const char *szNewFile="DCMIndexData.dat")
 	{
 		fstream fs;
@@ -81,7 +81,7 @@ public:
 		return true;
 	}
 
-	//得到文件大小，以字节为单位
+	//锟矫碉拷锟侥硷拷锟斤拷小锟斤拷锟斤拷锟街斤拷为锟斤拷位
 	static bool GetFileSize(const char *szFileName, size_t &nFileSize)
 	{
 		fstream f(szFileName, std::ios_base::binary | std::ios_base::in);
@@ -101,7 +101,7 @@ public:
 		return true;
 	}
 
-	//将文件索引数据写入索引文件中，返回该数据对应的文件索引。
+	//锟斤拷锟侥硷拷锟斤拷锟斤拷锟斤拷锟斤拷写锟斤拷锟斤拷锟斤拷锟侥硷拷锟叫ｏ拷锟斤拷锟截革拷锟斤拷锟捷讹拷应锟斤拷锟侥硷拷锟斤拷锟斤拷锟斤拷
 	static bool Write(DCMFileIndex &index, const char *szFile, const DCMFileIndexingData &data)
 	{
 		unsigned nSz;
@@ -119,27 +119,27 @@ public:
 
 		unsigned nLength = 0;
 
-		//将DCM文件全路径名写入索引文件中
-		//路径名长度
+		//锟斤拷DCM锟侥硷拷全路锟斤拷锟斤拷写锟斤拷锟斤拷锟斤拷锟侥硷拷锟斤拷
+		//路锟斤拷锟斤拷锟斤拷锟斤拷
 		unsigned nFilePathLength = data.strFullPath.size();
 		fs.write((char*)&nFilePathLength, sizeof(nFilePathLength));
 		nLength += sizeof(nFilePathLength);
 
-		//路径名字符串
+		//路锟斤拷锟斤拷锟街凤拷锟斤拷
 		fs.write(data.strFullPath.c_str(), data.strFullPath.size() * sizeof(char));
 		nLength += data.strFullPath.size() * sizeof(char);
 
-		//将DCM文件特征写入索引文件中
+		//锟斤拷DCM锟侥硷拷锟斤拷锟斤拷写锟斤拷锟斤拷锟斤拷锟侥硷拷锟斤拷
 		fs.write((char*)&data.fileFeat, sizeof(data.fileFeat));
 		nLength += sizeof(data.fileFeat);
 
-		//将DCM文件中的缺陷特征列表写入索引文件
-		//缺陷个数
+		//锟斤拷DCM锟侥硷拷锟叫碉拷缺锟斤拷锟斤拷锟斤拷锟叫憋拷写锟斤拷锟斤拷锟斤拷锟侥硷拷
+		//缺锟捷革拷锟斤拷
 		unsigned nDefect = data.aDefectList.size();
 		fs.write((char*)&nDefect, sizeof(nDefect));
 		nLength += sizeof(nDefect);
 
-		//缺陷列表
+		//缺锟斤拷锟叫憋拷
 		for (unsigned n = 0; n < nDefect; n++)
 		{
 			fs.write((char*)&data.aDefectList[n], sizeof(data.aDefectList[n]));
@@ -147,7 +147,7 @@ public:
 		}
 
 		fs.close();
-		
+
 		index.strFullPath = data.strFullPath;
 
 		index.nOffset = nSz;
@@ -157,7 +157,7 @@ public:
 		return true;
 	}
 
-	//从索引文件中读取给定文件索引的索引数据
+	//锟斤拷锟斤拷锟斤拷锟侥硷拷锟叫讹拷取锟斤拷锟斤拷锟侥硷拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷
 	static bool Read(DCMFileIndexingData &data, const char *szFile, DCMFileIndex index)
 	{
 		fstream fs;
@@ -171,15 +171,19 @@ public:
 
 		unsigned nFileNameLength;
 		fs.read((char*)&nFileNameLength, sizeof(nFileNameLength));
-		char *szBuf = nullptr;
+
 		if (nFileNameLength > 0)
 		{
+			char *szBuf = nullptr;
 			szBuf = new char[nFileNameLength];
+			fs.read(szBuf, nFileNameLength);
+			data.strFullPath = szBuf;
+			delete []szBuf;
 		}
-		fs.read(szBuf, nFileNameLength);
-		data.strFullPath = szBuf;
 
 		fs.read((char*)&data.fileFeat, sizeof(data.fileFeat));
+
+		//std::cout << data.strFullPath << std::endl;
 
 		unsigned nDefect;
 		fs.read((char*)&nDefect, sizeof(nDefect));
@@ -191,10 +195,10 @@ public:
 			data.aDefectList.push_back(df);
 		}
 
+
 		fs.close();
-		
+
 		return true;
 	}
 
 };
-
