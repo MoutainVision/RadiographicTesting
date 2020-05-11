@@ -49,27 +49,25 @@ int main()
 
 	if (true)
 	{
-		//����ʾ����ʾ����������һ�����ݿ⣬�Լ��ڸ����ݿ��Ͻ��в��ز���
+		//查重测试
 
 		////////////////////////////////////////////////////////////////////////////////////
-		//�����������ݿ⡣�����ݿ������¼��������ݹ��ɣ�
-		//1. DCMͼ���ļ�����
-		//2. ÿ��DCMͼ���ļ���Ӧ��ȱ���ļ�������ȱ�ݼ��������ɣ���ͼ���ļ�ͬ������׺Ϊ.def��
-		//3. ͼ�񼯺���ÿ��ͼ���Ļ�����Ϣ�����ɵļ��������ļ���.dat��
-		//4. ͼ�񼯺���ÿ��ͼ����������Ϣ���ɵ��ļ���.idx��
+		//第一步：建立数据库，涉及以下数据读写
+		//1. DCM图像的文件特征
+		//2. 将DCM图像检测到的缺陷（如有的话）保存到同名的缺陷文件中（后缀名：.def）
+		//3. 将DCM图像的索引数据写入到索引数据文件中（后缀：.dat）
+		//4. 将每个图像的索引信息写入到索引文件中（后缀：.idx）
 
-		//���������ļ������ļ���¼��Ŀǰ���ݿ���ÿ��ͼ����������Ϣ��DCMFileIndex�����û�������Щ������Ϣȥ�����ļ��������ļ�
-		//�ж�ȡ��ͼ����ͼ��������Ϣ���Խ�����ʾ�����صȵ�
+		//创建空的索引信息文件
 		string strIndexFile = "index.idx";
 		ofstream ofs(strIndexFile.c_str());
 
-		//ͼ�����������ļ����洢�����ݿ���ÿ��ͼ����ͼ��������Ϣ��DCMFileIndexingData����
-		string strIndexDataFile = "DcmIndex.dat";
 
-		//�������������ļ�
+		//创建空的索引数据文件
+		string strIndexDataFile = "DcmIndex.dat";
 		DCMIndexingFile::Create(strIndexDataFile.c_str());
 
-		//��������
+		//索引数据
 		DCMFileIndexingData indexData;
 
 		vector<string> aFileList;
@@ -77,11 +75,11 @@ int main()
 		GetFileList(aFileList, "D:\\czp\\aobo\\DROriginalImages", ".dcm");
 		for (size_t k = 0; k < aFileList.size(); ++k)
 		{
-			//����DCM�ļ�
+			//加载文件
 			DCMFile df(aFileList[k].c_str());
 			if (df.IsValid())
 			{
-				//�����ļ�����
+				//输出文件特征
 				df.getFileFeature().Output2();
 
 				CxImage dstImg;
@@ -93,7 +91,7 @@ int main()
 				indexData.strFullPath = aFileList.at(k);
 				indexData.fileFeat = df.getFileFeature();
 
-				//ȱ�ݼ���
+				//检测缺陷
 				ImageRect aoi(df.GetWidth() / 20 * 10, df.GetWidth() / 20 * 11, df.GetHeight() / 20 * 10, df.GetHeight() / 20 * 11);
 				DetectParam dp;
 				vector<Defect> aDefList;
@@ -108,15 +106,15 @@ int main()
 
 					string strDefFile = aFileList.at(k) + ".def";
 
-					//����ȱ���ļ�
+					//保存缺陷到外部文件中
 					SaveDefect(aDefList, strDefFile.c_str());
 				}
 
-				//�ѵ�ǰ�ļ��Ļ�����Ϣд�����������ļ���
+				//将索引数据写入索引数据文件
 				DCMFileIndex idx;
 				DCMIndexingFile::Write(idx, strIndexDataFile.c_str(), indexData);
 
-				//�ѵ�ǰ�ļ���������Ϣд�������ļ���
+				//将索引信息写入索引文件
 				ofs << idx.strFullPath << "\t" << idx.nOffset << "\t" << idx.nLength << "\n";
 			}
 		}
@@ -128,9 +126,9 @@ int main()
 
 
 		////////////////////////////////////////////////////////////////////////////////////
-		//���ز���
+		//查重开始
 
-		////���������б�
+		////加载索引文件
 		//vector<DCMFileIndex> aIdx;
 		//if (!LoadIndexFile(aIdx, strIndexFile.c_str()))
 		//{
@@ -142,7 +140,7 @@ int main()
 		//	std::cout << aIdx[k].strFullPath << "\t" << aIdx[k].nOffset << "\t" << aIdx[k].nLength << "\n";
 		//}
 
-		////������������
+		////打印所有索引数据
 		//for (size_t k = 0; k != aIdx.size(); k++)
 		//{
 		//	DCMFileIndexingData data;
@@ -154,7 +152,7 @@ int main()
 
 		//std::cout << std::endl;
 
-		//����DCM�ļ�
+		//打开待查重图像
 		DCMFile df("1-A.dcm");
 		if (df.IsValid())
 		{
