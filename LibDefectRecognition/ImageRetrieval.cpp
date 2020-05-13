@@ -132,7 +132,7 @@ bool DefectListEqual(vector<Defect> &aDL1, vector<DefectFeat> &aDL2)
 }
 
 
-void Search(vector<RetrievalResult> &aResult, DCMFile &dfile, 
+void Search(vector<RetrievalResult> &aResult, DCMFile &dfile, ImageRect aoi, DetectParam param,
 	const string &strIndexFile, 
 	const string &strIndexDataFile)
 {
@@ -160,7 +160,7 @@ void Search(vector<RetrievalResult> &aResult, DCMFile &dfile,
 
 	//缺陷检测
 	vector<Defect> aDefect;
-	//DetectDefect(aDefect, dfile.GetBuffer(), dfile.GetWidth(), dfile.GetHeight());
+	DetectDefect(aDefect, dfile.GetBuffer(), dfile.GetWidth(), dfile.GetHeight(), &aoi, &param);
 
 	//先对比文件特征和包含的缺陷特征列表
 	for (size_t k = 0; k != aIdxList.size(); k++)

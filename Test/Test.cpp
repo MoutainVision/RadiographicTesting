@@ -18,18 +18,16 @@ using namespace std;
 
 int main()
 {
-    std::cout << "Hello World!\n";
-
 	if (true)
 	{
 		DCMFile df;
 		//if (df.Load("2.16.840.1.114226.1423554068.2992184.110.13.dcm"))
 		if (df.Load("1-A.dcm"))
 		{
+			std::cout << "File feature vector of the input image is: \n";
 			df.getFileFeature().Output2();
 
-
-			std::cout << df.GetBPP() << "\t" << df.GetWindowCenter() << "\t" << df.GetWindowWidth() << std::endl;
+			//std::cout << df.GetBPP() << "\t" << df.GetWindowCenter() << "\t" << df.GetWindowWidth() << std::endl;
 
 			CxImage dstImg;
 			if (df.Convert(dstImg))
@@ -51,8 +49,10 @@ int main()
 	//df.Convert(ximg);
 	//ximg.Save("00036copy.jpg", CXIMAGE_FORMAT_JPG);
 
-	if (false)
+	if (true)
 	{
+		std::cout << "\n";
+		std::cout << "Database in building, please wait...\n\n";
 		//查重测试
 
 		////////////////////////////////////////////////////////////////////////////////////
@@ -160,16 +160,25 @@ int main()
 		DCMFile df("1-A.dcm");
 		if (df.IsValid())
 		{
-			std::cout << "查重进行中，请等待...\n";
-			//
-			vector<RetrievalResult> aRes;
-			Search(aRes, df, strIndexFile, strIndexDataFile);
+			std::cout << "Duplication check is in progress, please wait...\n";
 
-			std::cout << "查重结束，结果如下：\n";
+			int w = df.GetWidth();
+			int h = df.GetHeight();
+
+			DetectParam dp;
+			ImageRect aoi(w/20*9, w/20*11, h/20*9, h/20*11);
+			vector<RetrievalResult> aRes;
+			Search(aRes, df, aoi, dp, strIndexFile, strIndexDataFile);
+
+			std::cout << "Duplication check finished. The result are as below: \n";
 			for (size_t k = 0; k != aRes.size(); ++k)
 			{
 				std::cout << k << "\t" << aRes[k].strMatchedFile << "\t" << aRes[k].dSimilarity*100 << "%" << std::endl;
 			}
+		}
+		else
+		{
+			std::cout << "Failed to opened the specified image:\n";
 		}
 	}
 

@@ -20,7 +20,7 @@ struct LIBDEFECTRECOGNITION_API RetrievalResult
 LIBDEFECTRECOGNITION_API void GetFileList(vector<string> &aFileList, const string &strFolder, const string &strExt);
 
 LIBDEFECTRECOGNITION_API void Search(vector<RetrievalResult> &aResult, 
-	DCMFile &dfile, 
+	DCMFile &dfile, ImageRect aoi, DetectParam pParam,
 	const string &strImgLibrary,
 	const string &strIndexFile);
 

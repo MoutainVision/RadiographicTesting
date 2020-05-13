@@ -170,7 +170,7 @@ struct LIBDEFECTRECOGNITION_API DetectParam
 
 	DetectParam()
 	{
-		nFilterRadius = 10;
+		nFilterRadius = 5;
 		nGreyDiff = 3000;
 		nMinDefectArea = 2;
 		nConnectThr = 1;
