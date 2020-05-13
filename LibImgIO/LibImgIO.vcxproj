@@ -100,8 +100,8 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\Dependencies\cximage\lib\Debug;..\Dependencies\dcmtk-3.6.5\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>dcmtk.lib;cximagecrtd.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Dependencies\cximage\lib\Debug;..\Dependencies\dcmtk-3.6.5\lib\Debug;..\Bins\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>dcmtk.lib;cximagecrtd.lib;LibImgProc.lib;</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

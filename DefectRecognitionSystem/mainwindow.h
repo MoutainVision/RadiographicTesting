@@ -239,6 +239,8 @@ private slots:
     //清空
     void slot_btnDeleteToolClick();
 
+    //参数值改变
+    void slot_paramValueChange(int value);
 
 
 
@@ -281,6 +283,8 @@ private:
     ofstream mIndexFileOfs;
 
     PreWdg *mPreWdg;
+
+    RectItem    *mRecheckRectItem;
 
     //检索数据
     DCMFileIndexingData mIndexData;

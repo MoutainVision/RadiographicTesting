@@ -53,6 +53,25 @@ struct DcmFileNode
 };
 #endif
 
+#ifndef MY_DETECT_PARAM_H
+#define MY_DETECT_PARAM_H
+struct MyDetectParam
+{
+    int nGreyDiff;
+    int nConnectThr;
+    int nFilterRadius;
+    int nMinDefectArea;
+
+    MyDetectParam()
+    {
+        nFilterRadius = 5;
+        nGreyDiff = 3000;
+        nMinDefectArea = 2;
+        nConnectThr = 1;
+    }
+};
+#endif
+
 /**
  * @brief The MergeState enum  合并的阶段枚举
  */
@@ -330,7 +349,8 @@ enum CurAction
     TEXTACTION,
     POLYGONACTION,
     GREAYACTION,
-    AOIACTION
+    AOIACTION,
+    AOIRECHECKACTION
 };
 #endif
 
@@ -350,7 +370,8 @@ enum ItemOperatorType
     PENSTYLEOPT,
     FILLCHANGEOPT,
     FILLCOLORCHANGEOPT,
-    AOIOPT
+    AOIOPT,
+    CHECKAOIOPT
 };
 #endif
 
@@ -429,6 +450,11 @@ public:
 
 
     static bool gVideoKeepAspectRatio; //视频按比例播放
+
+
+    static MyDetectParam gDetectParam;
+
+    static MyDetectParam gRecheckDetectParam;
 
 
     static QString AppDataPath;

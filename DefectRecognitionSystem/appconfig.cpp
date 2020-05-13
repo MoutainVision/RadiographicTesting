@@ -70,6 +70,9 @@ QString Appconfig::video_filepath_name;     //filepath name
 
 bool Appconfig::gHaveParam = false;
 
+MyDetectParam Appconfig::gDetectParam;
+MyDetectParam Appconfig::gRecheckDetectParam;
+
 Appconfig::Appconfig()
 {
 
@@ -185,6 +188,46 @@ void Appconfig::loadConfigFile()
                 str.replace("/","\\\\");
                 Appconfig::AppFilePath_Open_Pre_File = str;
             }
+            else if (str.contains("detectGreayDiff="))
+            {
+                str = str.remove("detectGreayDiff=");
+                Appconfig::gDetectParam.nGreyDiff = str.toInt();
+            }
+            else if (str.contains("detectConnectThr="))
+            {
+                str = str.remove("detectConnectThr=");
+                Appconfig::gDetectParam.nConnectThr = str.toInt();
+            }
+            else if (str.contains("detectFilterRadius="))
+            {
+                str = str.remove("detectFilterRadius=");
+                Appconfig::gDetectParam.nFilterRadius = str.toInt();
+            }
+            else if (str.contains("detectMinDefectArea="))
+            {
+                str = str.remove("detectMinDefectArea=");
+                Appconfig::gDetectParam.nMinDefectArea = str.toInt();
+            }
+            else if (str.contains("recheckGreayDiff="))
+            {
+                str = str.remove("recheckGreayDiff=");
+                Appconfig::gRecheckDetectParam.nGreyDiff = str.toInt();
+            }
+            else if (str.contains("recheckConnectThr="))
+            {
+                str = str.remove("recheckConnectThr=");
+                Appconfig::gRecheckDetectParam.nConnectThr = str.toInt();
+            }
+            else if (str.contains("recheckFilterRadius="))
+            {
+                str = str.remove("recheckFilterRadius=");
+                Appconfig::gRecheckDetectParam.nFilterRadius = str.toInt();
+            }
+            else if (str.contains("recheckMinDefectArea="))
+            {
+                str = str.remove("recheckMinDefectArea=");
+                Appconfig::gRecheckDetectParam.nMinDefectArea = str.toInt();
+            }
 
         }
 
@@ -207,6 +250,42 @@ void Appconfig::saveConfigFile()
         fileStr = QString("openpredir=%1").arg(Appconfig::AppFilePath_Open_Pre_File);
         fileOut<<fileStr;
         fileOut<<"\n";
+
+        //-detect param
+        fileStr = QString("detectGreayDiff=%1").arg(Appconfig::gDetectParam.nGreyDiff);
+        fileOut<<fileStr;
+        fileOut<<"\n";
+
+        fileStr = QString("detectConnectThr=%1").arg(Appconfig::gDetectParam.nConnectThr);
+        fileOut<<fileStr;
+        fileOut<<"\n";
+
+        fileStr = QString("detectFilterRadius=%1").arg(Appconfig::gDetectParam.nFilterRadius);
+        fileOut<<fileStr;
+        fileOut<<"\n";
+
+        fileStr = QString("detectMinDefectArea=%1").arg(Appconfig::gDetectParam.nMinDefectArea);
+        fileOut<<fileStr;
+        fileOut<<"\n";
+
+        //-recheck param
+        fileStr = QString("recheckGreayDiff=%1").arg(Appconfig::gRecheckDetectParam.nGreyDiff);
+        fileOut<<fileStr;
+        fileOut<<"\n";
+
+        fileStr = QString("recheckConnectThr=%1").arg(Appconfig::gRecheckDetectParam.nConnectThr);
+        fileOut<<fileStr;
+        fileOut<<"\n";
+
+        fileStr = QString("recheckFilterRadius=%1").arg(Appconfig::gRecheckDetectParam.nFilterRadius);
+        fileOut<<fileStr;
+        fileOut<<"\n";
+
+        fileStr = QString("recheckMinDefectArea=%1").arg(Appconfig::gRecheckDetectParam.nMinDefectArea);
+        fileOut<<fileStr;
+        fileOut<<"\n";
+
+
 
         file.close();
     }
