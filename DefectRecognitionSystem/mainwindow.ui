@@ -868,6 +868,9 @@ QTableView::indicator {
                     <property name="text">
                      <string>窗宽窗位：</string>
                     </property>
+                    <property name="checked">
+                     <bool>true</bool>
+                    </property>
                    </widget>
                   </item>
                   <item>

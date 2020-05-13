@@ -227,7 +227,7 @@ MainWindow::MainWindow(QWidget *parent) :
     mBFlip   = false;
     mBMirror = false;
     mBContrast = false;
-    mBWind = false;
+    mBWind = true;
 
     mBShowDefect = true;
     mBShowCenter = true;
@@ -273,7 +273,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->pushButton_pre->hide();
     ui->pushButton_next->hide();
 
-    ui->widget_wind->hide();
+//    ui->widget_wind->hide();
 
     //
     mColorWdg = new ColorWdg();
@@ -326,6 +326,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->checkBox_contrast, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_add_db, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_recheck, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+
+    connect(ui->pushButton_reset_wind, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
 
     connect(ui->pushButton_aoi_recheck, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_clear_recheck, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
@@ -551,8 +553,8 @@ void MainWindow::setDcmFileInfo()
     ui->pushButton_Flip->setChecked(false);
     mBFlip = false;
 
-    ui->checkBox_wind->setChecked(false);
-    mBWind = false;
+    ui->checkBox_wind->setChecked(true);
+    mBWind = true;
 
     ui->checkBox_contrast->setChecked(false);
     mBContrast = false;
@@ -679,8 +681,8 @@ void MainWindow::resetImg()
     ui->pushButton_Flip->setChecked(false);
     mBFlip = false;
 
-    ui->checkBox_wind->setChecked(false);
-    mBWind = false;
+    ui->checkBox_wind->setChecked(true);
+    mBWind = true;
 
     ui->checkBox_contrast->setChecked(false);
     mBContrast = false;
@@ -1337,6 +1339,13 @@ void MainWindow::slotBtnClick(bool bClick)
     {
         mBWind = ui->checkBox_wind->isChecked();
         ui->widget_wind->setVisible(mBWind);
+
+        delImg();
+    }
+    else if (QObject::sender() == ui->pushButton_reset_wind)
+    {
+        ui->verticalSlider_WinCentre->setValue(mCurDcmFileInfo.winCentre);
+        ui->verticalSlider_WindWidth->setValue(mCurDcmFileInfo.windWidth);
 
         delImg();
     }
