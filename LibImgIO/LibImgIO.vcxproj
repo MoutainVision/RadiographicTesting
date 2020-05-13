@@ -136,8 +136,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\Dependencies\dcmtk-3.6.5\lib\Release;..\Dependencies\cximage\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>dcmtk.lib;cximagecrt.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Dependencies\dcmtk-3.6.5\lib\Release;..\Dependencies\cximage\lib\Release;..\Bins\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>dcmtk.lib;cximagecrt.lib;LibImgProc.lib;</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
