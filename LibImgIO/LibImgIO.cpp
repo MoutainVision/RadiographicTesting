@@ -7,6 +7,10 @@
 
 #include"dcmtk\config\osconfig.h"
 
+#include "..\LibImgProc\LibImgProc.h"
+
+
+
 //
 //bool ReadDCMFile(const char *szDCMFile, unsigned short *pImgBuf, unsigned &nImgWidth, unsigned &nImgHeight)
 //{
@@ -170,21 +174,11 @@ bool DCMFile::Load(const char *szSrcFileName)
 		m_nImgBPP = bit_count;
 		if (0 == center && 0 == width)
 		{
-			//unsigned short nMin = 65535, nMax = 0;
-			//for (size_t n = 0; n < N; n++)
-			//{
-			//	if (m_pImgBuf[n] < nMin)
-			//	{
-			//		nMin = m_pImgBuf[n];
-			//	}
-			//	if (m_pImgBuf[n] > nMax)
-			//	{
-			//		nMax = m_pImgBuf[n];
-			//	}
-			//}
-
-			//m_nWinWidth = (nMax - nMin + 1) / 2;
-			//m_nWinCentre= (nMax + nMin + 1) / 2;
+			if (CalcWinLevelWidth(center, width, m_pImgBuf, m_nImgWidth, m_nImgHeight, 0.05, 0.95))
+			{
+				m_nWinWidth = width;
+				m_nWinCentre= center;
+			}
 		}
 		else
 		{ 

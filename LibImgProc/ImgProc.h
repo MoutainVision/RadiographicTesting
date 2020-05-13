@@ -205,6 +205,15 @@ LIBIMGPROC_API bool GetIntensity(unsigned short &nIntensity,
 	int x, int y		//图像坐标
 );
 
+//获取指定區域平均灰度值
+LIBIMGPROC_API bool GetIntensity(unsigned short &nIntensity,
+	unsigned short *pImg,	//輸入圖像數據指針
+	int nW,				//輸入圖像寬度
+	int nH,				//輸入圖像高度
+	int xs, int ys,		//起点图像坐标
+	int xe, int ye		//终点图像坐标
+);
+
 //计算信噪比
 LIBIMGPROC_API bool GetSNR(double &dMean,	//均值
 	double &dStd,	//方差
@@ -234,3 +243,6 @@ LIBIMGPROC_API void GetHist(unsigned aF[256],		//直方圖
 //伽馬校正
 LIBIMGPROC_API bool GammaCorrection(unsigned short *pImg, int nW, int nH, double dGamma,
 	unsigned short nDark = 0, unsigned short nBright = 65535);
+
+//計算窗寬窗位
+LIBIMGPROC_API bool CalcWinLevelWidth(unsigned short &nWinLevel, unsigned short &nWinWidth, unsigned short *pImg, int nW, int nH, double dLowCP=0.05, double dHighCP=0.95);

@@ -23,31 +23,35 @@ int main()
 	if (true)
 	{
 		DCMFile df;
-		if (df.Load("00036.dcm"))
+		//if (df.Load("2.16.840.1.114226.1423554068.2992184.110.13.dcm"))
+		if (df.Load("1-A.dcm"))
 		{
+			df.getFileFeature().Output2();
+
+
 			std::cout << df.GetBPP() << "\t" << df.GetWindowCenter() << "\t" << df.GetWindowWidth() << std::endl;
 
 			CxImage dstImg;
 			if (df.Convert(dstImg))
 			{
-				dstImg.Save("00036.bmp", CXIMAGE_FORMAT_BMP);
+				dstImg.Save("mono8.bmp", CXIMAGE_FORMAT_BMP);
 			}
 
-			memset(df.GetBuffer(), 0, df.GetDataLength() / 2);
+			//memset(df.GetBuffer(), 0, df.GetDataLength() / 2);
 
-			if (!df.Save("00036copy.dcm"))
-			{
-				std::cout << "Failed to save DCM file." << std::endl;
-			}
+			//if (!df.Save("copy.dcm"))
+			//{
+			//	std::cout << "Failed to save DCM file." << std::endl;
+			//}
 		}
 	}
 
-	DCMFile df("00036copy.dcm");
-	CxImage ximg;
-	df.Convert(ximg);
-	ximg.Save("00036copy.jpg", CXIMAGE_FORMAT_JPG);
+	//DCMFile df("00036copy.dcm");
+	//CxImage ximg;
+	//df.Convert(ximg);
+	//ximg.Save("00036copy.jpg", CXIMAGE_FORMAT_JPG);
 
-	if (true)
+	if (false)
 	{
 		//查重测试
 

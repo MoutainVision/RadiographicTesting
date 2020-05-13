@@ -1003,6 +1003,27 @@ bool GetIntensity(unsigned short &nIntensity, unsigned short *pImg, int nW, int 
 	return true;
 }
 
+//获取指定區域平均灰度值
+bool GetIntensity(unsigned short &nIntensity, unsigned short *pImg,	int nW,	int nH,	int xs, int ys,	int xe, int ye)
+{
+	if (NULL == pImg ||
+		0 > xs || xs > xe || xe>= nW ||
+		0 > ys || ys > ye || ye>= nH)
+	{
+		return false;
+	}
+
+	double dIntensity = 0.0;
+	for (int y = ys; y <= ye; y++)
+	{
+		for (int x = xs; x <= xe; x++)
+		{
+			dIntensity += pImg[y*nW + x];
+		}
+	}
+
+	return (unsigned short)(dIntensity / (xe - xs + 1) / (ye - ys + 1));
+}
 
 bool GetIntensityCurve(vector<unsigned short> &aIntensity, unsigned short *pImg, int nW, int nH, int xs, int ys, int xe, int ye)
 {
@@ -1151,4 +1172,139 @@ bool GammaCorrection(unsigned short *pImg, int nW, int nH, double dGamma,
 	delete[]pGammaVal;
 
 	return true;
+}
+
+bool CalcWinLevelWidth(unsigned short &nWinLevel, unsigned short &nWinWidth, unsigned short *pImg, int nW, int nH, double dLowCP, double dHighCP)
+{
+	if (NULL == pImg || 0 >= nW || 0 >= nH)
+	{
+		return false;
+	}
+
+	unsigned hist[65536];
+	GetHist(hist, pImg, nW, nH);
+
+	bool used[65536];
+	memset(used, false, 65536 * sizeof(bool));
+
+	int ks = 0, ke = 65535;
+	const unsigned short nMinWidth = 500;
+
+	unsigned nPx = nW * nH;
+
+	bool bValidWinFound = false;
+	nWinLevel = 0;
+	nWinWidth = 0;
+
+	while (true)
+	{
+		unsigned nCnt = 0;//累积点数
+		double dCP = 0.0;//累积概率
+		unsigned short nLowerBound=ks, nUpperBound=ke;
+		bool bLowerBoundFound = false;
+		bool bUpperBoundFound = false;
+		for (int k = ks; k <= ke; k++)
+		{
+			nCnt += hist[k];
+
+			dCP = (double)(nCnt) / nPx;
+
+			if (!bLowerBoundFound && dCP >= dLowCP)
+			{
+				nLowerBound = k;
+				nUpperBound = k;
+
+				bLowerBoundFound = true;
+			}
+
+			if (dCP >= dHighCP)
+			{
+				nUpperBound = k;
+				bUpperBoundFound = true;
+
+				break;
+			}
+		}
+
+		if (bLowerBoundFound && bUpperBoundFound)
+		{
+			nWinWidth = (nUpperBound - nLowerBound + 1);
+			nWinLevel = (nUpperBound + nLowerBound) / 2;
+		}
+		
+		//判断找到的窗宽和窗位是否满足要求
+		if (nWinWidth >= nMinWidth)
+		{
+			bValidWinFound = true;
+
+			break;
+		}
+
+		//标记已用的灰度段
+		for (int k = nLowerBound; k <= nUpperBound; k++)
+		{
+			used[k] = true;
+		}
+
+		//从未选用的灰度段中找出跨度最大的一段
+		bool newSegFound = false;
+		vector<int> aIdxSeg;
+		for (int k = 0; k < 65536; k++)
+		{
+			if (!used[k])
+			{
+				if (!newSegFound)
+				{
+					ks = k;
+					ke = k;
+					newSegFound = true;
+				}
+				else
+				{
+					ke = k;
+				}
+			}
+			else
+			{
+				if (newSegFound)
+				{
+					aIdxSeg.push_back(ks);
+					aIdxSeg.push_back(ke);
+
+					newSegFound = false;
+				}
+			}
+		}
+		if (newSegFound)
+		{
+			aIdxSeg.push_back(ks);
+			aIdxSeg.push_back(ke);
+		}
+
+		int iMaxSpan = -1;
+		unsigned nMaxSpan = 0;
+		for (size_t k = 0; k < aIdxSeg.size(); k += 2)
+		{
+			if (nMaxSpan < (aIdxSeg[k + 1] - aIdxSeg[k]))
+			{
+				nMaxSpan = aIdxSeg[k + 1] - aIdxSeg[k];
+				iMaxSpan = k;
+			}			
+		}
+		if (-1 == iMaxSpan)
+		{
+			break;
+		}
+
+		ks = aIdxSeg[iMaxSpan];
+		ke = aIdxSeg[iMaxSpan + 1];
+
+		nPx = 0;
+		for (int k = ks; k <= ke; k++)
+		{
+			nPx += hist[k];
+		}
+	}
+		
+	return bValidWinFound;
 }
