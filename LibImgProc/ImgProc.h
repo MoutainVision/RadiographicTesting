@@ -246,3 +246,6 @@ LIBIMGPROC_API bool GammaCorrection(unsigned short *pImg, int nW, int nH, double
 
 //計算窗寬窗位
 LIBIMGPROC_API bool CalcWinLevelWidth(unsigned short &nWinLevel, unsigned short &nWinWidth, unsigned short *pImg, int nW, int nH, double dLowCP=0.05, double dHighCP=0.95);
+
+//多尺度對比度增強
+LIBIMGPROC_API void IPFuncMUSICA(unsigned short *pImage, int nWidth, int nHeight, int nLevel = 6, double dPower = 0.6);

@@ -18,7 +18,52 @@ using namespace std;
 
 int main()
 {
+	//多尺度對比度增強測試
 	if (true)
+	{
+		ifstream ifs("sample.raw", ios::in | ios::binary);
+		int nW = 1024, nH = 1024;
+		unsigned short *pImg = new unsigned short[nW*nH];
+		if (ifs)
+		{
+			ifs.read((char*)pImg, nW*nH * sizeof(unsigned short));
+
+			//多尺度增強
+			IPFuncMUSICA(pImg, nW, nH, 6, 0.6);
+
+			unsigned char *pImg8 = new unsigned char[nW*nH];
+
+			long maxG, minG;
+			if (Convert(pImg8, pImg, nW, nW, nH, maxG, minG))
+			{
+				CxImage img;
+				img.CreateFromArray(pImg8, nW, nH, 8, nW, false);
+				if (img.IsValid())
+				{
+					img.Save("sample.bmp", CXIMAGE_FORMAT_BMP);
+				}
+				else
+				{
+					std::cout << "Failed to create image file." << std::endl;
+				}
+			}
+			else
+			{
+				std::cout << "Failed to read image file." << std::endl;
+			}
+
+			delete[]pImg8;
+		}
+		else
+		{
+			std::cout << "Failed to open image file." << std::endl;
+		}
+
+		delete[]pImg;
+
+	}
+
+	if (false)
 	{
 		DCMFile df;
 		//if (df.Load("2.16.840.1.114226.1423554068.2992184.110.13.dcm"))
@@ -49,7 +94,7 @@ int main()
 	//df.Convert(ximg);
 	//ximg.Save("00036copy.jpg", CXIMAGE_FORMAT_JPG);
 
-	if (true)
+	if (false)
 	{
 		std::cout << "\n";
 		std::cout << "Database in building, please wait...\n\n";
