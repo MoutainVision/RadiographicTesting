@@ -111,6 +111,9 @@
     <ClCompile Include="loading.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="aboutdlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Base\FunctionTransfer.h">
@@ -146,6 +149,9 @@
     <QtMoc Include="loading.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="aboutdlg.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="obj\Moc\moc_predefs.h.cbt">
@@ -172,6 +178,9 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="colorwdg.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="aboutdlg.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>

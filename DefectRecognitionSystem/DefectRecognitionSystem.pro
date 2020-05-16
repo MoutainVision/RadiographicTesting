@@ -55,6 +55,7 @@ INCLUDEPATH += ..\LibDefectRecognition  \
 
 
 SOURCES += \
+    aboutdlg.cpp \
         main.cpp \
     mainwindow.cpp \
     recognizewdg.cpp \
@@ -78,6 +79,7 @@ SOURCES += \
     loading.cpp
 
 HEADERS += \
+    aboutdlg.h \
     mainwindow.h \
     recognizewdg.h \
     recheckwdg.h \
@@ -100,6 +102,7 @@ HEADERS += \
     loading.h
 
 FORMS += \
+    aboutdlg.ui \
     mainwindow.ui \
     recognizewdg.ui \
     recheckwdg.ui \

@@ -226,7 +226,7 @@ MainWindow::MainWindow(QWidget *parent) :
     mBInvert = false;
     mBFlip   = false;
     mBMirror = false;
-    mBContrast = false;
+//    mBContrast = false;
     mBWind = true;
 
     mBShowDefect = true;
@@ -273,7 +273,19 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->pushButton_pre->hide();
     ui->pushButton_next->hide();
 
+    ui->widget_ruler_cali->hide();
+
+    ui->checkBox_ruler_cali->hide();
+
+    mBReal = false;
+
 //    ui->widget_wind->hide();
+
+    ui->tableWidget_recognize->setContextMenuPolicy(Qt::CustomContextMenu);
+    m_containerMenu = NULL;
+
+    connect(ui->tableWidget_recognize, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(slot_showManu(QPoint)));
+
 
     //
     mColorWdg = new ColorWdg();
@@ -306,6 +318,11 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->pushButton_adapt, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->checkBox_measure_table, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
 
+    //标尺
+    connect(ui->checkBox_ruler_cali, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+    connect(ui->checkBox_ruler_apply, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+
+
     //调整
     connect(ui->pushButton_reset, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_invert, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
@@ -323,7 +340,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->checkBox_show_defect, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->checkBox_show_defect_center, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->checkBox_wind, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
-    connect(ui->checkBox_contrast, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+//    connect(ui->checkBox_contrast, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_add_db, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_recheck, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
 
@@ -332,7 +349,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->pushButton_aoi_recheck, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_clear_recheck, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
 
-    connect(ui->horizontalSlider_contrast, SIGNAL(valueChanged(int)), this, SLOT(slot_sliderWinValueChange(int)));
+//    connect(ui->horizontalSlider_contrast, SIGNAL(valueChanged(int)), this, SLOT(slot_sliderWinValueChange(int)));
 
     connect(ui->verticalSlider_WinCentre, SIGNAL(valueChanged(int)), this, SLOT(slot_sliderWinValueChange(int)));
     connect(ui->verticalSlider_WindWidth, SIGNAL(valueChanged(int)), this, SLOT(slot_sliderWinValueChange(int)));
@@ -381,6 +398,178 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->spinBox_ConnectThr_recheck, SIGNAL(valueChanged(int)), this, SLOT(slot_paramValueChange(int)));
     connect(ui->spinBox_FilterRadius_recheck, SIGNAL(valueChanged(int)), this, SLOT(slot_paramValueChange(int)));
     connect(ui->spinBox_MinDefectArea_recheck, SIGNAL(valueChanged(int)), this, SLOT(slot_paramValueChange(int)));
+
+    connect(ui->action_about, SIGNAL(triggered()), this, SLOT(slot_menueToggle()));
+
+    connect(ui->action_open, SIGNAL(triggered()), this, SLOT(slot_menueToggle()));
+    connect(ui->action_save, SIGNAL(triggered()), this, SLOT(slot_menueToggle()));
+    connect(ui->action_exit, SIGNAL(triggered()), this, SLOT(slot_menueToggle()));
+
+    connect(ui->action_invert, SIGNAL(triggered()), this, SLOT(slot_menueToggle()));
+    connect(ui->action_rotate, SIGNAL(triggered()), this, SLOT(slot_menueToggle()));
+    connect(ui->action_mirror, SIGNAL(triggered()), this, SLOT(slot_menueToggle()));
+    connect(ui->action_flip, SIGNAL(triggered()), this, SLOT(slot_menueToggle()));
+    connect(ui->action_detect_param, SIGNAL(triggered()), this, SLOT(slot_menueToggle()));
+    connect(ui->action_recheck_param, SIGNAL(triggered()), this, SLOT(slot_menueToggle()));
+}
+
+void MainWindow::slot_showManu(QPoint pt)
+{
+    if (m_containerMenu)
+    {
+        delete m_containerMenu;
+        m_containerMenu = NULL;
+    }
+
+    m_containerMenu = new QMenu(ui->tableWidget_recognize);
+
+
+    m_actDelete = new QAction(ui->tableWidget_recognize);
+    m_actDelete->setText(QStringLiteral("删除"));
+
+    m_containerMenu->addAction(m_actDelete);
+
+    connect(m_actDelete, SIGNAL(triggered()), this, SLOT(slot_actionDelete()));
+
+    m_containerMenu->exec(QCursor::pos());
+}
+
+void MainWindow::slot_actionDelete()
+{
+    int curIndex = ui->tableWidget_recognize->currentRow();
+
+    if (curIndex != -1)
+    {
+        ui->tableWidget_recognize->removeRow(curIndex);
+
+        mADefectList.erase(mADefectList.begin() + curIndex);
+
+        update();
+    }
+}
+
+void MainWindow::slot_menueToggle()
+{
+
+    if (QObject::sender() == ui->action_about)
+    {
+        AboutDlg aboutdlg;
+
+        aboutdlg.exec();
+    }
+    else if (QObject::sender() == ui->action_exit)
+    {
+        this->close();
+    }
+    else if (QObject::sender() == ui->action_open)
+    {
+        QString s = QFileDialog::getOpenFileName(
+             this, QStringLiteral("打开文件"),
+             Appconfig::AppFilePath_OpenFile,//初始目录
+             "dcm files (*.dcm)");
+
+        if (!s.isEmpty())
+        {
+            QString dateTimeStr = QDateTime::currentDateTime().toString("MM-dd hh-mm-ss-zzz");
+            QString outFileName = QString(QStringLiteral("%1/%2.jpg")).arg(Appconfig::AppDataPath_Tmp).arg(dateTimeStr);
+
+            mCurDcmFileInfo.filePath = s;
+            mCurDcmFileInfo.transFilePath = outFileName;
+
+            setDcmFileInfo();
+        }
+
+    }
+    else if (QObject::sender() == ui->action_save)
+    {
+        QFileInfo info(mCurDcmFileInfo.filePath);
+
+
+        QString s = QFileDialog::getSaveFileName(
+                   this, QStringLiteral("保存文件"),
+                       info.absolutePath() +"//"+ info.baseName() + ".bmp",//初始目录
+                    "bmp files (*.bmp)");
+
+       if (!s.isEmpty())
+       {
+           unsigned short *pImgSave;  //处理图像
+
+           pImgSave = new unsigned short[mSrcImgWidth * mSrcImgHeight];
+           memcpy(pImgSave, m_pSrcImg, mSrcImgWidth*mSrcImgHeight*sizeof(unsigned short));
+
+           if (mWinCentre>1 && mWinWidth>1)
+               WindowLevelTransform(pImgSave, mSrcImgWidth, mSrcImgHeight, mWinCentre, mWinWidth);
+
+            QImage img;
+            shortImgToImage(pImgSave, mSrcImgWidth, mSrcImgHeight, img);
+
+            if (img.save(s, "bmp"))
+            {
+                QMessageBox::information(this, (QStringLiteral("提示")),  (QStringLiteral("保存成功.")));
+            }
+       }
+       else
+           QMessageBox::information(this, (QStringLiteral("提示")),  (QStringLiteral("文件名不可为空.")));
+
+    }
+    else if (QObject::sender() == ui->action_invert)
+    {
+        mBInvert = ui->action_invert->isChecked();
+        ui->pushButton_invert->setChecked(mBInvert);
+
+        delImg();
+    }
+    else if (QObject::sender() == ui->action_rotate)
+    {
+        mRotate += 90;
+
+        mRotate = mRotate % 360;
+
+        if ((mBFlip && !mBMirror) || (!mBFlip && mBMirror))
+        {
+            mNeedRotate += 90;
+            mNeedRotate = mNeedRotate % 360;
+        }
+        else
+        {
+            mNeedRotate = mRotate;
+        }
+
+        delImg();
+    }
+    else if (QObject::sender() == ui->action_mirror)
+    {
+        mBMirror = ui->action_mirror->isChecked();
+        ui->pushButton_Mirror->setChecked(mBMirror);
+        delImg();
+    }
+    else if (QObject::sender() == ui->action_flip)
+    {
+        mBFlip = ui->action_flip->isChecked();
+        ui->pushButton_Flip->setChecked(mBFlip);
+
+        delImg();
+    }
+    else if (QObject::sender() == ui->action_detect_param)
+    {
+        MyDetectParam param;
+
+        ui->spinBox_GreyDiff->setValue(param.nGreyDiff);
+        ui->spinBox_ConnectThr->setValue(param.nConnectThr);
+        ui->spinBox_FilterRadius->setValue(param.nFilterRadius);
+        ui->spinBox_MinDefectArea->setValue(param.nMinDefectArea);
+    }
+    else if (QObject::sender() == ui->action_recheck_param)
+    {
+        MyDetectParam param;
+
+        ui->spinBox_GreyDiff_recheck->setValue(param.nGreyDiff);
+        ui->spinBox_ConnectThr_recheck->setValue(param.nConnectThr);
+        ui->spinBox_FilterRadius_recheck->setValue(param.nFilterRadius);
+        ui->spinBox_MinDefectArea_recheck->setValue(param.nMinDefectArea);
+    }
+
+
 }
 
 void MainWindow::slot_paramValueChange(int value)
@@ -417,7 +606,15 @@ void MainWindow::closeLoading()
 
 void MainWindow::slot_tabCurrentChanged(int index)
 {
-    //if (index == 0 || index == 1)
+    if (index != 2)
+    {
+        if (NULL != mRecheckRectItem)
+        {
+            delete mRecheckRectItem;
+            mRecheckRectItem = NULL;
+        }
+    }
+
     if (index == 0)
     {
         ui->pushButton_pre_big->show();
@@ -427,11 +624,35 @@ void MainWindow::slot_tabCurrentChanged(int index)
     }
     else if (index == 2)
     {
+        //--查重--
         ui->pushButton_pre_big->hide();
         ui->pushButton_next_big->hide();
+
+        //测量
+        ui->checkBox_measure_table->setChecked(false);
         ui->widget_measure->hide();
+
+        ui->pushButton_measure->setChecked(false);
         ui->widget_tool->hide();
 
+        //灰度测量
+        mGrayLine = QLine();
+        if (NULL != mGeyImgWdg)
+            mGeyImgWdg->close();
+
+        if (NULL != mGreyRectItem)
+        {
+            delete mGreyRectItem;
+            mGreyRectItem = NULL;
+        }
+
+        //识别
+        ui->pushButton_aoi->setChecked(false);
+        ui->pushButton_aoi_recheck->setChecked(false);
+
+        ui->widget_recognize_table->hide();
+
+        //
         ui->widget_recheck->show();
     }
     else
@@ -515,14 +736,14 @@ void MainWindow::slot_sliderWinValueChange(int value)
 
         delImg();
     }
-    else if (QObject::sender() == ui->horizontalSlider_contrast)
-    {
-        mContrast = value;
-        ui->label_contrast->setText(QString("%1").arg(value));
+//    else if (QObject::sender() == ui->horizontalSlider_contrast)
+//    {
+//        mContrast = value;
+//        ui->label_contrast->setText(QString("%1").arg(value));
 
-        if (mBContrast)
-            delImg();
-    }
+//        if (mBContrast)
+//            delImg();
+//    }
 }
 
 void MainWindow::setDcmFileInfo()
@@ -556,8 +777,8 @@ void MainWindow::setDcmFileInfo()
     ui->checkBox_wind->setChecked(true);
     mBWind = true;
 
-    ui->checkBox_contrast->setChecked(false);
-    mBContrast = false;
+//    ui->checkBox_contrast->setChecked(false);
+//    mBContrast = false;
 
     mRotate = 0;
     mNeedRotate = 0;
@@ -581,6 +802,7 @@ void MainWindow::setDcmFileInfo()
     slot_btnDeleteToolClick();
 
     //清空查重表格
+    ui->widget_recheck->hide();
     ui->tableWidget_recheck->clearContents();
     ui->tableWidget_recheck->setRowCount(0);
 
@@ -616,6 +838,12 @@ void MainWindow::setDcmFileInfo()
             m_pSrcImg = dmfile.GetBuffer();
             mSrcImgWidth = dmfile.GetWidth();
             mSrcImgHeight = dmfile.GetHeight();
+
+            if (nullptr != m_pImgPro)
+            {
+                delete []m_pImgPro;
+                m_pImgPro = NULL;
+            }
 
             m_pImgPro = new unsigned short[mSrcImgWidth * mSrcImgHeight];
             memcpy(m_pImgPro, m_pSrcImg, mSrcImgWidth*mSrcImgHeight*sizeof(unsigned short));
@@ -684,8 +912,8 @@ void MainWindow::resetImg()
     ui->checkBox_wind->setChecked(true);
     mBWind = true;
 
-    ui->checkBox_contrast->setChecked(false);
-    mBContrast = false;
+//    ui->checkBox_contrast->setChecked(false);
+//    mBContrast = false;
 
     mRotate = 0;
     mNeedRotate = 0;
@@ -916,6 +1144,95 @@ void MainWindow::textChanged(QString text)
 
 }
 
+void MainWindow::actionActionChange()
+{
+    if (mBMeasureOpt)
+    {
+        //灰度测量
+        mGrayLine = QLine();
+        if (NULL != mGeyImgWdg)
+            mGeyImgWdg->close();
+
+        if (NULL != mGreyRectItem)
+        {
+            delete mGreyRectItem;
+            mGreyRectItem = NULL;
+        }
+
+        ui->checkBox_gray_mesure->setChecked(false);
+
+        //缺陷
+        ui->pushButton_aoi->setChecked(false);
+
+        //
+        ui->pushButton_hand->setChecked(true);
+        m_eCurAction = HANDACTION;
+
+        ui->pushButton_measure->setChecked(true);
+    }
+    else
+    {
+        //测量
+        ui->checkBox_measure_table->setChecked(false);
+        ui->widget_measure->hide();
+
+        ui->pushButton_measure->setChecked(false);
+        ui->widget_tool->hide();
+
+        if (m_eCurAction == GREAYACTION || m_eCurAction == AOIACTION)
+        {
+            if (NULL != mRecheckRectItem)
+            {
+                delete mRecheckRectItem;
+                mRecheckRectItem = NULL;
+            }
+        }
+
+        if (m_eCurAction == GREAYACTION)
+        {
+            ui->pushButton_aoi->setChecked(false);
+            ui->pushButton_aoi_recheck->setChecked(false);
+
+        }
+        else if (m_eCurAction == AOIACTION)
+        {
+            //灰度测量
+            mGrayLine = QLine();
+            if (NULL != mGeyImgWdg)
+                mGeyImgWdg->close();
+
+            if (NULL != mGreyRectItem)
+            {
+                delete mGreyRectItem;
+                mGreyRectItem = NULL;
+            }
+
+			ui->checkBox_gray_mesure->setChecked(false);
+
+        }
+        else if (m_eCurAction == AOIRECHECKACTION)
+        {
+            //灰度测量
+            mGrayLine = QLine();
+            if (NULL != mGeyImgWdg)
+                mGeyImgWdg->close();
+
+            if (NULL != mGreyRectItem)
+            {
+                delete mGreyRectItem;
+                mGreyRectItem = NULL;
+            }
+
+            //缺陷
+            ui->checkBox_recog_show_table->setChecked(false);
+            ui->widget_recognize_table->hide();
+
+        }
+    }
+
+    update();
+}
+
 void MainWindow::clearDefect()
 {
     mCurDefectIndex = -1;
@@ -952,13 +1269,13 @@ void MainWindow::calcIntensityCurve(QPoint p1, QPoint p2)
     m_iP1 = iP1;
     m_iP2 = iP2;
 
-    //m_pImgPro, mCurImgWidth, mCurImgHeight
-    vector<unsigned short> aIntensity;
-//    GetIntensityCurve(aIntensity, m_pImgPro, mCurImgWidth, mCurImgHeight, iP1.x(),
-//                      mCurImgHeight - 1 - iP1.y(), iP2.x(), mCurImgHeight -1 - iP2.y());
+    mDelImgLock.lock();
 
+    vector<unsigned short> aIntensity;
     GetIntensityCurve(aIntensity, m_pImgPro, mCurImgWidth, mCurImgHeight, iP1.x(),
                       iP1.y(), iP2.x(), iP2.y());
+
+    mDelImgLock.unlock();
 
     float ab = iP2.x() - iP1.x();
     float bc = iP2.y() - iP1.y();
@@ -1055,9 +1372,13 @@ void MainWindow::getIntensity(QPoint curPt)
 		if (imgPt.x() > 0 && imgPt.x() < mCurImgWidth
 			&& imgPt.y() > 0 && imgPt.y() < mCurImgHeight)
         {
+            mDelImgLock.lock();
+
             unsigned short intensity = 0;
             GetIntensity(intensity, m_pImgPro, mCurImgWidth, mCurImgHeight,
                 imgPt.x(), imgPt.y());
+
+            mDelImgLock.unlock();
 
             ui->label_X_Value->setText(QString("%1").arg((int)(imgPt.x() / mScale)));
             ui->label_Y_Value->setText(QString("%1").arg((int)(imgPt.y() / mScale)));
@@ -1139,17 +1460,17 @@ void MainWindow::setRecognizeValue(int index, DefectFeat feat)
     rndnessItem->setText(QString("%1").arg(feat.rndness));
     rndnessItem->setTextAlignment(Qt::AlignCenter);
 
-    QTableWidgetItem *rectnessItem = new QTableWidgetItem;
-    rectnessItem->setText(QString("%1").arg(feat.rectness));
-    rectnessItem->setTextAlignment(Qt::AlignCenter);
+//    QTableWidgetItem *rectnessItem = new QTableWidgetItem;
+//    rectnessItem->setText(QString("%1").arg(feat.rectness));
+//    rectnessItem->setTextAlignment(Qt::AlignCenter);
 
     QTableWidgetItem *aveGreyItem = new QTableWidgetItem;
     aveGreyItem->setText(QString("%1").arg(feat.aveGrey));
     aveGreyItem->setTextAlignment(Qt::AlignCenter);
 
-    QTableWidgetItem *greyContrastItem = new QTableWidgetItem;
-    greyContrastItem->setText(QString("%1").arg(feat.grey_contrast));
-    greyContrastItem->setTextAlignment(Qt::AlignCenter);
+//    QTableWidgetItem *greyContrastItem = new QTableWidgetItem;
+//    greyContrastItem->setText(QString("%1").arg(feat.grey_contrast));
+//    greyContrastItem->setTextAlignment(Qt::AlignCenter);
 
 
     //--additems--
@@ -1160,9 +1481,9 @@ void MainWindow::setRecognizeValue(int index, DefectFeat feat)
     ui->tableWidget_recognize->setItem(row, 4, lengthItem);
     ui->tableWidget_recognize->setItem(row, 5, widthItem);
     ui->tableWidget_recognize->setItem(row, 6, rndnessItem);
-    ui->tableWidget_recognize->setItem(row, 7, rectnessItem);
-    ui->tableWidget_recognize->setItem(row, 8, aveGreyItem);
-    ui->tableWidget_recognize->setItem(row, 9, greyContrastItem);
+//    ui->tableWidget_recognize->setItem(row, 7, rectnessItem);
+    ui->tableWidget_recognize->setItem(row, 7, aveGreyItem);
+//    ui->tableWidget_recognize->setItem(row, 9, greyContrastItem);
 }
 
 void MainWindow::slotBtnClick(bool bClick)
@@ -1177,6 +1498,8 @@ void MainWindow::slotBtnClick(bool bClick)
             {
                 QModelIndex preIndex = mModel->index(mDcmFileList.at(preIn));
                 clicked(preIndex);
+
+                ui->treeView->setCurrentIndex(preIndex);
             }
         }
     }
@@ -1190,6 +1513,8 @@ void MainWindow::slotBtnClick(bool bClick)
             {
                 QModelIndex preIndex = mModel->index(mDcmFileList.at(preIn));
                 clicked(preIndex);
+
+                ui->treeView->setCurrentIndex(preIndex);
             }
         }
     }
@@ -1201,7 +1526,7 @@ void MainWindow::slotBtnClick(bool bClick)
     {
         QString s = QFileDialog::getExistingDirectory(
             this, "open file dialog",
-                "./");
+                Appconfig::AppFilePath_OpenFile);
 
         if (!s.isEmpty())
         {
@@ -1270,6 +1595,32 @@ void MainWindow::slotBtnClick(bool bClick)
     {
         mBMeasureOpt = ui->pushButton_measure->isChecked();
         ui->widget_tool->setVisible(mBMeasureOpt);
+
+        actionActionChange();
+    }
+    else if (QObject::sender() == ui->checkBox_ruler_cali)
+    {
+        ui->widget_ruler_cali->setVisible(ui->checkBox_ruler_cali->isChecked());
+    }
+    else if (QObject::sender() == ui->checkBox_ruler_apply)
+    {
+        mBReal = ui->checkBox_ruler_apply->isChecked();
+        ui->doubleSpinBox_real_mm->setEnabled(!mBReal);
+
+        double value = ui->doubleSpinBox_real_mm->value();
+
+        for (int i=0; i<m_geometryItemList.size(); i++)
+        {
+            if (mBReal)
+                m_geometryItemList.at(i)->setUnit(MICUNIT);
+            else
+                m_geometryItemList.at(i)->setUnit(PIXELUNIT);
+
+            m_geometryItemList.at(i)->setSpatialResolution(value);
+            m_geometryItemList.at(i)->changeToUnitType();
+        }
+
+        updateMeasureTable();
     }
     else if (QObject::sender() == ui->pushButton_adapt)
     {
@@ -1286,16 +1637,22 @@ void MainWindow::slotBtnClick(bool bClick)
     else if (QObject::sender() == ui->pushButton_invert)
     {
         mBInvert = ui->pushButton_invert->isChecked();
+        ui->action_invert->setChecked(mBInvert);
+
         delImg();
     }
     else if (QObject::sender() == ui->pushButton_Flip)
     {
         mBFlip = ui->pushButton_Flip->isChecked();
+        ui->action_flip->setChecked(mBFlip);
+
         delImg();
     }
     else if (QObject::sender() == ui->pushButton_Mirror)
     {
         mBMirror = ui->pushButton_Mirror->isChecked();
+        ui->action_mirror->setChecked(mBMirror);
+
         delImg();
     }
     else if (QObject::sender() == ui->pushButton_rotate)
@@ -1320,16 +1677,20 @@ void MainWindow::slotBtnClick(bool bClick)
     {
         if (ui->pushButton_aoi->isChecked())
         {
-            m_ePreAction = m_eCurAction;
+//            m_ePreAction = m_eCurAction;
 
             m_eCurAction = AOIACTION;
-            ui->widget_tool->setEnabled(false);
+//            ui->widget_tool->setEnabled(false);
         }
         else
         {
-            m_eCurAction = m_ePreAction;
-            ui->widget_tool->setEnabled(true);
+            m_eCurAction = HANDACTION;
+//            ui->widget_tool->setEnabled(true);
         }
+
+        mBMeasureOpt = false;
+
+        actionActionChange();
     }
     else if (QObject::sender() == ui->checkBox_recog_show_table)
     {
@@ -1349,12 +1710,12 @@ void MainWindow::slotBtnClick(bool bClick)
 
         delImg();
     }
-    else if (QObject::sender() == ui->checkBox_contrast)
-    {
-        mBContrast = ui->checkBox_contrast->isChecked();
+//    else if (QObject::sender() == ui->checkBox_contrast)
+//    {
+//        mBContrast = ui->checkBox_contrast->isChecked();
 
-        delImg();
-    }
+//        delImg();
+//    }
     else if (QObject::sender() == ui->checkBox_show_defect)
     {
         mBShowDefect = ui->checkBox_show_defect->isChecked();
@@ -1410,16 +1771,21 @@ void MainWindow::slotBtnClick(bool bClick)
     {
         if (ui->pushButton_aoi_recheck->isChecked())
         {
-            m_ePreAction = m_eCurAction;
+//            m_ePreAction = m_eCurAction;
 
             m_eCurAction = AOIRECHECKACTION;
-            ui->widget_tool->setEnabled(false);
+//            ui->widget_tool->setEnabled(false);
         }
         else
         {
-            m_eCurAction = m_ePreAction;
-            ui->widget_tool->setEnabled(true);
+
+            m_eCurAction = HANDACTION;
+//            m_eCurAction = m_ePreAction;
+//            ui->widget_tool->setEnabled(true);
         }
+
+        mBMeasureOpt = false;
+        actionActionChange();
     }
     else if (QObject::sender() == ui->pushButton_recheck)
     {
@@ -1493,19 +1859,21 @@ void MainWindow::slotBtnClick(bool bClick)
     {
         if (ui->checkBox_gray_mesure->isChecked())
         {
-            m_ePreAction = m_eCurAction;
+//            m_ePreAction = m_eCurAction;
 
-            m_eCurAction = GREAYACTION;
+            m_eCurAction = GREAYACTION;/*
             ui->widget_tool->setEnabled(false);
 
             ui->pushButton_hand->setEnabled(false);
             ui->pushButton_arrow->setEnabled(false);
             ui->pushButton_ellipse->setEnabled(false);
             ui->pushButton_rect->setEnabled(false);
-            ui->pushButton_line->setEnabled(false);
+            ui->pushButton_line->setEnabled(false);*/
         }
         else
         {
+
+
             mGrayLine = QLine();
 			if (NULL != mGeyImgWdg)
 				mGeyImgWdg->close();
@@ -1516,17 +1884,22 @@ void MainWindow::slotBtnClick(bool bClick)
                 mGreyRectItem = NULL;
             }
 
-            m_eCurAction = m_ePreAction;
-            ui->widget_tool->setEnabled(true);
+            m_eCurAction = HANDACTION;
+//            m_eCurAction = m_ePreAction;
+//            ui->widget_tool->setEnabled(true);
 
-            ui->pushButton_hand->setEnabled(true);
-            ui->pushButton_arrow->setEnabled(true);
-            ui->pushButton_ellipse->setEnabled(true);
-            ui->pushButton_rect->setEnabled(true);
-            ui->pushButton_line->setEnabled(true);
+//            ui->pushButton_hand->setEnabled(true);
+//            ui->pushButton_arrow->setEnabled(true);
+//            ui->pushButton_ellipse->setEnabled(true);
+//            ui->pushButton_rect->setEnabled(true);
+//            ui->pushButton_line->setEnabled(true);
 
             update();
         }
+
+        mBMeasureOpt = false;
+
+        actionActionChange();
     }
     else if (QObject::sender() == ui->pushButton_color)
     {
@@ -1570,14 +1943,14 @@ void MainWindow::exeDefectImg()
     if (mBWind)
     {
         if (mWinCentre>1 && mWinWidth>1)
-            WindowLevelTransform(m_pImgPro, mCurImgWidth, mCurImgHeight, mWinCentre, mWinWidth);
+            WindowLevelTransform(m_pImgDefect, mSrcImgWidth, mSrcImgHeight, mWinCentre, mWinWidth);
     }
 
-    //对比度
-    if (mBContrast)
-    {
-        ContrastEnhancement(m_pImgPro, mCurImgWidth, mCurImgHeight, mContrast);
-    }
+//    //对比度
+//    if (mBContrast)
+//    {
+//        ContrastEnhancement(m_pImgPro, mCurImgWidth, mCurImgHeight, mContrast);
+//    }
 
     //反相
     if (mBInvert)
@@ -1650,12 +2023,16 @@ void MainWindow::delImg()
     }
 
     std::thread([=] {
+
+        mDelImgLock.lock();
         //删除
         if (nullptr != m_pImgPro)
         {
             delete []m_pImgPro;
             m_pImgPro = NULL;
         }
+        mDelImgLock.unlock();
+
 
         mDelImgLock.lock();
         if (!mBDelImging)
@@ -1719,10 +2096,10 @@ void MainWindow::delImg()
         mDelImgLock.unlock();
 
         //对比度
-        if (mBContrast)
-        {
-            ContrastEnhancement(m_pImgPro, mCurImgWidth, mCurImgHeight, mContrast);
-        }
+//        if (mBContrast)
+//        {
+//            ContrastEnhancement(m_pImgPro, mCurImgWidth, mCurImgHeight, mContrast);
+//        }
 
         mDelImgLock.lock();
         if (!mBDelImging)
@@ -1861,7 +2238,10 @@ void MainWindow::updateCursor()
         if (mPaintRect.width() > ui->widget_img_pre->width() ||
             mPaintRect.height() > ui->widget_img_pre->height())
         {
-            setCursor(Qt::OpenHandCursor);
+            if (m_eCurAction == HANDACTION)
+                setCursor(Qt::OpenHandCursor);
+            else
+                setCursor(Qt::ArrowCursor);
         }
         else
             setCursor(Qt::ArrowCursor);
@@ -2544,42 +2924,22 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                     p.drawText(rectTmp.topRight().x()+2, rectTmp.topRight().y()+12+2, labelStr);
 
                     //--Intensity--
-                    if (nullptr != m_pImgPro)
-                    {                       
-                        QPoint topLeft = convertImgPt(rectTmp.topLeft().toPoint());
-                        QPoint bottomRight = convertImgPt(rectTmp.bottomRight().toPoint());
-
-                        unsigned short intensity = 0;
-                        GetIntensity(intensity, m_pImgPro, mCurImgWidth, mCurImgHeight,
-                            topLeft.x(), topLeft.y(), bottomRight.x(), bottomRight.y());
-
-                        value = intensity;
-                    }
-
+                    value = mDefectRectItem->getIntensity();
                     labelStr = QString("I:%1").arg(QString::number(value, 'f', 2));
                     p.drawText(rectTmp.topRight().x()+2, rectTmp.topRight().y()+26+2, labelStr);
 
-
-
                     //--SNR--
-                    if (nullptr != m_pImgPro)
-                    {
-                        QPoint topLeft = convertImgPt(rectTmp.topLeft().toPoint());
-                        QPoint bottomRight = convertImgPt(rectTmp.bottomRight().toPoint());
+                    double dMean, dStd, dSNR;
+                    mDefectRectItem->getSNR(dMean, dStd, dSNR);
 
-                        double dMean, dStd, dSNR;
-                        GetSNR(dMean, dStd, dSNR, m_pImgPro, mCurImgWidth, mCurImgHeight,
-                            topLeft.x(), topLeft.y(), bottomRight.x(), bottomRight.y());
+                    labelStr = QString("Mean:%1").arg(QString::number(dMean, 'f', 2));
+                    p.drawText(rectTmp.topRight().x()+2, rectTmp.topRight().y()+40+2, labelStr);
 
-                        labelStr = QString("Mean:%1").arg(QString::number(dMean, 'f', 2));
-                        p.drawText(rectTmp.topRight().x()+2, rectTmp.topRight().y()+40+2, labelStr);
+                    labelStr = QString("Std:%1").arg(QString::number(dStd, 'f', 2));
+                    p.drawText(rectTmp.topRight().x()+2, rectTmp.topRight().y()+54+2, labelStr);
 
-                        labelStr = QString("Std:%1").arg(QString::number(dStd, 'f', 2));
-                        p.drawText(rectTmp.topRight().x()+2, rectTmp.topRight().y()+54+2, labelStr);
-
-                        labelStr = QString("SNR:%1").arg(QString::number(dSNR, 'f', 2));
-                        p.drawText(rectTmp.topRight().x()+2, rectTmp.topRight().y()+68+2, labelStr);
-                    }
+                    labelStr = QString("SNR:%1").arg(QString::number(dSNR, 'f', 2));
+                    p.drawText(rectTmp.topRight().x()+2, rectTmp.topRight().y()+68+2, labelStr);
 
                     p.restore();
                 }
@@ -2613,42 +2973,22 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
 
 
                     //--Intensity--
-                    if (nullptr != m_pImgPro)
-                    {
-                        QPoint topLeft = convertImgPt(rectTmp.topLeft().toPoint());
-                        QPoint bottomRight = convertImgPt(rectTmp.bottomRight().toPoint());
-
-                        unsigned short intensity = 0;
-                        GetIntensity(intensity, m_pImgPro, mCurImgWidth, mCurImgHeight,
-                            topLeft.x(), topLeft.y(), bottomRight.x(), bottomRight.y());
-
-                        value = intensity;
-                    }
-
+                    value = mRecheckRectItem->getIntensity();
                     labelStr = QString("I:%1").arg(QString::number(value, 'f', 2));
                     p.drawText(rectTmp.topRight().x()+2, rectTmp.topRight().y()+26+2, labelStr);
 
-
-
                     //--SNR--
-                    if (nullptr != m_pImgPro)
-                    {
-                        QPoint topLeft = convertImgPt(rectTmp.topLeft().toPoint());
-                        QPoint bottomRight = convertImgPt(rectTmp.bottomRight().toPoint());
+                    double dMean, dStd, dSNR;
+                    mRecheckRectItem->getSNR(dMean, dStd, dSNR);
 
-                        double dMean, dStd, dSNR;
-                        GetSNR(dMean, dStd, dSNR, m_pImgPro, mCurImgWidth, mCurImgHeight,
-                            topLeft.x(), topLeft.y(), bottomRight.x(), bottomRight.y());
+                    labelStr = QString("Mean:%1").arg(QString::number(dMean, 'f', 2));
+                    p.drawText(rectTmp.topRight().x()+2, rectTmp.topRight().y()+40+2, labelStr);
 
-                        labelStr = QString("Mean:%1").arg(QString::number(dMean, 'f', 2));
-                        p.drawText(rectTmp.topRight().x()+2, rectTmp.topRight().y()+40+2, labelStr);
+                    labelStr = QString("Std:%1").arg(QString::number(dStd, 'f', 2));
+                    p.drawText(rectTmp.topRight().x()+2, rectTmp.topRight().y()+54+2, labelStr);
 
-                        labelStr = QString("Std:%1").arg(QString::number(dStd, 'f', 2));
-                        p.drawText(rectTmp.topRight().x()+2, rectTmp.topRight().y()+54+2, labelStr);
-
-                        labelStr = QString("SNR:%1").arg(QString::number(dSNR, 'f', 2));
-                        p.drawText(rectTmp.topRight().x()+2, rectTmp.topRight().y()+68+2, labelStr);
-                    }
+                    labelStr = QString("SNR:%1").arg(QString::number(dSNR, 'f', 2));
+                    p.drawText(rectTmp.topRight().x()+2, rectTmp.topRight().y()+68+2, labelStr);
 
                     p.restore();
                 }
@@ -2847,6 +3187,35 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
 
                             //置为选中态
                             mDefectRectItem->setItemStatus(SELECTEDNOMOVE);
+
+                            QRectF rectTmp = mDefectRectItem->getOriRect();
+
+                            //--Intensity--
+                            if (nullptr != m_pSrcImg)
+                            {
+                                QPoint topLeft = rectTmp.topLeft().toPoint();
+                                QPoint bottomRight = rectTmp.bottomRight().toPoint();
+
+                                unsigned short intensity = 0;
+                                GetIntensity(intensity, m_pSrcImg, mSrcImgWidth, mSrcImgHeight,
+                                    topLeft.x(), topLeft.y(), bottomRight.x(), bottomRight.y());
+
+                                mDefectRectItem->setIntensity(intensity);
+                            }
+
+                            //--SNR--
+                            if (nullptr != m_pSrcImg)
+                            {
+                                QPoint topLeft = rectTmp.topLeft().toPoint();
+                                QPoint bottomRight = rectTmp.bottomRight().toPoint();
+
+                                double dMean, dStd, dSNR;
+                                GetSNR(dMean, dStd, dSNR, m_pSrcImg, mSrcImgWidth, mSrcImgHeight,
+                                    topLeft.x(), topLeft.y(), bottomRight.x(), bottomRight.y());
+
+                                mDefectRectItem->setSNR(dMean, dStd, dSNR);
+                            }
+
                         }
 
                         m_rectTmp = QRectF();
@@ -2877,6 +3246,34 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
 
                             //置为选中态
                             mRecheckRectItem->setItemStatus(SELECTEDNOMOVE);
+
+                            QRectF rectTmp = mRecheckRectItem->getOriRect();
+
+                            //--Intensity--
+                            if (nullptr != m_pSrcImg)
+                            {
+                                QPoint topLeft = rectTmp.topLeft().toPoint();
+                                QPoint bottomRight = rectTmp.bottomRight().toPoint();
+
+                                unsigned short intensity = 0;
+                                GetIntensity(intensity, m_pSrcImg, mSrcImgWidth, mSrcImgHeight,
+                                    topLeft.x(), topLeft.y(), bottomRight.x(), bottomRight.y());
+
+                                mRecheckRectItem->setIntensity(intensity);
+                            }
+
+                            //--SNR--
+                            if (nullptr != m_pSrcImg)
+                            {
+                                QPoint topLeft = rectTmp.topLeft().toPoint();
+                                QPoint bottomRight = rectTmp.bottomRight().toPoint();
+
+                                double dMean, dStd, dSNR;
+                                GetSNR(dMean, dStd, dSNR, m_pSrcImg, mSrcImgWidth, mSrcImgHeight,
+                                    topLeft.x(), topLeft.y(), bottomRight.x(), bottomRight.y());
+
+                                mRecheckRectItem->setSNR(dMean, dStd, dSNR);
+                            }
                         }
 
                         m_rectTmp = QRectF();
@@ -3174,34 +3571,35 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
         }
         else if (e->type() == QEvent::Enter)
         {
-            if (mBMeasureOpt)
-            {
-                if (m_eCurAction == HANDACTION)
-                {
-                    if (mPaintRect.width() > ui->widget_img_pre->width() ||
-                        mPaintRect.height() > ui->widget_img_pre->height())
-                    {
-                        setCursor(Qt::OpenHandCursor);
-                    }
-                    else {
-                        setCursor(Qt::ArrowCursor);
-                    }
-                }
-                else {
-                    setCursor(Qt::ArrowCursor);
-                }
-            }
-            else
-            {
-                if (mPaintRect.width() > ui->widget_img_pre->width() ||
-                    mPaintRect.height() > ui->widget_img_pre->height())
-                {
-                    setCursor(Qt::OpenHandCursor);
-                }
-                else {
-                    setCursor(Qt::ArrowCursor);
-                }
-            }
+            updateCursor();
+//            if (mBMeasureOpt)
+//            {
+//                if (m_eCurAction == HANDACTION)
+//                {
+//                    if (mPaintRect.width() > ui->widget_img_pre->width() ||
+//                        mPaintRect.height() > ui->widget_img_pre->height())
+//                    {
+//                        setCursor(Qt::OpenHandCursor);
+//                    }
+//                    else {
+//                        setCursor(Qt::ArrowCursor);
+//                    }
+//                }
+//                else {
+//                    setCursor(Qt::ArrowCursor);
+//                }
+//            }
+//            else
+//            {
+//                if (mPaintRect.width() > ui->widget_img_pre->width() ||
+//                    mPaintRect.height() > ui->widget_img_pre->height())
+//                {
+//                    setCursor(Qt::OpenHandCursor);
+//                }
+//                else {
+//                    setCursor(Qt::ArrowCursor);
+//                }
+//            }
 
             return true;
         }
@@ -4915,6 +5313,13 @@ MainWindow::~MainWindow()
     {
         delete mModel;
         mModel = nullptr;
+    }
+
+    if (m_containerMenu)
+    {
+        delete m_containerMenu;
+
+        m_containerMenu = NULL;
     }
 
     if (nullptr != mSplitter)

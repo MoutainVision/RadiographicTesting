@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1347</width>
-    <height>891</height>
+    <height>1075</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -234,6 +234,85 @@ QCheckBox::indicator:!enabled:indeterminate:hover {
 QCheckBox::indicator:!enabled:indeterminate:pressed {
     image: url(:/imgs/checkbox_checked_gray.png);
 }
+
+/*SpinBox*/
+QDoubleSpinBox
+{
+    font-family:&quot;Arial&quot;;
+    font-size:11pt;
+
+height:25px;
+
+    color:#969799;
+    background-color:#ffffff;
+
+    border-radius:4px;
+
+    border-top:1px solid #969799;
+
+    border-bottom:2px solid qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                            stop:0 #c2c3c5,stop:1 #f7f7f8);
+
+    border-left:1px solid qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                        stop:0 #969799,stop:1 #c2c3c5);
+
+    border-right:1px solid qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                        stop:0 #969799,stop:1 #c2c3c5);
+
+    padding-left:2px;
+    selection-color:white;
+    selection-background-color:#add6ff;
+}
+
+QDoubleSpinBox:!enabled
+{
+    background-color:rgb(230,230,230);
+}
+
+ QDoubleSpinBox::up-button {
+     subcontrol-origin: border;
+     subcontrol-position: top right;
+
+     width: 23px;
+     height:13px;
+     border-image: url(:/imgs/Adjust_btn_up_normal.png);
+ }
+
+ QDoubleSpinBox::up-button:hover {
+     border-image: url(:/imgs/Adjust_btn_up_hover.png);
+ }
+
+ QDoubleSpinBox::up-button:pressed {
+     border-image: url(:/imgs/Adjust_btn_up_active.png);
+ }
+
+ QDoubleSpinBox::up-button:!enabled {
+     border-image: url(:/imgs/Adjust_btn_up_gray.png);
+ }
+
+ QDoubleSpinBox::down-button {
+     subcontrol-origin: border;
+     subcontrol-position: bottom right;
+
+     padding-bottom:2px;
+     margin-bottom:1px;
+
+     width: 23px;
+     height:12px;
+     border-image: url(:/imgs/Adjust_btn_down_normal.png);
+ }
+
+ QDoubleSpinBox::down-button:hover {
+     border-image: url(:/imgs/Adjust_btn_down_hover.png);
+ }
+
+ QDoubleSpinBox::down-button:pressed {
+     border-image: url(:/imgs/Adjust_btn_down_active.png);
+ }
+
+ QDoubleSpinBox::down-button:!enabled {
+     border-image: url(:/imgs/Adjust_btn_down_gray.png);
+ }
 
 /*SpinBox*/
 QSpinBox
@@ -623,7 +702,7 @@ QTableView::indicator {
                 <x>0</x>
                 <y>0</y>
                 <width>428</width>
-                <height>818</height>
+                <height>1002</height>
                </rect>
               </property>
              </widget>
@@ -730,6 +809,370 @@ QTableView::indicator {
             </widget>
            </item>
            <item>
+            <widget class="QGroupBox" name="groupBox_5">
+             <property name="title">
+              <string>标尺</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_21">
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_37">
+                <property name="spacing">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QDoubleSpinBox" name="doubleSpinBox_real_mm">
+                  <property name="styleSheet">
+                   <string notr="true">/*SpinBox*/
+QDoubleSpinBox
+{
+    font-family:&quot;Arial&quot;;
+    font-size:11pt;
+
+height:25px;
+
+    color:#969799;
+    background-color:#ffffff;
+
+    border-radius:4px;
+
+    border-top:1px solid #969799;
+
+    border-bottom:2px solid qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                            stop:0 #c2c3c5,stop:1 #f7f7f8);
+
+    border-left:1px solid qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                        stop:0 #969799,stop:1 #c2c3c5);
+
+    border-right:1px solid qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                        stop:0 #969799,stop:1 #c2c3c5);
+
+    padding-left:2px;
+    selection-color:white;
+    selection-background-color:#add6ff;
+}
+
+QDoubleSpinBox:!enabled
+{
+    background-color:rgb(230,230,230);
+}
+
+ QDoubleSpinBox::up-button {
+     subcontrol-origin: border;
+     subcontrol-position: top right;
+
+     width: 23px;
+     height:13px;
+     border-image: url(:/imgs/Adjust_btn_up_normal.png);
+ }
+
+ QDoubleSpinBox::up-button:hover {
+     border-image: url(:/imgs/Adjust_btn_up_hover.png);
+ }
+
+ QDoubleSpinBox::up-button:pressed {
+     border-image: url(:/imgs/Adjust_btn_up_active.png);
+ }
+
+ QDoubleSpinBox::up-button:!enabled {
+     border-image: url(:/imgs/Adjust_btn_up_gray.png);
+ }
+
+ QDoubleSpinBox::down-button {
+     subcontrol-origin: border;
+     subcontrol-position: bottom right;
+
+     padding-bottom:2px;
+     margin-bottom:1px;
+
+     width: 23px;
+     height:12px;
+     border-image: url(:/imgs/Adjust_btn_down_normal.png);
+ }
+
+ QDoubleSpinBox::down-button:hover {
+     border-image: url(:/imgs/Adjust_btn_down_hover.png);
+ }
+
+ QDoubleSpinBox::down-button:pressed {
+     border-image: url(:/imgs/Adjust_btn_down_active.png);
+ }
+
+ QDoubleSpinBox::down-button:!enabled {
+     border-image: url(:/imgs/Adjust_btn_down_gray.png);
+ }</string>
+                  </property>
+                  <property name="decimals">
+                   <number>1</number>
+                  </property>
+                  <property name="minimum">
+                   <double>0.100000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>1000.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.100000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>0.100000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_13">
+                  <property name="text">
+                   <string>mm/pix</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="checkBox_ruler_apply">
+                  <property name="text">
+                   <string>应用</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="checkBox_ruler_cali">
+                  <property name="text">
+                   <string>校准</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <widget class="QWidget" name="widget_ruler_cali" native="true">
+                <layout class="QVBoxLayout" name="verticalLayout_23">
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <layout class="QHBoxLayout" name="horizontalLayout_39">
+                   <property name="spacing">
+                    <number>0</number>
+                   </property>
+                   <item>
+                    <widget class="QDoubleSpinBox" name="doubleSpinBox_enter_mm">
+                     <property name="minimumSize">
+                      <size>
+                       <width>70</width>
+                       <height>0</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>70</width>
+                       <height>16777215</height>
+                      </size>
+                     </property>
+                     <property name="styleSheet">
+                      <string notr="true">/*SpinBox*/
+QDoubleSpinBox
+{
+    font-family:&quot;Arial&quot;;
+    font-size:11pt;
+
+height:25px;
+
+    color:#969799;
+    background-color:#ffffff;
+
+    border-radius:4px;
+
+    border-top:1px solid #969799;
+
+    border-bottom:2px solid qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                            stop:0 #c2c3c5,stop:1 #f7f7f8);
+
+    border-left:1px solid qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                        stop:0 #969799,stop:1 #c2c3c5);
+
+    border-right:1px solid qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                        stop:0 #969799,stop:1 #c2c3c5);
+
+    padding-left:2px;
+    selection-color:white;
+    selection-background-color:#add6ff;
+}
+
+QDoubleSpinBox:!enabled
+{
+    background-color:rgb(230,230,230);
+}
+
+ QDoubleSpinBox::up-button {
+     subcontrol-origin: border;
+     subcontrol-position: top right;
+
+     width: 23px;
+     height:13px;
+     border-image: url(:/imgs/Adjust_btn_up_normal.png);
+ }
+
+ QDoubleSpinBox::up-button:hover {
+     border-image: url(:/imgs/Adjust_btn_up_hover.png);
+ }
+
+ QDoubleSpinBox::up-button:pressed {
+     border-image: url(:/imgs/Adjust_btn_up_active.png);
+ }
+
+ QDoubleSpinBox::up-button:!enabled {
+     border-image: url(:/imgs/Adjust_btn_up_gray.png);
+ }
+
+ QDoubleSpinBox::down-button {
+     subcontrol-origin: border;
+     subcontrol-position: bottom right;
+
+     padding-bottom:2px;
+     margin-bottom:1px;
+
+     width: 23px;
+     height:12px;
+     border-image: url(:/imgs/Adjust_btn_down_normal.png);
+ }
+
+ QDoubleSpinBox::down-button:hover {
+     border-image: url(:/imgs/Adjust_btn_down_hover.png);
+ }
+
+ QDoubleSpinBox::down-button:pressed {
+     border-image: url(:/imgs/Adjust_btn_down_active.png);
+ }
+
+ QDoubleSpinBox::down-button:!enabled {
+     border-image: url(:/imgs/Adjust_btn_down_gray.png);
+ }</string>
+                     </property>
+                     <property name="decimals">
+                      <number>1</number>
+                     </property>
+                     <property name="minimum">
+                      <double>0.100000000000000</double>
+                     </property>
+                     <property name="maximum">
+                      <double>1000.000000000000000</double>
+                     </property>
+                     <property name="singleStep">
+                      <double>0.100000000000000</double>
+                     </property>
+                     <property name="value">
+                      <double>0.100000000000000</double>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="label_18">
+                     <property name="text">
+                      <string>mm</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <spacer name="horizontalSpacer_27">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                     <property name="sizeType">
+                      <enum>QSizePolicy::Fixed</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>20</width>
+                       <height>20</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="label_16">
+                     <property name="minimumSize">
+                      <size>
+                       <width>50</width>
+                       <height>0</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>50</width>
+                       <height>16777215</height>
+                      </size>
+                     </property>
+                     <property name="styleSheet">
+                      <string notr="true">border:1px solid rgb(83, 172, 255);</string>
+                     </property>
+                     <property name="text">
+                      <string>1</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="label_17">
+                     <property name="text">
+                      <string>pixel</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <spacer name="horizontalSpacer_28">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>40</width>
+                       <height>20</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="pushButton_ruler_ok">
+                     <property name="text">
+                      <string>确定</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <spacer name="horizontalSpacer_29">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                     <property name="sizeType">
+                      <enum>QSizePolicy::Fixed</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>6</width>
+                       <height>20</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="pushButton_ruler_cancel">
+                     <property name="text">
+                      <string>取消</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
             <widget class="QGroupBox" name="groupBox_2">
              <property name="minimumSize">
               <size>
@@ -787,61 +1230,6 @@ QTableView::indicator {
                   </property>
                   <property name="checkable">
                    <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_19">
-                <property name="bottomMargin">
-                 <number>0</number>
-                </property>
-                <item>
-                 <widget class="QCheckBox" name="checkBox_contrast">
-                  <property name="minimumSize">
-                   <size>
-                    <width>100</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string>对比度增强：</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QSlider" name="horizontalSlider_contrast">
-                  <property name="minimum">
-                   <number>1</number>
-                  </property>
-                  <property name="maximum">
-                   <number>100</number>
-                  </property>
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_contrast">
-                  <property name="minimumSize">
-                   <size>
-                    <width>25</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>25</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string>1</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                   </property>
                  </widget>
                 </item>
@@ -3402,17 +3790,7 @@ QTableView::indicator {
                    </column>
                    <column>
                     <property name="text">
-                     <string>矩形度</string>
-                    </property>
-                   </column>
-                   <column>
-                    <property name="text">
                      <string>平均灰度</string>
-                    </property>
-                   </column>
-                   <column>
-                    <property name="text">
-                     <string>灰度对比度</string>
                     </property>
                    </column>
                   </widget>
@@ -3751,25 +4129,94 @@ QTableView::indicator {
     <property name="title">
      <string>文件</string>
     </property>
+    <addaction name="action_open"/>
+    <addaction name="action_save"/>
+    <addaction name="action_exit"/>
    </widget>
    <widget class="QMenu" name="menu_tool">
     <property name="title">
      <string>工具</string>
     </property>
+    <addaction name="action_invert"/>
+    <addaction name="action_rotate"/>
+    <addaction name="action_mirror"/>
+    <addaction name="action_flip"/>
+    <addaction name="separator"/>
+    <addaction name="action_detect_param"/>
+    <addaction name="action_recheck_param"/>
    </widget>
    <widget class="QMenu" name="menu_help">
     <property name="title">
      <string>帮助</string>
     </property>
-    <addaction name="actionguanyv"/>
+    <addaction name="action_about"/>
    </widget>
    <addaction name="menu_file"/>
    <addaction name="menu_tool"/>
    <addaction name="menu_help"/>
   </widget>
-  <action name="actionguanyv">
+  <action name="action_about">
    <property name="text">
     <string>关于</string>
+   </property>
+  </action>
+  <action name="action_save">
+   <property name="text">
+    <string>另存为</string>
+   </property>
+  </action>
+  <action name="action_2">
+   <property name="text">
+    <string>打印图像</string>
+   </property>
+  </action>
+  <action name="action_detect_param">
+   <property name="text">
+    <string>恢复识别参数</string>
+   </property>
+  </action>
+  <action name="action_recheck_param">
+   <property name="text">
+    <string>恢复查重参数</string>
+   </property>
+  </action>
+  <action name="action_open">
+   <property name="text">
+    <string>打开</string>
+   </property>
+  </action>
+  <action name="action_exit">
+   <property name="text">
+    <string>退出</string>
+   </property>
+  </action>
+  <action name="action_invert">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>反相</string>
+   </property>
+  </action>
+  <action name="action_rotate">
+   <property name="text">
+    <string>旋转</string>
+   </property>
+  </action>
+  <action name="action_mirror">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>镜像</string>
+   </property>
+  </action>
+  <action name="action_flip">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>翻转</string>
    </property>
   </action>
  </widget>

@@ -67,6 +67,13 @@ public:
 //signals:
 //    void sig_updateInfo();
 
+    void setIntensity(float value){mIntensity = value;}
+    float getIntensity() {return mIntensity;}
+
+    void setSNR(double dMean, double dStd, double dSNR){mMean = dMean; mStd = dStd;  mSNR = dSNR; }
+    void getSNR(double &dMean, double &dStd, double &dSNR){dMean =mMean;  dStd = mStd; dSNR = mSNR;}
+
+
 public:
     QRect               m_boundingRect;
     QRectF              m_boundingRectF;
@@ -86,6 +93,12 @@ public:
 
     ELengthUnit         m_lengthUnit;
     double              m_spatialResolution;
+
+
+    float               mIntensity;
+    double              mMean;
+    double              mStd;
+    double              mSNR;
 };
 
 #endif // GEOMETRYITEMBASE_H

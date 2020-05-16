@@ -188,6 +188,7 @@
     </QtUic>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="aboutdlg.cpp" />
     <ClCompile Include="Base\FunctionTransfer.cpp" />
     <ClCompile Include="appconfig.cpp" />
     <ClCompile Include="colorwdg.cpp" />
@@ -213,6 +214,7 @@
   <ItemGroup>
     <QtMoc Include="Base\FunctionTransfer.h">
     </QtMoc>
+    <QtMoc Include="aboutdlg.h" />
     <ClInclude Include="appconfig.h" />
     <QtMoc Include="mainwindow.h">
     </QtMoc>
@@ -250,6 +252,7 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <QtUic Include="aboutdlg.ui" />
     <QtUic Include="colorwdg.ui" />
     <QtUic Include="geyimgwdg.ui" />
     <QtUic Include="logindlg.ui" />
