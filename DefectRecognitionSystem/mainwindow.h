@@ -159,6 +159,7 @@ public:
     //关闭灰度窗口
     void closeGreyWdg();
 
+    //鼠标移动计算灰度值
     void getIntensity(QPoint curPt);
 
 
@@ -362,6 +363,8 @@ private:
     bool    mBMeasureOpt;
     bool    mBDelImging;
     QMutex     mDelImgLock;
+
+    QMutex     mImgProLock;
 
     //
     //**绘制相关***

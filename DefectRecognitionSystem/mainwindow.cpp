@@ -855,6 +855,8 @@ void MainWindow::setDcmFileInfo()
             mSrcImgWidth = dmfile.GetWidth();
             mSrcImgHeight = dmfile.GetHeight();
 
+            mImgProLock.lock();
+
             if (nullptr != m_pImgPro)
             {
                 delete []m_pImgPro;
@@ -863,6 +865,8 @@ void MainWindow::setDcmFileInfo()
 
             m_pImgPro = new unsigned short[mSrcImgWidth * mSrcImgHeight];
             memcpy(m_pImgPro, m_pSrcImg, mSrcImgWidth*mSrcImgHeight*sizeof(unsigned short));
+
+            mImgProLock.unlock();
 
 			ui->verticalSlider_WinCentre->setValue(mCurDcmFileInfo.winCentre);
 			ui->verticalSlider_WindWidth->setValue(mCurDcmFileInfo.windWidth);
@@ -955,7 +959,9 @@ void MainWindow::reSize(int newW, int newH)
     int srcW = mCurImgWidth;
     int srcH = mCurImgHeight;
 
+    mImgProLock.lock();
     Resize(m_pImgPro, srcW, srcH, newW, newH);
+    mImgProLock.unlock();
 
     mCurImgWidth  = srcW;
     mCurImgHeight = srcH;
@@ -973,7 +979,9 @@ void MainWindow::reSize(float scale)
 
     qDebug() << "pre:" << mCurImgWidth << mCurImgHeight;
 
+    mImgProLock.lock();
     Resize(m_pImgPro, srcW, srcH, mCurImgWidth, mCurImgHeight);
+    mImgProLock.unlock();
 
     mCurImgWidth = srcW;
     mCurImgHeight = srcH;
@@ -1285,13 +1293,13 @@ void MainWindow::calcIntensityCurve(QPoint p1, QPoint p2)
     m_iP1 = iP1;
     m_iP2 = iP2;
 
-    mDelImgLock.lock();
-
+    mImgProLock.lock();
     vector<unsigned short> aIntensity;
     GetIntensityCurve(aIntensity, m_pImgPro, mCurImgWidth, mCurImgHeight, iP1.x(),
                       iP1.y(), iP2.x(), iP2.y());
 
-    mDelImgLock.unlock();
+    mImgProLock.unlock();
+
 
     float ab = iP2.x() - iP1.x();
     float bc = iP2.y() - iP1.y();
@@ -1379,20 +1387,20 @@ void MainWindow::closeGreyWdg()
 
 void MainWindow::getIntensity(QPoint curPt)
 {
-	if (nullptr != m_pImgPro)
+    if (nullptr != m_pSrcImg)
 	{
 		QPoint imgPt = convertImgPt(curPt);
 
         /*if (imgPt.x() > 0 && imgPt.x()<mPaintRectReal.width()
                 && imgPt.y() > 0 && imgPt.y()<mPaintRectReal.height())*/
-		if (imgPt.x() > 0 && imgPt.x() < mCurImgWidth
-			&& imgPt.y() > 0 && imgPt.y() < mCurImgHeight)
+        if (imgPt.x() > 0 && imgPt.x() < mSrcImgWidth
+            && imgPt.y() > 0 && imgPt.y() < mSrcImgHeight)
         {
             mDelImgLock.lock();
 
             unsigned short intensity = 0;
-            GetIntensity(intensity, m_pImgPro, mCurImgWidth, mCurImgHeight,
-                imgPt.x(), imgPt.y());
+            GetIntensity(intensity, m_pSrcImg, mSrcImgWidth, mSrcImgHeight,
+                imgPt.x() / mScale, imgPt.y()/ mScale);
 
             mDelImgLock.unlock();
 
@@ -2040,14 +2048,14 @@ void MainWindow::delImg()
 
     std::thread([=] {
 
-        mDelImgLock.lock();
+        mImgProLock.lock();
         //删除
         if (nullptr != m_pImgPro)
         {
             delete []m_pImgPro;
             m_pImgPro = NULL;
         }
-        mDelImgLock.unlock();
+        mImgProLock.unlock();
 
 
         mDelImgLock.lock();
@@ -2062,16 +2070,23 @@ void MainWindow::delImg()
         if (mSrcImgWidth <= 0 || mSrcImgHeight <= 0)
             return ;
 
+        mImgProLock.lock();
         //拷贝
         m_pImgPro = new unsigned short[mSrcImgWidth * mSrcImgHeight];
         memcpy(m_pImgPro, m_pSrcImg, mSrcImgWidth*mSrcImgHeight*sizeof(unsigned short));
+        mImgProLock.unlock();
+
 
         mCurImgWidth  = mSrcImgWidth;
         mCurImgHeight = mSrcImgHeight;
 
         //镜像
         if (mBMirror)
+        {
+            mImgProLock.lock();
             Mirror(m_pImgPro, mCurImgWidth, mCurImgHeight);
+            mImgProLock.unlock();
+        }
 
         mDelImgLock.lock();
         if (!mBDelImging)
@@ -2084,7 +2099,11 @@ void MainWindow::delImg()
 
         //翻转
         if (mBFlip)
+        {
+            mImgProLock.lock();
             Flip(m_pImgPro, mCurImgWidth, mCurImgHeight);
+            mImgProLock.unlock();
+        }
 
         mDelImgLock.lock();
         if (!mBDelImging)
@@ -2099,7 +2118,11 @@ void MainWindow::delImg()
         if (mBWind)
         {
             if (mWinCentre>1 && mWinWidth>1)
+            {
+                mImgProLock.lock();
                 WindowLevelTransform(m_pImgPro, mCurImgWidth, mCurImgHeight, mWinCentre, mWinWidth);
+                mImgProLock.unlock();
+            }
         }
 
         mDelImgLock.lock();
@@ -2128,7 +2151,11 @@ void MainWindow::delImg()
 
         //反相
         if (mBInvert)
+        {
+            mImgProLock.lock();
             Invert(m_pImgPro, mCurImgWidth, mCurImgHeight);
+            mImgProLock.unlock();
+        }
 
         mDelImgLock.lock();
         if (!mBDelImging)
@@ -2151,6 +2178,7 @@ void MainWindow::delImg()
         }
         mDelImgLock.unlock();
 
+        mImgProLock.lock();
         //旋转
         if (mNeedRotate == 90)
             Rotate90(m_pImgPro, mCurImgWidth, mCurImgHeight);
@@ -2158,6 +2186,7 @@ void MainWindow::delImg()
             Rotate180(m_pImgPro, mCurImgWidth, mCurImgHeight);
         else if (mNeedRotate == 270)
             Rotate270(m_pImgPro, mCurImgWidth, mCurImgHeight);
+        mImgProLock.unlock();
 
         mDelImgLock.lock();
         if (!mBDelImging)
@@ -2168,7 +2197,9 @@ void MainWindow::delImg()
         }
         mDelImgLock.unlock();
 
+        mImgProLock.lock();
         shortImgToImage(m_pImgPro, mCurImgWidth, mCurImgHeight, mPaintImg);
+        mImgProLock.unlock();
 
         mDelImgLock.lock();
         if (!mBDelImging)
