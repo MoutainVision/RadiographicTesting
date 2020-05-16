@@ -512,7 +512,7 @@ QSlider::add-page:horizontal {
           <enum>QTabWidget::West</enum>
          </property>
          <property name="currentIndex">
-          <number>3</number>
+          <number>2</number>
          </property>
          <widget class="QWidget" name="tab">
           <attribute name="title">
@@ -702,7 +702,7 @@ QTableView::indicator {
                 <x>0</x>
                 <y>0</y>
                 <width>428</width>
-                <height>1002</height>
+                <height>1004</height>
                </rect>
               </property>
              </widget>
@@ -1236,6 +1236,172 @@ QDoubleSpinBox:!enabled
                </layout>
               </item>
               <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_38">
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QCheckBox" name="checkBox_contrast">
+                  <property name="minimumSize">
+                   <size>
+                    <width>100</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>多尺度对比度增强：</string>
+                  </property>
+                  <property name="checked">
+                   <bool>false</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QSpinBox" name="spinBox_level">
+                  <property name="minimumSize">
+                   <size>
+                    <width>65</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="minimum">
+                   <number>2</number>
+                  </property>
+                  <property name="maximum">
+                   <number>10</number>
+                  </property>
+                  <property name="value">
+                   <number>2</number>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QDoubleSpinBox" name="doubleSpinBox_power">
+                  <property name="minimumSize">
+                   <size>
+                    <width>70</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>70</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">/*SpinBox*/
+QDoubleSpinBox
+{
+    font-family:&quot;Arial&quot;;
+    font-size:11pt;
+
+height:25px;
+
+    color:#969799;
+    background-color:#ffffff;
+
+    border-radius:4px;
+
+    border-top:1px solid #969799;
+
+    border-bottom:2px solid qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                            stop:0 #c2c3c5,stop:1 #f7f7f8);
+
+    border-left:1px solid qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                        stop:0 #969799,stop:1 #c2c3c5);
+
+    border-right:1px solid qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                        stop:0 #969799,stop:1 #c2c3c5);
+
+    padding-left:2px;
+    selection-color:white;
+    selection-background-color:#add6ff;
+}
+
+QDoubleSpinBox:!enabled
+{
+    background-color:rgb(230,230,230);
+}
+
+ QDoubleSpinBox::up-button {
+     subcontrol-origin: border;
+     subcontrol-position: top right;
+
+     width: 23px;
+     height:13px;
+     border-image: url(:/imgs/Adjust_btn_up_normal.png);
+ }
+
+ QDoubleSpinBox::up-button:hover {
+     border-image: url(:/imgs/Adjust_btn_up_hover.png);
+ }
+
+ QDoubleSpinBox::up-button:pressed {
+     border-image: url(:/imgs/Adjust_btn_up_active.png);
+ }
+
+ QDoubleSpinBox::up-button:!enabled {
+     border-image: url(:/imgs/Adjust_btn_up_gray.png);
+ }
+
+ QDoubleSpinBox::down-button {
+     subcontrol-origin: border;
+     subcontrol-position: bottom right;
+
+     padding-bottom:2px;
+     margin-bottom:1px;
+
+     width: 23px;
+     height:12px;
+     border-image: url(:/imgs/Adjust_btn_down_normal.png);
+ }
+
+ QDoubleSpinBox::down-button:hover {
+     border-image: url(:/imgs/Adjust_btn_down_hover.png);
+ }
+
+ QDoubleSpinBox::down-button:pressed {
+     border-image: url(:/imgs/Adjust_btn_down_active.png);
+ }
+
+ QDoubleSpinBox::down-button:!enabled {
+     border-image: url(:/imgs/Adjust_btn_down_gray.png);
+ }</string>
+                  </property>
+                  <property name="decimals">
+                   <number>1</number>
+                  </property>
+                  <property name="minimum">
+                   <double>0.000000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>1.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>0.100000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>0.600000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_32">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </item>
+              <item>
                <layout class="QVBoxLayout" name="verticalLayout_6">
                 <property name="bottomMargin">
                  <number>0</number>
@@ -1662,7 +1828,7 @@ QDoubleSpinBox:!enabled
                  <number>0</number>
                 </property>
                 <item>
-                 <widget class="QLabel" name="label_3">
+                 <widget class="QLabel" name="label_connectThr">
                   <property name="minimumSize">
                    <size>
                     <width>91</width>
@@ -2019,7 +2185,7 @@ QDoubleSpinBox:!enabled
                  <number>0</number>
                 </property>
                 <item>
-                 <widget class="QLabel" name="label_11">
+                 <widget class="QLabel" name="label_connectThr_recheck">
                   <property name="minimumSize">
                    <size>
                     <width>91</width>
@@ -3622,7 +3788,7 @@ QTableView::indicator {
                    </column>
                    <column>
                     <property name="text">
-                     <string>宽</string>
+                     <string>宽(长)</string>
                     </property>
                    </column>
                    <column>
@@ -4190,7 +4356,7 @@ QTableView::indicator {
      <x>0</x>
      <y>0</y>
      <width>1347</width>
-     <height>30</height>
+     <height>28</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_file">
@@ -4268,7 +4434,7 @@ QTableView::indicator {
   </action>
   <action name="action_rotate">
    <property name="text">
-    <string>旋转</string>
+    <string>   旋转</string>
    </property>
   </action>
   <action name="action_mirror">

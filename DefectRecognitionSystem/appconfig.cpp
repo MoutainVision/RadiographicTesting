@@ -87,7 +87,7 @@ void Appconfig::InitAllDataPath()
     QFileInfo fileInfo(QCoreApplication::applicationFilePath());
     QString exeFileName = fileInfo.baseName(); //当前程序名字
 
-    QString dataPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+    QString dataPath = QStandardPaths::standardLocations(QStandardPaths::AppLocalDataLocation).at(1);
 //    QString dataPath = QCoreApplication::applicationDirPath();
 
     if (dataPath.right(exeFileName.length()) == exeFileName)

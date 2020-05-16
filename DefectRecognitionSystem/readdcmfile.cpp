@@ -34,7 +34,7 @@ bool ReadDCMFile::readDCMFileLib(std::string filePath, std::string outFileName, 
 
 
     img.Resample(img.GetWidth()/4, img.GetHeight()/4);
-	img.Save(outFileName.c_str(), CXIMAGE_FORMAT_JPG);
+    img.Save(outFileName.c_str(), CXIMAGE_FORMAT_JPG);
 
 	return true;
 }
@@ -157,7 +157,7 @@ bool ReadDCMFile::readDCMFile(std::string filePath, string outFileName, string e
 				 }
 
 			 img.Flip();
-			 img.Save(outFileName.c_str(), CXIMAGE_FORMAT_JPG);
+    		 img.Save(outFileName.c_str(), CXIMAGE_FORMAT_JPG);
 
 			 //const TCHAR * encodedName = reinterpret_cast<const TCHAR *>(outFileName.c_str());
 			 

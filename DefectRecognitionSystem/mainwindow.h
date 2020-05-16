@@ -137,6 +137,8 @@ public:
     //状态切换
     void actionActionChange();
 
+    bool GetIndexList(vector<DCMFileIndex> &aIdxList, const char*szIndexFile);
+
     //----查重------
     void addRetrievalResultValues(vector<RetrievalResult> aRes);
 
@@ -194,7 +196,7 @@ public:
 //**测量表格相关**
     void updateMeasureTable();
 
-    void addOneMeasure(int num, QString name,
+    void addOneMeasure(int num, QString name, QString typeName,
                        QPoint beginPt,
                        QPoint endPt,
                        QPoint centerPt,
@@ -309,6 +311,8 @@ private:
 
     RectItem    *mRecheckRectItem;
 
+    vector<DCMFileIndex> mAIdxList;
+
     //检索数据
     DCMFileIndexingData mIndexData;
 
@@ -350,8 +354,10 @@ private:
     bool    mBFlip;    //翻转
     bool    mBMirror;  //镜像
     bool    mBWind;  //窗宽
-//    bool    mBContrast;  //对比度
-//    int     mContrast; //对比度
+
+    bool    mBContrast;  //多尺度对比度
+    int     mLevel; //对比度
+    double  mPower;
 
     int     mWinCentre; //窗宽
     int     mWinWidth;  //窗位

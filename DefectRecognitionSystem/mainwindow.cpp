@@ -212,6 +212,18 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tabWidget->setCurrentIndex(0);
 
 
+    ui->label_connectThr_recheck->hide();
+    ui->spinBox_ConnectThr_recheck->hide();
+
+    ui->label_connectThr->hide();
+    ui->spinBox_ConnectThr->hide();
+
+
+   ui->checkBox_contrast->hide();
+   ui->spinBox_level->hide();
+   ui->doubleSpinBox_power->hide();
+
+
     mRecognizeWdg  = nullptr;
     mReCheckWdg = nullptr;
 
@@ -226,7 +238,7 @@ MainWindow::MainWindow(QWidget *parent) :
     mBInvert = false;
     mBFlip   = false;
     mBMirror = false;
-//    mBContrast = false;
+    mBContrast = false;
     mBWind = true;
 
     mBShowDefect = true;
@@ -261,6 +273,12 @@ MainWindow::MainWindow(QWidget *parent) :
     if (!indexDataFile.exists())
     {
         DCMIndexingFile::Create(mIndexDataFilePath.toStdString().c_str());
+    }
+
+    QFile indexListFile(mIndexFilePath);
+    if (indexListFile.exists())
+    {
+        GetIndexList(mAIdxList, mIndexFilePath.toStdString().c_str());
     }
 
     //人工， 初始化有信号
@@ -345,7 +363,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->checkBox_show_defect, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->checkBox_show_defect_center, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->checkBox_wind, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
-//    connect(ui->checkBox_contrast, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+    connect(ui->checkBox_contrast, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_add_db, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_recheck, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
 
@@ -416,6 +434,26 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->action_flip, SIGNAL(triggered()), this, SLOT(slot_menueToggle()));
     connect(ui->action_detect_param, SIGNAL(triggered()), this, SLOT(slot_menueToggle()));
     connect(ui->action_recheck_param, SIGNAL(triggered()), this, SLOT(slot_menueToggle()));
+}
+
+
+bool MainWindow::GetIndexList(vector<DCMFileIndex> &aIdxList, const char*szIndexFile)
+{
+    fstream ifs(szIndexFile, ios::in);
+    if (ifs)
+    {
+        string str;
+        unsigned nOff, nLen;
+
+        while (ifs >> str >> nOff >> nLen)
+        {
+            aIdxList.push_back(DCMFileIndex(str, nOff, nLen));
+        }
+
+        return true;
+    }
+
+    return false;
 }
 
 void MainWindow::slot_showManu(QPoint pt)
@@ -793,8 +831,8 @@ void MainWindow::setDcmFileInfo()
     ui->checkBox_wind->setChecked(true);
     mBWind = true;
 
-//    ui->checkBox_contrast->setChecked(false);
-//    mBContrast = false;
+    ui->checkBox_contrast->setChecked(false);
+    mBContrast = false;
 
     mRotate = 0;
     mNeedRotate = 0;
@@ -932,8 +970,8 @@ void MainWindow::resetImg()
     ui->checkBox_wind->setChecked(true);
     mBWind = true;
 
-//    ui->checkBox_contrast->setChecked(false);
-//    mBContrast = false;
+    ui->checkBox_contrast->setChecked(false);
+    mBContrast = false;
 
     mRotate = 0;
     mNeedRotate = 0;
@@ -1734,12 +1772,14 @@ void MainWindow::slotBtnClick(bool bClick)
 
         delImg();
     }
-//    else if (QObject::sender() == ui->checkBox_contrast)
-//    {
-//        mBContrast = ui->checkBox_contrast->isChecked();
+    else if (QObject::sender() == ui->checkBox_contrast)
+    {
+        mBContrast = ui->checkBox_contrast->isChecked();
+        mLevel     = ui->spinBox_level->value();
+        mPower     = ui->doubleSpinBox_power->value();
 
-//        delImg();
-//    }
+        delImg();
+    }
     else if (QObject::sender() == ui->checkBox_show_defect)
     {
         mBShowDefect = ui->checkBox_show_defect->isChecked();
@@ -1763,32 +1803,72 @@ void MainWindow::slotBtnClick(bool bClick)
 
         if (mADefectList.size() > 0 && dmfile.IsValid())
         {
-            if (!mIndexFileOfs.is_open())
-                mIndexFileOfs.open(mIndexFilePath.toStdString(), ios::app | ios::out);
-
-            mIndexData.strFullPath = mCurDcmFileInfo.filePath.toLocal8Bit().toStdString();
-            mIndexData.fileFeat = dmfile.getFileFeature();
-
-            for (size_t n = 0; n != mADefectList.size(); ++n)
+            bool isExist = false;
+            for (int i=0; i<mAIdxList.size(); i++)
             {
-                mIndexData.aDefectList.push_back(mADefectList.at(n).feat);
+                if (mAIdxList.at(i).strFullPath == mCurDcmFileInfo.filePath.toLocal8Bit().toStdString())
+                {
+                    isExist = true;
+                    break;
+                }
             }
 
-            string strDefFile = mIndexData.strFullPath + ".def";
+            bool needAdd = true;
+            if (isExist)
+            {
+                int result = QMessageBox::information(this, (QStringLiteral("提示")),  (QStringLiteral("数据库中已经存在，是否继续写入？")), QMessageBox::Yes | QMessageBox::No);
 
-            //保存缺陷文件
-            SaveDefect(mADefectList, strDefFile.c_str());
+                switch (result)
+                {
+                case QMessageBox::Yes:
+                    needAdd = true;
+                    break;
+                case QMessageBox::No:
+                    needAdd = false;
+                    break;
+                default:
+                    needAdd = false;
+                    break;
+                }
+            }
+
+            if (needAdd)
+            {
+                if (!mIndexFileOfs.is_open())
+                    mIndexFileOfs.open(mIndexFilePath.toStdString(), ios::app | ios::out);
+
+                mIndexData.strFullPath = mCurDcmFileInfo.filePath.toLocal8Bit().toStdString();
+                mIndexData.fileFeat = dmfile.getFileFeature();
+
+                for (size_t n = 0; n != mADefectList.size(); ++n)
+                {
+                    mIndexData.aDefectList.push_back(mADefectList.at(n).feat);
+                }
+
+                string strDefFile = mIndexData.strFullPath + ".def";
+
+                //保存缺陷文件
+                SaveDefect(mADefectList, strDefFile.c_str());
 
 
-            DCMFileIndex idx;
-            DCMIndexingFile::Write(idx, mIndexDataFilePath.toStdString().c_str(), mIndexData);
+                DCMFileIndex idx;
+                DCMIndexingFile::Write(idx, mIndexDataFilePath.toStdString().c_str(), mIndexData);
 
-            //把当前文件的索引信息写入所以文件中
-//            mIndexFileOfs << mCurDcmFileInfo.filePath.toStdString() << "\t" << idx.nOffset << "\t" << idx.nLength << "\n";
-            mIndexFileOfs << mCurDcmFileInfo.filePath.toStdString() << "\t" << idx.nOffset << "\t" << idx.nLength << "\n";
-            mIndexFileOfs.close();
+                //把当前文件的索引信息写入所以文件中
+    //            mIndexFileOfs << mCurDcmFileInfo.filePath.toStdString() << "\t" << idx.nOffset << "\t" << idx.nLength << "\n";
+                mIndexFileOfs << mCurDcmFileInfo.filePath.toStdString() << "\t" << idx.nOffset << "\t" << idx.nLength << "\n";
+                mIndexFileOfs.close();
 
-            QMessageBox::information(this, (QStringLiteral("提示")),  (QStringLiteral("加入数据库成功。")));
+                //添加到列表中
+                DCMFileIndex idxT;
+                idxT.strFullPath = mCurDcmFileInfo.filePath.toStdString();
+                idxT.nOffset = idx.nOffset;
+                idxT.nLength = idx.nLength;
+
+                mAIdxList.push_back(idxT);
+
+                QMessageBox::information(this, (QStringLiteral("提示")),  (QStringLiteral("加入数据库成功。")));
+            }
         }
     }
     else if (QObject::sender() == ui->pushButton_aoi_recheck)
@@ -1970,11 +2050,13 @@ void MainWindow::exeDefectImg()
             WindowLevelTransform(m_pImgDefect, mSrcImgWidth, mSrcImgHeight, mWinCentre, mWinWidth);
     }
 
-//    //对比度
-//    if (mBContrast)
-//    {
-//        ContrastEnhancement(m_pImgPro, mCurImgWidth, mCurImgHeight, mContrast);
-//    }
+    //对比度
+    if (mBContrast)
+    {
+        IPFuncMUSICA(m_pImgDefect, mCurImgWidth, mCurImgHeight, mLevel, mPower);
+
+        //ContrastEnhancement(m_pImgPro, mCurImgWidth, mCurImgHeight, mContrast);
+    }
 
     //反相
     if (mBInvert)
@@ -2135,10 +2217,14 @@ void MainWindow::delImg()
         mDelImgLock.unlock();
 
         //对比度
-//        if (mBContrast)
-//        {
-//            ContrastEnhancement(m_pImgPro, mCurImgWidth, mCurImgHeight, mContrast);
-//        }
+        if (mBContrast)
+        {
+            mImgProLock.lock();
+            IPFuncMUSICA(m_pImgPro, mCurImgWidth, mCurImgHeight, mLevel, mPower);
+            mImgProLock.unlock();
+
+            //ContrastEnhancement(m_pImgPro, mCurImgWidth, mCurImgHeight, mContrast);
+        }
 
         mDelImgLock.lock();
         if (!mBDelImging)
@@ -4660,7 +4746,7 @@ void MainWindow::updateMeasureTable()
             double dMean, dStd, dSNR;
             rectItemTmp->getSNR(dMean, dStd, dSNR);
 
-            addOneMeasure(i, QStringLiteral("矩形"), rect.topLeft().toPoint(), rect.bottomRight().toPoint(),
+            addOneMeasure(i, QStringLiteral("矩形"), rectItemTmp->getItemName(), rect.topLeft().toPoint(), rect.bottomRight().toPoint(),
                           rect.center().toPoint(), rectItemTmp->getOriHeightUnit(), rectItemTmp->getOriWidthUnit(),
                           0, 0, 0,
                           rectItemTmp->getAreaUnit(),
@@ -4675,7 +4761,7 @@ void MainWindow::updateMeasureTable()
             double dMean, dStd, dSNR;
             ellipseItemTmp->getSNR(dMean, dStd, dSNR);
 
-            addOneMeasure(i, QStringLiteral("椭圆"), rect.topLeft().toPoint(), rect.bottomRight().toPoint(),
+            addOneMeasure(i, QStringLiteral("椭圆"), ellipseItemTmp->getItemName(), rect.topLeft().toPoint(), rect.bottomRight().toPoint(),
                           rect.center().toPoint(),
                           ellipseItemTmp->getOriWidthUnit(), ellipseItemTmp->getOriHeightUnit(),
                           ellipseItemTmp->getSemiMajorAxisUnit(), ellipseItemTmp->getSemiMinorAxisUnit(),
@@ -4689,7 +4775,7 @@ void MainWindow::updateMeasureTable()
         {
             QLineF line = lineItemTmp->getOriLine();
 
-            addOneMeasure(i, QStringLiteral("直线"), line.p1().toPoint(), line.p2().toPoint(),
+            addOneMeasure(i, QStringLiteral("直线"),lineItemTmp->getItemName(), line.p1().toPoint(), line.p2().toPoint(),
                           lineItemTmp->getCenterPt(),
                           lineItemTmp->getLengthUnit(), 0,
                           0,0,
@@ -4704,7 +4790,7 @@ void MainWindow::updateMeasureTable()
 }
 
 void MainWindow::addOneMeasure(int num,
-                   QString name,
+                   QString name, QString typeName,
                    QPoint beginPt,
                    QPoint endPt,
                    QPoint centerPt,
@@ -4731,17 +4817,26 @@ void MainWindow::addOneMeasure(int num,
 
     QTableWidgetItem *beginItem = new QTableWidgetItem;
 //    beginItem->setText(QString("(%1, %2)").arg(beginPt.x()).arg(beginPt.y()));
-    beginItem->setText(QString("%1").arg(intersity));
+    if (typeName == tr("Line") )
+        beginItem->setText(QString("-"));
+    else
+        beginItem->setText(QString("%1").arg(intersity));
     beginItem->setTextAlignment(Qt::AlignCenter);
 
     QTableWidgetItem *endItem = new QTableWidgetItem;
 //    endItem->setText(QString("(%1, %2)").arg(endPt.x()).arg(endPt.y()));
-    endItem->setText(QString("%1").arg(QString::number(mean, 'f', 2)));
+    if (typeName == tr("Line") )
+        endItem->setText(QString("-"));
+    else
+        endItem->setText(QString("%1").arg(QString::number(mean, 'f', 2)));
     endItem->setTextAlignment(Qt::AlignCenter);
 
     QTableWidgetItem *centerItem = new QTableWidgetItem;
 //    centerItem->setText(QString("(%1, %2)").arg(centerPt.x()).arg(centerPt.y()));
-    centerItem->setText(QString("%1").arg(QString::number(snr, 'f', 2)));
+    if (typeName == tr("Line") )
+        centerItem->setText(QString("-"));
+    else
+        centerItem->setText(QString("%1").arg(QString::number(snr, 'f', 2)));
     centerItem->setTextAlignment(Qt::AlignCenter);
 
     QTableWidgetItem *widthItem = new QTableWidgetItem;
@@ -4749,7 +4844,7 @@ void MainWindow::addOneMeasure(int num,
     widthItem->setTextAlignment(Qt::AlignCenter);
 
     QTableWidgetItem *heightItem = new QTableWidgetItem;
-    if (name == tr("Line") )
+    if (typeName == tr("Line") )
         heightItem->setText(QString("-"));
     else
         heightItem->setText(QString("%1").arg(QString::number(height, 'f', 2)));
@@ -4757,28 +4852,28 @@ void MainWindow::addOneMeasure(int num,
     heightItem->setTextAlignment(Qt::AlignCenter);
 
     QTableWidgetItem *majorItem = new QTableWidgetItem;
-    if (name == tr("Rectangle") || name == tr("Line") )
+    if (typeName == tr("Rectangle") || typeName == tr("Line") )
         majorItem->setText(QString("-"));
     else
         majorItem->setText(QString("%1").arg(QString::number(majorAxis, 'f', 2)));
     majorItem->setTextAlignment(Qt::AlignCenter);
 
     QTableWidgetItem *minorItem = new QTableWidgetItem;
-    if (name == tr("Rectangle") || name == tr("Line" ))
+    if (typeName == tr("Rectangle") || typeName == tr("Line" ))
         minorItem->setText(QString("-"));
     else
         minorItem->setText(QString("%1").arg(QString::number(minorAxis, 'f', 2)));
     minorItem->setTextAlignment(Qt::AlignCenter);
 
     QTableWidgetItem *angleItem = new QTableWidgetItem;
-    if (name == tr("Rectangle") || name == tr("Ellipse") )
+    if (typeName == tr("Rectangle") || typeName == tr("Ellipse") )
         angleItem->setText(QString("-"));
     else
         angleItem->setText(QString("%1").arg(QString::number(angle, 'f', 2)));
     angleItem->setTextAlignment(Qt::AlignCenter);
 
     QTableWidgetItem *areaItem = new QTableWidgetItem;
-    if (name == tr("Line"))
+    if (typeName == tr("Line"))
         areaItem->setText(QString("-"));
     else
         areaItem->setText(QString("%1").arg(QString::number(area, 'f', 2)));
@@ -4786,7 +4881,7 @@ void MainWindow::addOneMeasure(int num,
     areaItem->setTextAlignment(Qt::AlignCenter);
 
     QTableWidgetItem *perimeterItem = new QTableWidgetItem;
-    if (name == tr("Line"))
+    if (typeName == tr("Line"))
         perimeterItem->setText(QString("-"));
     else
         perimeterItem->setText(QString("%1").arg(QString::number(perimeter, 'f', 2)));

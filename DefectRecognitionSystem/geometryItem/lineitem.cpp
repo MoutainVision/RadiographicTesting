@@ -160,8 +160,8 @@ void LineItem::calcOriGeometry(QPoint oriPt, int imgW, int imgH, float scale, in
     m_lineOri = lineTemp;
 
     //更新、计算相关信息
-    m_length = m_lineOri.length() / scale;
-    m_angle  = m_lineOri.angle() / scale;
+    m_length = m_lineOri.length();
+    m_angle  = m_lineOri.angle();
 
     changeToUnitType();
 }
