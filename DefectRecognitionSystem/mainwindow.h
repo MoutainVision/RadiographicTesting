@@ -23,6 +23,10 @@
 #include <QTabWidget>
 #include <QHeaderView>
 
+#include <QMenu>
+#include <QAction>
+#include <QPoint>
+
 #include <thread>
 
 #include<iostream>
@@ -55,6 +59,7 @@
 
 #include "Windows.h"
 
+#include "aboutdlg.h"
 
 
 #define MAX_PRE_WIDGET_WIDTH 100
@@ -128,6 +133,9 @@ public:
 
     //清楚缺陷
     void clearDefect();
+
+    //状态切换
+    void actionActionChange();
 
     //----查重------
     void addRetrievalResultValues(vector<RetrievalResult> aRes);
@@ -204,6 +212,11 @@ private slots:
 
     void slot_tableCellClicked(int row, int col);
 
+    //菜单
+    void slot_menueToggle();
+    void slot_showManu(QPoint pt);
+    void slot_actionDelete();
+
     //资源树点击
     void clicked(QModelIndex index);
 
@@ -239,6 +252,8 @@ private slots:
     //清空
     void slot_btnDeleteToolClick();
 
+    //参数值改变
+    void slot_paramValueChange(int value);
 
 
 
@@ -250,6 +265,9 @@ protected:
 
 private:
     Ui::MainWindow *ui;
+
+    QMenu       *m_containerMenu;
+    QAction     *m_actDelete;
 
     Loading *m_loadingDlg;
 
@@ -275,12 +293,17 @@ private:
     DcmFileNode mCurDcmFileInfo;
     QList<PreWdg *> mPreWdgList;
 
+    //标尺
+    bool    mBReal;
+
     //查重
     QString mIndexFilePath;
     QString mIndexDataFilePath;
     ofstream mIndexFileOfs;
 
     PreWdg *mPreWdg;
+
+    RectItem    *mRecheckRectItem;
 
     //检索数据
     DCMFileIndexingData mIndexData;
@@ -323,9 +346,9 @@ private:
     bool    mBFlip;    //翻转
     bool    mBMirror;  //镜像
     bool    mBWind;  //窗宽
-    bool    mBContrast;  //对比度
+//    bool    mBContrast;  //对比度
+//    int     mContrast; //对比度
 
-    int     mContrast; //对比度
     int     mWinCentre; //窗宽
     int     mWinWidth;  //窗位
 

@@ -1022,7 +1022,9 @@ bool GetIntensity(unsigned short &nIntensity, unsigned short *pImg,	int nW,	int 
 		}
 	}
 
-	return (unsigned short)(dIntensity / (xe - xs + 1) / (ye - ys + 1));
+	nIntensity = (unsigned short)(dIntensity / (xe - xs + 1) / (ye - ys + 1));
+
+	return true;
 }
 
 bool GetIntensityCurve(vector<unsigned short> &aIntensity, unsigned short *pImg, int nW, int nH, int xs, int ys, int xe, int ye)
