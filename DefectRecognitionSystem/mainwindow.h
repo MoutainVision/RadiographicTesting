@@ -203,7 +203,10 @@ public:
                        qreal minorAxis,
                        qreal angle,
                        qreal area,
-                       qreal perimeter);
+                       qreal perimeter,
+                       qreal intersity,
+                       qreal mean,
+                       qreal snr);
 
 private slots:
     void slotBtnClick(bool bClick);
