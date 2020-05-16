@@ -82,35 +82,35 @@ bool Convert(unsigned char *pDst, unsigned short *pSrc, int nW, int nP, int nH, 
 				unsigned char g = (unsigned char)((pSrc[y*nW + x] - minIntensity)*dRatio);
 				//unsigned char g = (unsigned char)((pSrc[y*nW+x]-minIntensity)*255/(maxIntensity-minIntensity)); 
 				pDst[y*nP + x] = g;
-				if (g != 0)
-				{
-					int dbg = 10;
-				}
+				//if (g != 0)
+				//{
+				//	int dbg = 10;
+				//}
 			}
 
-		unsigned aFS[65536];
-		GetHist(aFS, pSrc, nW, nH);
-		ofstream ofs("shortFreq.txt");
-		if (ofs)
-		{
-			for (int n = 0; n < 65536; n++)
-			{
-				if (aFS[n] > 0)
-					ofs << n << "\t" << aFS[n] << endl;
-			}
-		}
+		//unsigned aFS[65536];
+		//GetHist(aFS, pSrc, nW, nH);
+		//ofstream ofs("shortFreq.txt");
+		//if (ofs)
+		//{
+		//	for (int n = 0; n < 65536; n++)
+		//	{
+		//		if (aFS[n] > 0)
+		//			ofs << n << "\t" << aFS[n] << endl;
+		//	}
+		//}
 
-		unsigned aFC[256];
-		GetHist(aFC, pDst, nW, nP, nH);
-		ofstream ofs1("ucFreq.txt");
-		if (ofs1)
-		{
-			for (int n = 0; n < 255; n++)
-			{
-				if (aFC[n] > 0)
-					ofs1 << n << "\t" << aFC[n] << endl;
-			}
-		}
+		//unsigned aFC[256];
+		//GetHist(aFC, pDst, nW, nP, nH);
+		//ofstream ofs1("ucFreq.txt");
+		//if (ofs1)
+		//{
+		//	for (int n = 0; n < 255; n++)
+		//	{
+		//		if (aFC[n] > 0)
+		//			ofs1 << n << "\t" << aFC[n] << endl;
+		//	}
+		//}
 
 	}
 
