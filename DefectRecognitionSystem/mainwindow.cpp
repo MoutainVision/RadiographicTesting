@@ -318,6 +318,11 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->pushButton_adapt, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->checkBox_measure_table, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
 
+
+    //查重
+    connect(ui->pushButton_adapt_recheck, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+    connect(ui->pushButton_nomal_recheck, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+
     //标尺
     connect(ui->checkBox_ruler_cali, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->checkBox_ruler_apply, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
@@ -375,7 +380,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->tableWidget_recheck, SIGNAL(cellClicked(int, int)), this, SLOT(slot_tableCellClicked(int, int)));
 
-
+    connect(ui->tableWidget_measure, SIGNAL(cellClicked(int, int)), this, SLOT(slot_tableCellClicked(int, int)));
 
     ui->spinBox_GreyDiff->setValue(Appconfig::gDetectParam.nGreyDiff);
     ui->spinBox_ConnectThr->setValue(Appconfig::gDetectParam.nConnectThr);
@@ -682,6 +687,17 @@ void MainWindow::slot_tableCellClicked(int row, int col)
 
         update();
     }
+    else if (QObject::sender() == ui->tableWidget_measure)
+    {
+        clearItemSelected(m_selectedIndex);
+
+        m_selectedIndex = row;
+
+        if (m_selectedIndex < m_geometryItemList.size())
+            m_geometryItemList.at(m_selectedIndex)->setItemStatus(SELECTEDMOVE);
+
+        update();
+    }
     else if (QObject::sender() == ui->tableWidget_recheck)
     {
         QString filePath = ui->tableWidget_recheck->item(row, 2)->text();
@@ -839,6 +855,8 @@ void MainWindow::setDcmFileInfo()
             mSrcImgWidth = dmfile.GetWidth();
             mSrcImgHeight = dmfile.GetHeight();
 
+            mImgProLock.lock();
+
             if (nullptr != m_pImgPro)
             {
                 delete []m_pImgPro;
@@ -847,6 +865,8 @@ void MainWindow::setDcmFileInfo()
 
             m_pImgPro = new unsigned short[mSrcImgWidth * mSrcImgHeight];
             memcpy(m_pImgPro, m_pSrcImg, mSrcImgWidth*mSrcImgHeight*sizeof(unsigned short));
+
+            mImgProLock.unlock();
 
 			ui->verticalSlider_WinCentre->setValue(mCurDcmFileInfo.winCentre);
 			ui->verticalSlider_WindWidth->setValue(mCurDcmFileInfo.windWidth);
@@ -939,7 +959,9 @@ void MainWindow::reSize(int newW, int newH)
     int srcW = mCurImgWidth;
     int srcH = mCurImgHeight;
 
+    mImgProLock.lock();
     Resize(m_pImgPro, srcW, srcH, newW, newH);
+    mImgProLock.unlock();
 
     mCurImgWidth  = srcW;
     mCurImgHeight = srcH;
@@ -957,7 +979,9 @@ void MainWindow::reSize(float scale)
 
     qDebug() << "pre:" << mCurImgWidth << mCurImgHeight;
 
+    mImgProLock.lock();
     Resize(m_pImgPro, srcW, srcH, mCurImgWidth, mCurImgHeight);
+    mImgProLock.unlock();
 
     mCurImgWidth = srcW;
     mCurImgHeight = srcH;
@@ -1269,13 +1293,13 @@ void MainWindow::calcIntensityCurve(QPoint p1, QPoint p2)
     m_iP1 = iP1;
     m_iP2 = iP2;
 
-    mDelImgLock.lock();
-
+    mImgProLock.lock();
     vector<unsigned short> aIntensity;
     GetIntensityCurve(aIntensity, m_pImgPro, mCurImgWidth, mCurImgHeight, iP1.x(),
                       iP1.y(), iP2.x(), iP2.y());
 
-    mDelImgLock.unlock();
+    mImgProLock.unlock();
+
 
     float ab = iP2.x() - iP1.x();
     float bc = iP2.y() - iP1.y();
@@ -1363,20 +1387,20 @@ void MainWindow::closeGreyWdg()
 
 void MainWindow::getIntensity(QPoint curPt)
 {
-	if (nullptr != m_pImgPro)
+    if (nullptr != m_pSrcImg)
 	{
 		QPoint imgPt = convertImgPt(curPt);
 
         /*if (imgPt.x() > 0 && imgPt.x()<mPaintRectReal.width()
                 && imgPt.y() > 0 && imgPt.y()<mPaintRectReal.height())*/
-		if (imgPt.x() > 0 && imgPt.x() < mCurImgWidth
-			&& imgPt.y() > 0 && imgPt.y() < mCurImgHeight)
+        if (imgPt.x() > 0 && imgPt.x() < mSrcImgWidth
+            && imgPt.y() > 0 && imgPt.y() < mSrcImgHeight)
         {
             mDelImgLock.lock();
 
             unsigned short intensity = 0;
-            GetIntensity(intensity, m_pImgPro, mCurImgWidth, mCurImgHeight,
-                imgPt.x(), imgPt.y());
+            GetIntensity(intensity, m_pSrcImg, mSrcImgWidth, mSrcImgHeight,
+                imgPt.x() / mScale, imgPt.y()/ mScale);
 
             mDelImgLock.unlock();
 
@@ -1622,11 +1646,11 @@ void MainWindow::slotBtnClick(bool bClick)
 
         updateMeasureTable();
     }
-    else if (QObject::sender() == ui->pushButton_adapt)
+    else if (QObject::sender() == ui->pushButton_adapt || QObject::sender() == ui->pushButton_adapt_recheck)
     {
         showAdapt();
     }
-    else if (QObject::sender() == ui->pushButton_nomal)
+    else if (QObject::sender() == ui->pushButton_nomal || QObject::sender() == ui->pushButton_nomal_recheck)
     {
         showNomal();
     }
@@ -2024,14 +2048,14 @@ void MainWindow::delImg()
 
     std::thread([=] {
 
-        mDelImgLock.lock();
+        mImgProLock.lock();
         //删除
         if (nullptr != m_pImgPro)
         {
             delete []m_pImgPro;
             m_pImgPro = NULL;
         }
-        mDelImgLock.unlock();
+        mImgProLock.unlock();
 
 
         mDelImgLock.lock();
@@ -2046,16 +2070,23 @@ void MainWindow::delImg()
         if (mSrcImgWidth <= 0 || mSrcImgHeight <= 0)
             return ;
 
+        mImgProLock.lock();
         //拷贝
         m_pImgPro = new unsigned short[mSrcImgWidth * mSrcImgHeight];
         memcpy(m_pImgPro, m_pSrcImg, mSrcImgWidth*mSrcImgHeight*sizeof(unsigned short));
+        mImgProLock.unlock();
+
 
         mCurImgWidth  = mSrcImgWidth;
         mCurImgHeight = mSrcImgHeight;
 
         //镜像
         if (mBMirror)
+        {
+            mImgProLock.lock();
             Mirror(m_pImgPro, mCurImgWidth, mCurImgHeight);
+            mImgProLock.unlock();
+        }
 
         mDelImgLock.lock();
         if (!mBDelImging)
@@ -2068,7 +2099,11 @@ void MainWindow::delImg()
 
         //翻转
         if (mBFlip)
+        {
+            mImgProLock.lock();
             Flip(m_pImgPro, mCurImgWidth, mCurImgHeight);
+            mImgProLock.unlock();
+        }
 
         mDelImgLock.lock();
         if (!mBDelImging)
@@ -2083,7 +2118,11 @@ void MainWindow::delImg()
         if (mBWind)
         {
             if (mWinCentre>1 && mWinWidth>1)
+            {
+                mImgProLock.lock();
                 WindowLevelTransform(m_pImgPro, mCurImgWidth, mCurImgHeight, mWinCentre, mWinWidth);
+                mImgProLock.unlock();
+            }
         }
 
         mDelImgLock.lock();
@@ -2112,7 +2151,11 @@ void MainWindow::delImg()
 
         //反相
         if (mBInvert)
+        {
+            mImgProLock.lock();
             Invert(m_pImgPro, mCurImgWidth, mCurImgHeight);
+            mImgProLock.unlock();
+        }
 
         mDelImgLock.lock();
         if (!mBDelImging)
@@ -2135,6 +2178,7 @@ void MainWindow::delImg()
         }
         mDelImgLock.unlock();
 
+        mImgProLock.lock();
         //旋转
         if (mNeedRotate == 90)
             Rotate90(m_pImgPro, mCurImgWidth, mCurImgHeight);
@@ -2142,6 +2186,7 @@ void MainWindow::delImg()
             Rotate180(m_pImgPro, mCurImgWidth, mCurImgHeight);
         else if (mNeedRotate == 270)
             Rotate270(m_pImgPro, mCurImgWidth, mCurImgHeight);
+        mImgProLock.unlock();
 
         mDelImgLock.lock();
         if (!mBDelImging)
@@ -2152,7 +2197,9 @@ void MainWindow::delImg()
         }
         mDelImgLock.unlock();
 
+        mImgProLock.lock();
         shortImgToImage(m_pImgPro, mCurImgWidth, mCurImgHeight, mPaintImg);
+        mImgProLock.unlock();
 
         mDelImgLock.lock();
         if (!mBDelImging)
@@ -3133,7 +3180,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                                                                 mScale,
                                                                 mNeedRotate, mBFlip, mBMirror);
 
-//                            RectItem *rectItem = (RectItem *)m_geometryItemBase;
+                            RectItem *rectItem = (RectItem *)m_geometryItemBase;
 //                            rectItem->setFillStatus(m_measureSetting.measureObjectSet.bFill);
 //                            rectItem->setFillColor(m_measureSetting.measureObjectSet.fillColor);
 
@@ -3150,6 +3197,34 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                             insetOperator(m_itemOperatorTmp);
 
 //                            updateMesureDlgCtr(m_geometryItemBase);
+
+                            QRectF rectTmp = rectItem->getOriRect();
+
+                            //--Intensity--
+                            if (nullptr != m_pSrcImg)
+                            {
+                                QPoint topLeft = rectTmp.topLeft().toPoint();
+                                QPoint bottomRight = rectTmp.bottomRight().toPoint();
+
+                                unsigned short intensity = 0;
+                                GetIntensity(intensity, m_pSrcImg, mSrcImgWidth, mSrcImgHeight,
+                                    topLeft.x(), topLeft.y(), bottomRight.x(), bottomRight.y());
+
+                                rectItem->setIntensity(intensity);
+                            }
+
+                            //--SNR--
+                            if (nullptr != m_pSrcImg)
+                            {
+                                QPoint topLeft = rectTmp.topLeft().toPoint();
+                                QPoint bottomRight = rectTmp.bottomRight().toPoint();
+
+                                double dMean, dStd, dSNR;
+                                GetSNR(dMean, dStd, dSNR, m_pSrcImg, mSrcImgWidth, mSrcImgHeight,
+                                    topLeft.x(), topLeft.y(), bottomRight.x(), bottomRight.y());
+
+                                rectItem->setSNR(dMean, dStd, dSNR);
+                            }
 
                             updateMeasureTable();
                         }
@@ -3300,7 +3375,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                                                                 mScale,
                                                                 mNeedRotate, mBFlip, mBMirror);
 
-//                            EllipseItem *ellipseItem = (EllipseItem *)m_geometryItemBase;
+                            EllipseItem *ellipseItem = (EllipseItem *)m_geometryItemBase;
 //                            ellipseItem->setFillStatus(m_measureSetting.measureObjectSet.bFill);
 //                            ellipseItem->setFillColor(m_measureSetting.measureObjectSet.fillColor);
 
@@ -3317,6 +3392,34 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                             insetOperator(m_itemOperatorTmp);
 
 //                            updateMesureDlgCtr(m_geometryItemBase);
+
+                            QRectF rectTmp = ellipseItem->getOriRect();
+
+                            //--Intensity--
+                            if (nullptr != m_pSrcImg)
+                            {
+                                QPoint topLeft = rectTmp.topLeft().toPoint();
+                                QPoint bottomRight = rectTmp.bottomRight().toPoint();
+
+                                unsigned short intensity = 0;
+                                GetIntensity(intensity, m_pSrcImg, mSrcImgWidth, mSrcImgHeight,
+                                    topLeft.x(), topLeft.y(), bottomRight.x(), bottomRight.y());
+
+                                ellipseItem->setIntensity(intensity);
+                            }
+
+                            //--SNR--
+                            if (nullptr != m_pSrcImg)
+                            {
+                                QPoint topLeft = rectTmp.topLeft().toPoint();
+                                QPoint bottomRight = rectTmp.bottomRight().toPoint();
+
+                                double dMean, dStd, dSNR;
+                                GetSNR(dMean, dStd, dSNR, m_pSrcImg, mSrcImgWidth, mSrcImgHeight,
+                                    topLeft.x(), topLeft.y(), bottomRight.x(), bottomRight.y());
+
+                                ellipseItem->setSNR(dMean, dStd, dSNR);
+                            }
 
                             updateMeasureTable();
                         }
@@ -3572,34 +3675,6 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
         else if (e->type() == QEvent::Enter)
         {
             updateCursor();
-//            if (mBMeasureOpt)
-//            {
-//                if (m_eCurAction == HANDACTION)
-//                {
-//                    if (mPaintRect.width() > ui->widget_img_pre->width() ||
-//                        mPaintRect.height() > ui->widget_img_pre->height())
-//                    {
-//                        setCursor(Qt::OpenHandCursor);
-//                    }
-//                    else {
-//                        setCursor(Qt::ArrowCursor);
-//                    }
-//                }
-//                else {
-//                    setCursor(Qt::ArrowCursor);
-//                }
-//            }
-//            else
-//            {
-//                if (mPaintRect.width() > ui->widget_img_pre->width() ||
-//                    mPaintRect.height() > ui->widget_img_pre->height())
-//                {
-//                    setCursor(Qt::OpenHandCursor);
-//                }
-//                else {
-//                    setCursor(Qt::ArrowCursor);
-//                }
-//            }
 
             return true;
         }
@@ -3612,6 +3687,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
         {
             if (dmfile.IsValid())
                 delImg();
+
             return true;
         }
     }
@@ -4580,15 +4656,24 @@ void MainWindow::updateMeasureTable()
         {
             QRectF rect = rectItemTmp->getOriRect();
 
+            //--SNR--
+            double dMean, dStd, dSNR;
+            rectItemTmp->getSNR(dMean, dStd, dSNR);
+
             addOneMeasure(i, QStringLiteral("矩形"), rect.topLeft().toPoint(), rect.bottomRight().toPoint(),
                           rect.center().toPoint(), rectItemTmp->getOriHeightUnit(), rectItemTmp->getOriWidthUnit(),
                           0, 0, 0,
                           rectItemTmp->getAreaUnit(),
-                          rectItemTmp->getCircumferenceUnit());
+                          rectItemTmp->getCircumferenceUnit(),
+                          rectItemTmp->getIntensity(),
+                          dMean, dSNR);
         }
         else if (EllipseItem *ellipseItemTmp = dynamic_cast<EllipseItem *> (geometryItemTmp))
         {
             QRectF rect = ellipseItemTmp->getOriRect();
+            //--SNR--
+            double dMean, dStd, dSNR;
+            ellipseItemTmp->getSNR(dMean, dStd, dSNR);
 
             addOneMeasure(i, QStringLiteral("椭圆"), rect.topLeft().toPoint(), rect.bottomRight().toPoint(),
                           rect.center().toPoint(),
@@ -4596,7 +4681,9 @@ void MainWindow::updateMeasureTable()
                           ellipseItemTmp->getSemiMajorAxisUnit(), ellipseItemTmp->getSemiMinorAxisUnit(),
                           0,
                           ellipseItemTmp->getAreaUnit(),
-                          ellipseItemTmp->getCircumferenceUnit());
+                          ellipseItemTmp->getCircumferenceUnit(),
+                          ellipseItemTmp->getIntensity(),
+                          dMean, dSNR);
         }
         else if (LineItem *lineItemTmp = dynamic_cast<LineItem *> (geometryItemTmp))
         {
@@ -4607,6 +4694,9 @@ void MainWindow::updateMeasureTable()
                           lineItemTmp->getLengthUnit(), 0,
                           0,0,
                           lineItemTmp->getAngle(),
+                          0,
+                          0,
+                          0,
                           0,
                           0);
         }
@@ -4621,7 +4711,10 @@ void MainWindow::addOneMeasure(int num,
                    qreal width,
                    qreal height, qreal majorAxis, qreal minorAxis, qreal angle,
                    qreal area,
-                   qreal perimeter)
+                   qreal perimeter,
+                   qreal intersity,
+                   qreal mean,
+                   qreal snr)
 {
     ui->tableWidget_measure->setRowCount(ui->tableWidget_measure->rowCount() + 1);
 
@@ -4637,15 +4730,18 @@ void MainWindow::addOneMeasure(int num,
     nameItem->setTextAlignment(Qt::AlignCenter);
 
     QTableWidgetItem *beginItem = new QTableWidgetItem;
-    beginItem->setText(QString("(%1, %2)").arg(beginPt.x()).arg(beginPt.y()));
+//    beginItem->setText(QString("(%1, %2)").arg(beginPt.x()).arg(beginPt.y()));
+    beginItem->setText(QString("%1").arg(intersity));
     beginItem->setTextAlignment(Qt::AlignCenter);
 
     QTableWidgetItem *endItem = new QTableWidgetItem;
-    endItem->setText(QString("(%1, %2)").arg(endPt.x()).arg(endPt.y()));
+//    endItem->setText(QString("(%1, %2)").arg(endPt.x()).arg(endPt.y()));
+    endItem->setText(QString("%1").arg(QString::number(mean, 'f', 2)));
     endItem->setTextAlignment(Qt::AlignCenter);
 
     QTableWidgetItem *centerItem = new QTableWidgetItem;
-    centerItem->setText(QString("(%1, %2)").arg(centerPt.x()).arg(centerPt.y()));
+//    centerItem->setText(QString("(%1, %2)").arg(centerPt.x()).arg(centerPt.y()));
+    centerItem->setText(QString("%1").arg(QString::number(snr, 'f', 2)));
     centerItem->setTextAlignment(Qt::AlignCenter);
 
     QTableWidgetItem *widthItem = new QTableWidgetItem;

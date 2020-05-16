@@ -512,7 +512,7 @@ QSlider::add-page:horizontal {
           <enum>QTabWidget::West</enum>
          </property>
          <property name="currentIndex">
-          <number>2</number>
+          <number>3</number>
          </property>
          <widget class="QWidget" name="tab">
           <attribute name="title">
@@ -1841,7 +1841,7 @@ QDoubleSpinBox:!enabled
           <attribute name="title">
            <string> 查重</string>
           </attribute>
-          <layout class="QVBoxLayout" name="verticalLayout_10" stretch="0,0,0,1">
+          <layout class="QVBoxLayout" name="verticalLayout_10" stretch="0,0,0,0,1">
            <item>
             <widget class="QGroupBox" name="groupBox_4">
              <property name="minimumSize">
@@ -2067,6 +2067,74 @@ QDoubleSpinBox:!enabled
               </item>
              </layout>
             </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_19">
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <spacer name="horizontalSpacer_31">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pushButton_adapt_recheck">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="text">
+                <string> 适应屏幕</string>
+               </property>
+               <property name="checkable">
+                <bool>false</bool>
+               </property>
+               <property name="checked">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pushButton_nomal_recheck">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>1:1</string>
+               </property>
+               <property name="checkable">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_30">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
            </item>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -3539,17 +3607,17 @@ QTableView::indicator {
                    </column>
                    <column>
                     <property name="text">
-                     <string>开始</string>
+                     <string>平均亮度</string>
                     </property>
                    </column>
                    <column>
                     <property name="text">
-                     <string>结束</string>
+                     <string>均值</string>
                     </property>
                    </column>
                    <column>
                     <property name="text">
-                     <string>中心</string>
+                     <string>信噪比</string>
                     </property>
                    </column>
                    <column>
