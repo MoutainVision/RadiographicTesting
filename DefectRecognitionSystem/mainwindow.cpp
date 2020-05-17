@@ -434,6 +434,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->action_flip, SIGNAL(triggered()), this, SLOT(slot_menueToggle()));
     connect(ui->action_detect_param, SIGNAL(triggered()), this, SLOT(slot_menueToggle()));
     connect(ui->action_recheck_param, SIGNAL(triggered()), this, SLOT(slot_menueToggle()));
+
+    connect(ui->action_delete_db, SIGNAL(triggered()), this, SLOT(slot_menueToggle()));
 }
 
 
@@ -442,13 +444,14 @@ bool MainWindow::GetIndexList(vector<DCMFileIndex> &aIdxList, const char*szIndex
     fstream ifs(szIndexFile, ios::in);
     if (ifs)
     {
-        string str;
-        unsigned nOff, nLen;
+		string str;
+		unsigned nOff, nLen;
+		string strDef;
 
-        while (ifs >> str >> nOff >> nLen)
-        {
-            aIdxList.push_back(DCMFileIndex(str, nOff, nLen));
-        }
+		while (ifs >> str >> nOff >> nLen >> strDef)
+		{
+			aIdxList.push_back(DCMFileIndex(str, nOff, nLen, strDef));
+		}
 
         return true;
     }
@@ -503,6 +506,50 @@ void MainWindow::slot_menueToggle()
     else if (QObject::sender() == ui->action_exit)
     {
         this->close();
+    }
+    else if (QObject::sender() == ui->action_delete_db)
+    {
+        bool bRemove = true;
+
+        int result = QMessageBox::information(this, (QStringLiteral("提示")),  (QStringLiteral("是否确定删除数据库，删除后将无法恢复？")), QMessageBox::Yes | QMessageBox::No);
+
+        switch (result)
+        {
+        case QMessageBox::Yes:
+            bRemove = true;
+            break;
+        case QMessageBox::No:
+            bRemove = false;
+            break;
+        default:
+            bRemove = false;
+            break;
+        }
+
+        if (bRemove)
+        {
+            //清空列表
+            mAIdxList.clear();
+            mIndexFileOfs.close();
+
+            //删除
+            bool bRemoveIndex = QFile::remove(mIndexFilePath);
+            bool bRemoveData  = QFile::remove(mIndexDataFilePath);
+
+            if (bRemoveIndex && bRemoveData)
+            {
+                QMessageBox::information(this, (QStringLiteral("提示")),  (QStringLiteral("删除成功.")));
+            }
+
+            //新建
+            mIndexFileOfs.open(mIndexFilePath.toStdString(), ios::app | ios::out);
+
+            QFile indexDataFile(mIndexDataFilePath);
+            if (!indexDataFile.exists())
+            {
+                DCMIndexingFile::Create(mIndexDataFilePath.toStdString().c_str());
+            }
+        }
     }
     else if (QObject::sender() == ui->action_open)
     {
@@ -1331,12 +1378,15 @@ void MainWindow::calcIntensityCurve(QPoint p1, QPoint p2)
     m_iP1 = iP1;
     m_iP2 = iP2;
 
-    mImgProLock.lock();
+//    mImgProLock.lock();
     vector<unsigned short> aIntensity;
-    GetIntensityCurve(aIntensity, m_pImgPro, mCurImgWidth, mCurImgHeight, iP1.x(),
-                      iP1.y(), iP2.x(), iP2.y());
+//    GetIntensityCurve(aIntensity, m_pImgPro, mCurImgWidth, mCurImgHeight, iP1.x(),
+//                      iP1.y(), iP2.x(), iP2.y());
 
-    mImgProLock.unlock();
+//    mImgProLock.unlock();
+
+    GetIntensityCurve(aIntensity, m_pSrcImg, mSrcImgWidth, mSrcImgHeight, iP1.x() / mScale,
+                      iP1.y() / mScale, iP2.x() / mScale, iP2.y() / mScale);
 
 
     float ab = iP2.x() - iP1.x();
@@ -1434,13 +1484,13 @@ void MainWindow::getIntensity(QPoint curPt)
         if (imgPt.x() > 0 && imgPt.x() < mSrcImgWidth
             && imgPt.y() > 0 && imgPt.y() < mSrcImgHeight)
         {
-            mDelImgLock.lock();
+          //  mDelImgLock.lock();
 
             unsigned short intensity = 0;
             GetIntensity(intensity, m_pSrcImg, mSrcImgWidth, mSrcImgHeight,
                 imgPt.x() / mScale, imgPt.y()/ mScale);
 
-            mDelImgLock.unlock();
+           // mDelImgLock.unlock();
 
             ui->label_X_Value->setText(QString("%1").arg((int)(imgPt.x() / mScale)));
             ui->label_Y_Value->setText(QString("%1").arg((int)(imgPt.y() / mScale)));
@@ -1804,12 +1854,14 @@ void MainWindow::slotBtnClick(bool bClick)
         if (mADefectList.size() > 0 && dmfile.IsValid())
         {
             bool isExist = false;
+            int isExistCount = 0;
             for (int i=0; i<mAIdxList.size(); i++)
             {
                 if (mAIdxList.at(i).strFullPath == mCurDcmFileInfo.filePath.toLocal8Bit().toStdString())
                 {
                     isExist = true;
-                    break;
+                    isExistCount++;
+                   // break;
                 }
             }
 
@@ -1845,7 +1897,10 @@ void MainWindow::slotBtnClick(bool bClick)
                     mIndexData.aDefectList.push_back(mADefectList.at(n).feat);
                 }
 
-                string strDefFile = mIndexData.strFullPath + ".def";
+
+                QString defFileStrT = QString("%1_%2.def").arg(mCurDcmFileInfo.filePath).arg(isExistCount);
+
+                string strDefFile = defFileStrT.toLocal8Bit().toStdString();
 
                 //保存缺陷文件
                 SaveDefect(mADefectList, strDefFile.c_str());
@@ -1856,7 +1911,7 @@ void MainWindow::slotBtnClick(bool bClick)
 
                 //把当前文件的索引信息写入所以文件中
     //            mIndexFileOfs << mCurDcmFileInfo.filePath.toStdString() << "\t" << idx.nOffset << "\t" << idx.nLength << "\n";
-                mIndexFileOfs << mCurDcmFileInfo.filePath.toStdString() << "\t" << idx.nOffset << "\t" << idx.nLength << "\n";
+                mIndexFileOfs << mCurDcmFileInfo.filePath.toStdString() << "\t" << idx.nOffset << "\t" << idx.nLength  << "\t" << strDefFile << "\n";
                 mIndexFileOfs.close();
 
                 //添加到列表中
@@ -1864,6 +1919,7 @@ void MainWindow::slotBtnClick(bool bClick)
                 idxT.strFullPath = mCurDcmFileInfo.filePath.toStdString();
                 idxT.nOffset = idx.nOffset;
                 idxT.nLength = idx.nLength;
+                idxT.strDefFile = strDefFile;
 
                 mAIdxList.push_back(idxT);
 
@@ -2043,24 +2099,24 @@ void MainWindow::exeDefectImg()
     if (mBFlip)
         Flip(m_pImgDefect, imgW, imgH);
 
-    //窗宽窗位
-    if (mBWind)
-    {
-        if (mWinCentre>1 && mWinWidth>1)
-            WindowLevelTransform(m_pImgDefect, mSrcImgWidth, mSrcImgHeight, mWinCentre, mWinWidth);
-    }
+//    //窗宽窗位
+//    if (mBWind)
+//    {
+//        if (mWinCentre>1 && mWinWidth>1)
+//            WindowLevelTransform(m_pImgDefect, mSrcImgWidth, mSrcImgHeight, mWinCentre, mWinWidth);
+//    }
 
-    //对比度
-    if (mBContrast)
-    {
-        IPFuncMUSICA(m_pImgDefect, mCurImgWidth, mCurImgHeight, mLevel, mPower);
+//    //对比度
+//    if (mBContrast)
+//    {
+//        IPFuncMUSICA(m_pImgDefect, mCurImgWidth, mCurImgHeight, mLevel, mPower);
 
-        //ContrastEnhancement(m_pImgPro, mCurImgWidth, mCurImgHeight, mContrast);
-    }
+//        //ContrastEnhancement(m_pImgPro, mCurImgWidth, mCurImgHeight, mContrast);
+//    }
 
-    //反相
-    if (mBInvert)
-        Invert(m_pImgDefect, imgW, imgH);
+//    //反相
+//    if (mBInvert)
+//        Invert(m_pImgDefect, imgW, imgH);
 
 
     //旋转

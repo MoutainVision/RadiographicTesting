@@ -4378,6 +4378,8 @@ QTableView::indicator {
     <addaction name="separator"/>
     <addaction name="action_detect_param"/>
     <addaction name="action_recheck_param"/>
+    <addaction name="separator"/>
+    <addaction name="action_delete_db"/>
    </widget>
    <widget class="QMenu" name="menu_help">
     <property name="title">
@@ -4451,6 +4453,11 @@ QTableView::indicator {
    </property>
    <property name="text">
     <string>翻转</string>
+   </property>
+  </action>
+  <action name="action_delete_db">
+   <property name="text">
+    <string>删除数据库</string>
    </property>
   </action>
  </widget>
