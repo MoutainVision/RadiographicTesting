@@ -14,11 +14,13 @@ public:
 	RawImageFile(int nW, int nH);
 	virtual ~RawImageFile();
 
-	bool Load(const CString& sFile);
+	//bool Create(int nW, int nH);
 
-	bool Save(const CString &sFile);
+	bool Load(const char *szFile, int nW, int nH);
 
-	unsigned short* GetData();
+	bool Save(const char *szFile);
+
+	unsigned short* GetBuffer();
 
 	int GetWidth();
 
@@ -27,7 +29,7 @@ public:
 private:
 	int m_nWidth, m_nHeight;
 
-	unsigned short *m_pData;
+	unsigned short *m_pBuffer;
 
 
 };

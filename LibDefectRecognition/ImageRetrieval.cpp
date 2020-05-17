@@ -98,10 +98,11 @@ bool GetIndexList(vector<DCMFileIndex> &aIdxList, const char*szIndexFile)
 	{
 		string str;
 		unsigned nOff, nLen;
+		string strDef;
 
-		while (ifs >> str >> nOff >> nLen)
+		while (ifs >> str >> nOff >> nLen >> strDef)
 		{
-			aIdxList.push_back(DCMFileIndex(str, nOff, nLen));
+			aIdxList.push_back(DCMFileIndex(str, nOff, nLen, strDef));
 		}
 
 		return true;

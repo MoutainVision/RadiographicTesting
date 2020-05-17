@@ -28,21 +28,30 @@ struct LIBDEFECTRECOGNITION_API DCMFileIndex
 
 	unsigned nLength;
 
+	string strDefFile;
+
 	DCMFileIndex()
 		: strFullPath("")
 		, nOffset(0)
 		, nLength(0)
+		, strDefFile("NoDefect")
 	{
 	}
 
-	DCMFileIndex(string strPath, unsigned nOff, unsigned nLen)
+	DCMFileIndex(string strPath, unsigned nOff, unsigned nLen, string strDef)
 		: strFullPath(strPath)
 		, nOffset(nOff)
 		, nLength(nLen)
+		, strDefFile(strDef)
 	{
 	}
 };
 
+//create index file
+LIBDEFECTRECOGNITION_API bool CreateIndexFile(const char *szIndexFile = "index.idx");
+
+//append data to index file
+LIBDEFECTRECOGNITION_API bool AppendIndexFile(DCMFileIndex idx, const char *szIndexFile = "index.idx");
 
 //��ȡ�����ļ�
 LIBDEFECTRECOGNITION_API bool LoadIndexFile(vector<DCMFileIndex> &aIdx, const char *szIndexFile = "index.idx");

@@ -202,34 +202,35 @@ bool DCMFile::Load(const char *szSrcFileName)
 
 bool DCMFile::Save(const char *szDstFileName)
 {
-	OFCondition oc = m_dcmFileFmt.putUint16Array(m_pImgBuf, m_nDataLength);
-	DcmDataset *dataset = m_dcmFileFmt.getDataset();	//得到Dicom的数据集，所有的数据都存储在数据集当中
-	if (NULL == dataset)
-	{
-		return false;
-	}
+	OFCondition oc = m_dcmFileFmt.createUint16Array(m_nDataLength/2, m_pImgBuf);
+	//OFCondition oc = m_dcmFileFmt.putUint16Array(m_pImgBuf, m_nDataLength/2);
+	//DcmDataset *dataset = m_dcmFileFmt.getDataset();	//得到Dicom的数据集，所有的数据都存储在数据集当中
+	//if (NULL == dataset)
+	//{
+	//	return false;
+	//}
 
-	DcmElement* element = NULL;    //读取dcm中的像素值
-	OFCondition result = dataset->findAndGetElement(DCM_PixelData, element);
-	if (result.bad() || element == NULL)
-	{
-		return false;
-	}
+	//DcmElement* element = NULL;    //读取dcm中的像素值
+	//OFCondition result = dataset->findAndGetElement(DCM_PixelData, element);
+	//if (result.bad() || element == NULL)
+	//{
+	//	return false;
+	//}
 
-	Uint16* pixData16;
-	result = element->getUint16Array(pixData16);
-	if (result.bad())
-	{
-		return false;
-	}
+	//Uint16* pixData16;
+	//result = element->getUint16Array(pixData16);
+	//if (result.bad())
+	//{
+	//	return false;
+	//}
 
-	if (element->getLength() != m_nDataLength)
-	{
-		//std::cout << "Failed to save due to inequal length!" << std::endl;
-		return false;
-	}
+	//if (element->getLength() != m_nDataLength)
+	//{
+	//	//std::cout << "Failed to save due to inequal length!" << std::endl;
+	//	return false;
+	//}
 
-	memcpy(pixData16, m_pImgBuf, m_nDataLength);
+	//memcpy(pixData16, m_pImgBuf, m_nDataLength);
 
 	oc = m_dcmFileFmt.saveFile(szDstFileName);
 	if (!oc.good())

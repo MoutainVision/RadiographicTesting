@@ -19,7 +19,7 @@ using namespace std;
 int main()
 {
 	//多尺度對比度增強測試
-	if (true)
+	if (false)
 	{
 		ifstream ifs("sample.raw", ios::in | ios::binary);
 		int nW = 1024, nH = 1024;
@@ -29,7 +29,9 @@ int main()
 			ifs.read((char*)pImg, nW*nH * sizeof(unsigned short));
 
 			//多尺度增強
+			clock_t t = clock();
 			IPFuncMUSICA(pImg, nW, nH, 6, 0.6);
+			std::cout << "Multiscale contrast enhancement used: " << clock() - t << " milliseconds." << std::endl;
 
 			unsigned char *pImg8 = new unsigned char[nW*nH];
 
@@ -67,12 +69,18 @@ int main()
 	{
 		DCMFile df;
 		//if (df.Load("2.16.840.1.114226.1423554068.2992184.110.13.dcm"))
-		if (df.Load("1-A.dcm"))
+		//if (df.Load("1-A.dcm"))
+		if (df.Load("00078.dcm"))
 		{
 			std::cout << "File feature vector of the input image is: \n";
 			df.getFileFeature().Output2();
 
-			//std::cout << df.GetBPP() << "\t" << df.GetWindowCenter() << "\t" << df.GetWindowWidth() << std::endl;
+			df.Save("hallo.dcm");
+
+			//clock_t t = clock();
+			//IPFuncMUSICA(df.GetBuffer(), df.GetWidth(), df.GetHeight(), 6, 0.6);
+			//std::cout << "Multiscale contrast enhancement used: " << clock() - t << " milliseconds." << std::endl;
+			////std::cout << df.GetBPP() << "\t" << df.GetWindowCenter() << "\t" << df.GetWindowWidth() << std::endl;
 
 			CxImage dstImg;
 			if (df.Convert(dstImg))
@@ -94,7 +102,7 @@ int main()
 	//df.Convert(ximg);
 	//ximg.Save("00036copy.jpg", CXIMAGE_FORMAT_JPG);
 
-	if (false)
+	if (true)
 	{
 		std::cout << "\n";
 		std::cout << "Database in building, please wait...\n\n";
@@ -109,7 +117,8 @@ int main()
 
 		//创建空的索引信息文件
 		string strIndexFile = "index.idx";
-		ofstream ofs(strIndexFile.c_str());
+		//ofstream ofs(strIndexFile.c_str());
+		CreateIndexFile(strIndexFile.c_str());
 
 
 		//创建空的索引数据文件
@@ -146,6 +155,8 @@ int main()
 				vector<Defect> aDefList;
 				DetectDefect(aDefList, df.GetBuffer(), df.GetWidth(), df.GetHeight(), &aoi, &dp);
 
+				string strDefFile = "NoDefect";
+
 				if (!aDefList.empty())
 				{
 					for (size_t n = 0; n != aDefList.size(); ++n)
@@ -153,7 +164,7 @@ int main()
 						indexData.aDefectList.push_back(aDefList.at(n).feat);
 					}
 
-					string strDefFile = aFileList.at(k) + ".def";
+					strDefFile = aFileList.at(k) + ".def";
 
 					//保存缺陷到外部文件中
 					SaveDefect(aDefList, strDefFile.c_str());
@@ -163,12 +174,15 @@ int main()
 				DCMFileIndex idx;
 				DCMIndexingFile::Write(idx, strIndexDataFile.c_str(), indexData);
 
+				idx.strDefFile = strDefFile;
+
 				//将索引信息写入索引文件
-				ofs << idx.strFullPath << "\t" << idx.nOffset << "\t" << idx.nLength << "\n";
+				//ofs << idx.strFullPath << "\t" << idx.nOffset << "\t" << idx.nLength << "\t" << idx.strDefFile <<"\n";
+				AppendIndexFile(idx, strIndexFile.c_str());
 			}
 		}
 
-		ofs.close();
+		//ofs.close();
 
 		std::cout << std::endl;
 		std::cout << std::endl;
