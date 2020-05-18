@@ -286,7 +286,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     mRotate = 0;
 
-    ui->verticalSlider_diameter->setRange(1, 200);
+    ui->verticalSlider_diameter->setRange(5, 200);
 
     ui->pushButton_pre->hide();
     ui->pushButton_next->hide();
@@ -587,8 +587,19 @@ void MainWindow::slot_menueToggle()
            pImgSave = new unsigned short[mSrcImgWidth * mSrcImgHeight];
            memcpy(pImgSave, m_pSrcImg, mSrcImgWidth*mSrcImgHeight*sizeof(unsigned short));
 
-           if (mWinCentre>1 && mWinWidth>1)
-               WindowLevelTransform(pImgSave, mSrcImgWidth, mSrcImgHeight, mWinCentre, mWinWidth);
+
+           //窗宽窗位
+           if (mBWind)
+           {
+                if (mWinCentre>1 && mWinWidth>1)
+                    WindowLevelTransform(pImgSave, mSrcImgWidth, mSrcImgHeight, mWinCentre, mWinWidth);
+           }
+
+           //反相
+           if (mBInvert)
+           {
+               Invert(pImgSave, mSrcImgWidth, mSrcImgHeight);
+           }
 
             QImage img;
             shortImgToImage(pImgSave, mSrcImgWidth, mSrcImgHeight, img);
@@ -994,7 +1005,10 @@ void MainWindow::showAdapt()
     double dRatioH = (double)(wdgH) / (double)mSrcImgHeight;
     double dRat = dRatioW > dRatioH? dRatioH : dRatioW;
 
-    mScale = dRat;
+
+    float b = floor(dRat * 1000.000f + 0.5) / 1000.000f;
+
+    mScale = b;
 
     ui->verticalSlider_diameter->setValue((int)(mScale*100));
     ui->lineEdit_diameter->setText(QString("%1").arg((int)(mScale*100)));
@@ -1138,6 +1152,8 @@ void MainWindow::showScrollBar(bool status)
 
         if (mPaintRect.height() > ui->widget_img_pre->height())
         {
+           // qDebug() << __FUNCTION__ << "setValue";
+
             ui->verticalScrollBar->show();
             ui->verticalScrollBar->setValue((mPaintRect.height() - ui->widget_img_pre->height())/2);
         }
@@ -1146,12 +1162,26 @@ void MainWindow::showScrollBar(bool status)
             mSourceY = 0;
             ui->horizontalScrollBar->hide();
         }
+
+        int nW = ui->widget_img_pre->width();
+        int nH = ui->widget_img_pre->height();
+
+        if (mPaintRect.width() <= nW)
+            mSourceRect = QRect(mSourceX, mSourceY, mPaintRect.width(), nH);
+        else
+            mSourceRect = QRect(mSourceX, mSourceY, nW, nH);
+
+
+        update();
     }
 }
 
 
 void MainWindow::showScrollBar()
 {
+//    qDebug() << __FUNCTION__ << mPaintRect.width() << mPaintRect.height()
+//                 << ui->widget_img_pre->width() << ui->widget_img_pre->height();
+
     if (mPaintRect.width() > ui->widget_img_pre->width()
             || mPaintRect.height() > ui->widget_img_pre->height())
     {
@@ -1187,6 +1217,8 @@ void MainWindow::slot_scrollAreaYChange(int value)
         int nH = ui->widget_img_pre->height();
 
         mSourceY = value;
+
+//        qDebug() << __FUNCTION__ << value << nH << mPaintRect.width();
 
         if (mPaintRect.width() <= nW)
             mSourceRect = QRect(mSourceX, mSourceY, mPaintRect.width(), nH);
@@ -1482,8 +1514,8 @@ void MainWindow::getIntensity(QPoint curPt)
 
         /*if (imgPt.x() > 0 && imgPt.x()<mPaintRectReal.width()
                 && imgPt.y() > 0 && imgPt.y()<mPaintRectReal.height())*/
-        if (imgPt.x() > 0 && imgPt.x() < mSrcImgWidth
-            && imgPt.y() > 0 && imgPt.y() < mSrcImgHeight)
+        if (imgPt.x() > 0 && (imgPt.x() / mScale) < mSrcImgWidth
+            && imgPt.y() > 0 && (imgPt.y() / mScale) < mSrcImgHeight)
         {
           //  mDelImgLock.lock();
 
@@ -3818,6 +3850,8 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                     }
                 }
             }
+
+            return true;
         }
         else if (e->type() == QEvent::Enter)
         {
@@ -3835,6 +3869,8 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
             if (dmfile.IsValid())
                 delImg();
 
+
+//            qDebug() << __FUNCTION__  << "resize.";
             return true;
         }
     }
