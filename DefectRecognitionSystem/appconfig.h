@@ -65,7 +65,7 @@ struct MyDetectParam
     MyDetectParam()
     {
         nFilterRadius = 5;
-        nGreyDiff = 3000;
+        nGreyDiff = 1000;
         nMinDefectArea = 2;
         nConnectThr = 1;
     }

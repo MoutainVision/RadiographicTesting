@@ -512,7 +512,7 @@ QSlider::add-page:horizontal {
           <enum>QTabWidget::West</enum>
          </property>
          <property name="currentIndex">
-          <number>2</number>
+          <number>3</number>
          </property>
          <widget class="QWidget" name="tab">
           <attribute name="title">
@@ -1693,13 +1693,13 @@ QDoubleSpinBox:!enabled
                    </size>
                   </property>
                   <property name="minimum">
-                   <number>1000</number>
+                   <number>5</number>
                   </property>
                   <property name="maximum">
                    <number>5000</number>
                   </property>
                   <property name="value">
-                   <number>3000</number>
+                   <number>1000</number>
                   </property>
                  </widget>
                 </item>
@@ -1797,13 +1797,13 @@ QDoubleSpinBox:!enabled
                    </size>
                   </property>
                   <property name="minimum">
-                   <number>5</number>
+                   <number>1</number>
                   </property>
                   <property name="maximum">
                    <number>25</number>
                   </property>
                   <property name="value">
-                   <number>10</number>
+                   <number>5</number>
                   </property>
                  </widget>
                 </item>
@@ -2050,13 +2050,13 @@ QDoubleSpinBox:!enabled
                    </size>
                   </property>
                   <property name="minimum">
-                   <number>1000</number>
+                   <number>5</number>
                   </property>
                   <property name="maximum">
                    <number>5000</number>
                   </property>
                   <property name="value">
-                   <number>3000</number>
+                   <number>1000</number>
                   </property>
                  </widget>
                 </item>
@@ -2154,13 +2154,13 @@ QDoubleSpinBox:!enabled
                    </size>
                   </property>
                   <property name="minimum">
-                   <number>5</number>
+                   <number>1</number>
                   </property>
                   <property name="maximum">
                    <number>25</number>
                   </property>
                   <property name="value">
-                   <number>10</number>
+                   <number>5</number>
                   </property>
                  </widget>
                 </item>

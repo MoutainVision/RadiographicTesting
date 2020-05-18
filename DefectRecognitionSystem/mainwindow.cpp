@@ -286,7 +286,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     mRotate = 0;
 
-    ui->verticalSlider_diameter->setRange(5, 200);
+    ui->verticalSlider_diameter->setRange(1, 200);
 
     ui->pushButton_pre->hide();
     ui->pushButton_next->hide();
@@ -1412,8 +1412,8 @@ void MainWindow::setIntensityCurveValues(vector<unsigned short> aIntensity)
 
             int length = mGeyImgWdg->getCurIndex();
 
-            float abx = length * cos(m_angle);
-            float bcx = length * sin(m_angle);
+            float abx = length * cos(m_angle) * mScale;
+            float bcx = length * sin(m_angle) * mScale;
 
             QPoint tempIp;
             QPoint tempWp;
@@ -1434,6 +1434,7 @@ void MainWindow::setIntensityCurveValues(vector<unsigned short> aIntensity)
             }
 
             tempWp = convertWdgPt(tempIp);
+       //     tempWp = convertWdgPt(QPoint(tempIp.x() / mScale, tempIp.y() / mScale));
 
             if (NULL != mGreyRectItem)
             {
@@ -1851,7 +1852,8 @@ void MainWindow::slotBtnClick(bool bClick)
     else if (QObject::sender() == ui->pushButton_add_db)
     {
 
-        if (mADefectList.size() > 0 && dmfile.IsValid())
+        //if (mADefectList.size() > 0 && dmfile.IsValid())
+        if (dmfile.IsValid())
         {
             bool isExist = false;
             int isExistCount = 0;
@@ -1902,8 +1904,11 @@ void MainWindow::slotBtnClick(bool bClick)
 
                 string strDefFile = defFileStrT.toLocal8Bit().toStdString();
 
-                //保存缺陷文件
-                SaveDefect(mADefectList, strDefFile.c_str());
+                if (mADefectList.size() > 0)
+                {
+                    //保存缺陷文件
+                    SaveDefect(mADefectList, strDefFile.c_str());
+                }
 
 
                 DCMFileIndex idx;
