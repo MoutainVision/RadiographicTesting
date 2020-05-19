@@ -442,7 +442,7 @@ public:
 
     //--
     static bool gHaveParam;  // 是否是通过传参数进来
-    static QString AppFilePath_Video_Online; //视频文件保存目录(直播
+    static QString AppFilePath_Img_Online; //视频文件保存目录(直播
     static QString AppFilePath_Video_Weike;  //视频文件保存目录（微课
     static int video_type;              //type = 0, online  type = 1, weike
     static QString video_filepath_name; //filepath name

@@ -1887,11 +1887,15 @@ void MainWindow::slotBtnClick(bool bClick)
         //if (mADefectList.size() > 0 && dmfile.IsValid())
         if (dmfile.IsValid())
         {
+            QFileInfo curFile(mCurDcmFileInfo.filePath);
+
             bool isExist = false;
             int isExistCount = 0;
             for (int i=0; i<mAIdxList.size(); i++)
             {
-                if (mAIdxList.at(i).strFullPath == mCurDcmFileInfo.filePath.toLocal8Bit().toStdString())
+                QFileInfo idFile(mAIdxList.at(i).strFullPath.c_str());
+
+                if (idFile.fileName() == curFile.fileName())
                 {
                     isExist = true;
                     isExistCount++;
@@ -1920,10 +1924,21 @@ void MainWindow::slotBtnClick(bool bClick)
 
             if (needAdd)
             {
+                QString dbFilePath = QString("%1//%2").arg(Appconfig::AppFilePath_Img_Online).arg(curFile.fileName());
+
+                //copy src img to data
+                if (!isExist)
+                {
+                    QFile copyFile(mCurDcmFileInfo.filePath);
+                    copyFile.copy(dbFilePath);
+                }
+
+
+                //index file open
                 if (!mIndexFileOfs.is_open())
                     mIndexFileOfs.open(mIndexFilePath.toStdString(), ios::app | ios::out);
 
-                mIndexData.strFullPath = mCurDcmFileInfo.filePath.toLocal8Bit().toStdString();
+                mIndexData.strFullPath = dbFilePath.toLocal8Bit().toStdString();
                 mIndexData.fileFeat = dmfile.getFileFeature();
 
                 for (size_t n = 0; n != mADefectList.size(); ++n)
@@ -1932,7 +1947,7 @@ void MainWindow::slotBtnClick(bool bClick)
                 }
 
 
-                QString defFileStrT = QString("%1_%2.def").arg(mCurDcmFileInfo.filePath).arg(isExistCount);
+                QString defFileStrT = QString("%1//%2_%3.def").arg(Appconfig::AppFilePath_Img_Online).arg(curFile.fileName()).arg(isExistCount);
 
                 string strDefFile = defFileStrT.toLocal8Bit().toStdString();
 
@@ -1942,18 +1957,17 @@ void MainWindow::slotBtnClick(bool bClick)
                     SaveDefect(mADefectList, strDefFile.c_str());
                 }
 
-
                 DCMFileIndex idx;
                 DCMIndexingFile::Write(idx, mIndexDataFilePath.toStdString().c_str(), mIndexData);
 
                 //把当前文件的索引信息写入所以文件中
     //            mIndexFileOfs << mCurDcmFileInfo.filePath.toStdString() << "\t" << idx.nOffset << "\t" << idx.nLength << "\n";
-                mIndexFileOfs << mCurDcmFileInfo.filePath.toStdString() << "\t" << idx.nOffset << "\t" << idx.nLength  << "\t" << strDefFile << "\n";
+                mIndexFileOfs << dbFilePath.toStdString() << "\t" << idx.nOffset << "\t" << idx.nLength  << "\t" << strDefFile << "\n";
                 mIndexFileOfs.close();
 
                 //添加到列表中
                 DCMFileIndex idxT;
-                idxT.strFullPath = mCurDcmFileInfo.filePath.toStdString();
+                idxT.strFullPath = dbFilePath.toStdString();
                 idxT.nOffset = idx.nOffset;
                 idxT.nLength = idx.nLength;
                 idxT.strDefFile = strDefFile;

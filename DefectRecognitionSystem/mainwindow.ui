@@ -512,7 +512,7 @@ QSlider::add-page:horizontal {
           <enum>QTabWidget::West</enum>
          </property>
          <property name="currentIndex">
-          <number>2</number>
+          <number>3</number>
          </property>
          <widget class="QWidget" name="tab">
           <attribute name="title">
@@ -1882,7 +1882,7 @@ QDoubleSpinBox:!enabled
                 <item>
                  <widget class="QPushButton" name="pushButton_aoi">
                   <property name="text">
-                   <string>AOI</string>
+                   <string>ROI</string>
                   </property>
                   <property name="checkable">
                    <bool>true</bool>
@@ -2329,7 +2329,7 @@ QDoubleSpinBox:!enabled
                 </size>
                </property>
                <property name="text">
-                <string>AOI</string>
+                <string>ROI</string>
                </property>
                <property name="checkable">
                 <bool>true</bool>

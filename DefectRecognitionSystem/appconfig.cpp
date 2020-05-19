@@ -64,7 +64,7 @@ QString Appconfig::AppFilePath_Open_Pre_File;
 bool Appconfig::gVideoKeepAspectRatio = true; //按比例显示
 
 QString Appconfig::AppFilePath_Video_Weike;  //微课目录
-QString Appconfig::AppFilePath_Video_Online; //直播目录
+QString Appconfig::AppFilePath_Img_Online; //直播目录
 int Appconfig::video_type = 0;              //type = 0, online  type = 1, weike
 QString Appconfig::video_filepath_name;     //filepath name
 
@@ -130,8 +130,8 @@ void Appconfig::InitAllDataPath()
     AppDataPath_Data = AppDataPath_Main + "/data";
 
 
-    AppFilePath_Video_Online = AppDataPath_Data + "/Live";
-    MakeDir(AppFilePath_Video_Online);
+    AppFilePath_Img_Online = AppDataPath_Data + "/Img";
+    MakeDir(AppFilePath_Img_Online);
 
     AppFilePath_Video_Weike = AppDataPath_Data + "/Vod";
     MakeDir(AppFilePath_Video_Weike);
