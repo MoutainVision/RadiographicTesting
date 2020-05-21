@@ -70,7 +70,7 @@
 #define SDEL_IMG_TYPE
 enum EDelImgType
 {
-    EDEEDELIMGSRC,
+    EDEEDELIMGSRC = 0,
     EDELIMGINVERT,   //反相
     EDELIMGWIND,     //窗宽
     EDELIMGCONTRAST  //对比度
@@ -465,8 +465,10 @@ private:
     int     mSrcImgWidth;       //原始图像宽
     int     mSrcImgHeight;      //原始图像高
 
+    int     mTransImgWidth;       //原始图像宽
+    int     mTransImgHeight;      //原始图像高
+
     unsigned short *m_pTransImg;  //原始图像,几何变换
-    unsigned short *m_pDelImg;    //图像调整，不缩放，
 
     //鼠标
     bool            m_bIsPress;
