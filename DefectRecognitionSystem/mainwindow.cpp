@@ -219,9 +219,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->spinBox_ConnectThr->hide();
 
 
-   ui->checkBox_contrast->hide();
-   ui->spinBox_level->hide();
-   ui->doubleSpinBox_power->hide();
+//   ui->checkBox_contrast->hide();
+//   ui->spinBox_level->hide();
+//   ui->doubleSpinBox_power->hide();
 
 
     mRecognizeWdg  = nullptr;
@@ -283,6 +283,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //人工， 初始化有信号
     hEvent = CreateEvent(NULL, TRUE, TRUE, NULL);
+
+    hEventTrans = CreateEvent(NULL, TRUE, TRUE, NULL);
 
     mRotate = 0;
 
@@ -366,6 +368,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->checkBox_contrast, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_add_db, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_recheck, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+
+    connect(ui->pushButton_contrast_apply, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
 
     connect(ui->pushButton_reset_wind, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
 
@@ -582,27 +586,42 @@ void MainWindow::slot_menueToggle()
 
        if (!s.isEmpty())
        {
+           mImgProLock.lock();
+
+           SDelImgOpt *imgOpt = mDelImgOptList.last();
+
            unsigned short *pImgSave;  //处理图像
 
            pImgSave = new unsigned short[mSrcImgWidth * mSrcImgHeight];
-           memcpy(pImgSave, m_pSrcImg, mSrcImgWidth*mSrcImgHeight*sizeof(unsigned short));
+           memcpy(pImgSave, imgOpt->pImg, mSrcImgWidth*mSrcImgHeight*sizeof(unsigned short));
 
+           int     imgWidth  = mSrcImgWidth;       //原始图像宽
+           int     imgHeight = mSrcImgHeight;      //原始图像高
 
-           //窗宽窗位
-           if (mBWind)
+           mImgProLock.unlock();
+
+           //镜像
+           if (mBMirror)
            {
-                if (mWinCentre>1 && mWinWidth>1)
-                    WindowLevelTransform(pImgSave, mSrcImgWidth, mSrcImgHeight, mWinCentre, mWinWidth);
+               Mirror(pImgSave, imgWidth, imgHeight);
            }
 
-           //反相
-           if (mBInvert)
+           //翻转
+           if (mBFlip)
            {
-               Invert(pImgSave, mSrcImgWidth, mSrcImgHeight);
+               Flip(pImgSave, imgWidth, imgHeight);
            }
+
+           //旋转
+           if (mNeedRotate == 90)
+               Rotate90(pImgSave, imgWidth, imgHeight);
+           else if (mNeedRotate == 180)
+               Rotate180(pImgSave, imgWidth, imgHeight);
+           else if (mNeedRotate == 270)
+               Rotate270(pImgSave, imgWidth, imgHeight);
 
             QImage img;
-            shortImgToImage(pImgSave, mSrcImgWidth, mSrcImgHeight, img);
+            shortImgToImage(pImgSave, imgWidth, imgHeight, img);
 
             if (img.save(s, "bmp"))
             {
@@ -618,7 +637,12 @@ void MainWindow::slot_menueToggle()
         mBInvert = ui->action_invert->isChecked();
         ui->pushButton_invert->setChecked(mBInvert);
 
-        delImg();
+        SDelImgOpt *imgOpt;
+        imgOpt = new SDelImgOpt;
+        imgOpt->delType = EDELIMGINVERT;
+        imgOpt->isOpen  = mBInvert;
+
+        delImgOptList(imgOpt);
     }
     else if (QObject::sender() == ui->action_rotate)
     {
@@ -636,20 +660,21 @@ void MainWindow::slot_menueToggle()
             mNeedRotate = mRotate;
         }
 
-        delImg();
+        transforImg();
     }
     else if (QObject::sender() == ui->action_mirror)
     {
         mBMirror = ui->action_mirror->isChecked();
         ui->pushButton_Mirror->setChecked(mBMirror);
-        delImg();
+
+        transforImg();
     }
     else if (QObject::sender() == ui->action_flip)
     {
         mBFlip = ui->action_flip->isChecked();
         ui->pushButton_Flip->setChecked(mBFlip);
 
-        delImg();
+        transforImg();
     }
     else if (QObject::sender() == ui->action_detect_param)
     {
@@ -772,7 +797,7 @@ void MainWindow::slot_sliderValuechange(int value)
 
     ui->lineEdit_diameter->setText(QString("%1").arg(value));
 
-    delImg();
+    transforImg();
 }
 
 void MainWindow::slot_tableCellClicked(int row, int col)
@@ -839,23 +864,31 @@ void MainWindow::slot_sliderWinValueChange(int value)
         mWinCentre = value;
         ui->label_wincentre->setText(QString("%1").arg(value));
 
-        delImg();
+
+        SDelImgOpt *imgOpt;
+        imgOpt = new SDelImgOpt;
+        imgOpt->delType = EDELIMGWIND;
+        imgOpt->isOpen  = true;
+        imgOpt->value1  = mWinCentre;
+        imgOpt->value2  = mWinWidth;
+
+        delImgOptList(imgOpt);
     }
     else if (QObject::sender() == ui->verticalSlider_WindWidth)
     {
         mWinWidth = value;
         ui->label_winwidth->setText(QString("%1").arg(value));
 
-        delImg();
-    }
-//    else if (QObject::sender() == ui->horizontalSlider_contrast)
-//    {
-//        mContrast = value;
-//        ui->label_contrast->setText(QString("%1").arg(value));
+        SDelImgOpt *imgOpt;
+        imgOpt = new SDelImgOpt;
+        imgOpt->delType = EDELIMGWIND;
+        imgOpt->isOpen  = true;
+        imgOpt->value1  = mWinCentre;
+        imgOpt->value2  = mWinWidth;
 
-//        if (mBContrast)
-//            delImg();
-//    }
+        delImgOptList(imgOpt);
+    }
+
 }
 
 void MainWindow::setDcmFileInfo()
@@ -952,15 +985,28 @@ void MainWindow::setDcmFileInfo()
             mSrcImgHeight = dmfile.GetHeight();
 
             mImgProLock.lock();
-
-            if (nullptr != m_pImgPro)
+            //清空列表
+            for (int i=0; i<mDelImgOptList.size(); i++)
             {
-                delete []m_pImgPro;
-                m_pImgPro = NULL;
+                mDelImgOptList.at(i)->release();
             }
+            mDelImgOptList.clear();
 
-            m_pImgPro = new unsigned short[mSrcImgWidth * mSrcImgHeight];
-            memcpy(m_pImgPro, m_pSrcImg, mSrcImgWidth*mSrcImgHeight*sizeof(unsigned short));
+
+            //原始插入到列表
+            //拷贝
+            unsigned short *pImg = new unsigned short[mSrcImgWidth * mSrcImgHeight];
+            memcpy(pImg, m_pSrcImg, mSrcImgWidth*mSrcImgHeight*sizeof(unsigned short));
+
+            //第一个值
+            SDelImgOpt *imgOpt;
+            imgOpt = new SDelImgOpt;
+
+            imgOpt->delType = EDEEDELIMGSRC;
+            imgOpt->pImg = pImg;
+            imgOpt->isOpen = true;
+
+            mDelImgOptList.push_back(imgOpt);
 
             mImgProLock.unlock();
 
@@ -1013,7 +1059,7 @@ void MainWindow::showAdapt()
     ui->verticalSlider_diameter->setValue((int)(mScale*100));
     ui->lineEdit_diameter->setText(QString("%1").arg((int)(mScale*100)));
 
-    delImg();
+    transforImg();
 }
 
 
@@ -1048,7 +1094,7 @@ void MainWindow::showNomal()
     ui->verticalSlider_diameter->setValue((int)(mScale*100));
     ui->lineEdit_diameter->setText(QString("%1").arg((int)(mScale*100)));
 
-    delImg();
+    transforImg();
 }
 
 void MainWindow::reSize(int newW, int newH)
@@ -1784,21 +1830,26 @@ void MainWindow::slotBtnClick(bool bClick)
         mBInvert = ui->pushButton_invert->isChecked();
         ui->action_invert->setChecked(mBInvert);
 
-        delImg();
+        SDelImgOpt *imgOpt;
+        imgOpt = new SDelImgOpt;
+        imgOpt->delType = EDELIMGINVERT;
+        imgOpt->isOpen  = mBInvert;
+
+        delImgOptList(imgOpt);
     }
     else if (QObject::sender() == ui->pushButton_Flip)
     {
         mBFlip = ui->pushButton_Flip->isChecked();
         ui->action_flip->setChecked(mBFlip);
 
-        delImg();
+        transforImg();
     }
     else if (QObject::sender() == ui->pushButton_Mirror)
     {
         mBMirror = ui->pushButton_Mirror->isChecked();
         ui->action_mirror->setChecked(mBMirror);
 
-        delImg();
+        transforImg();
     }
     else if (QObject::sender() == ui->pushButton_rotate)
     {
@@ -1816,7 +1867,7 @@ void MainWindow::slotBtnClick(bool bClick)
             mNeedRotate = mRotate;
         }
 
-        delImg();
+        transforImg();
     }
     else if (QObject::sender() == ui->pushButton_aoi)
     {
@@ -1846,14 +1897,28 @@ void MainWindow::slotBtnClick(bool bClick)
         mBWind = ui->checkBox_wind->isChecked();
         ui->widget_wind->setVisible(mBWind);
 
-        delImg();
+        SDelImgOpt *imgOpt;
+        imgOpt = new SDelImgOpt;
+        imgOpt->delType = EDELIMGWIND;
+        imgOpt->isOpen  = mBWind;
+        imgOpt->value1  = mWinCentre;
+        imgOpt->value2  = mWinWidth;
+
+        delImgOptList(imgOpt);
     }
     else if (QObject::sender() == ui->pushButton_reset_wind)
     {
         ui->verticalSlider_WinCentre->setValue(mCurDcmFileInfo.winCentre);
         ui->verticalSlider_WindWidth->setValue(mCurDcmFileInfo.windWidth);
 
-        delImg();
+        SDelImgOpt *imgOpt;
+        imgOpt = new SDelImgOpt;
+        imgOpt->delType = EDELIMGWIND;
+        imgOpt->isOpen  = mBWind;
+        imgOpt->value1  = mCurDcmFileInfo.winCentre;
+        imgOpt->value2  = mCurDcmFileInfo.windWidth;
+
+        delImgOptList(imgOpt);
     }
     else if (QObject::sender() == ui->checkBox_contrast)
     {
@@ -1861,7 +1926,29 @@ void MainWindow::slotBtnClick(bool bClick)
         mLevel     = ui->spinBox_level->value();
         mPower     = ui->doubleSpinBox_power->value();
 
-        delImg();
+        SDelImgOpt *imgOpt;
+        imgOpt = new SDelImgOpt;
+        imgOpt->delType = EDELIMGCONTRAST;
+        imgOpt->isOpen  = mBContrast;
+        imgOpt->value1  = mLevel;
+        imgOpt->value2  = mPower;
+
+        delImgOptList(imgOpt);
+    }
+    else if (QObject::sender() == ui->pushButton_contrast_apply)
+    {
+        mBContrast = ui->checkBox_contrast->isChecked();
+        mLevel     = ui->spinBox_level->value();
+        mPower     = ui->doubleSpinBox_power->value();
+
+        SDelImgOpt *imgOpt;
+        imgOpt = new SDelImgOpt;
+        imgOpt->delType = EDELIMGCONTRAST;
+        imgOpt->isOpen  = mBContrast;
+        imgOpt->value1  = mLevel;
+        imgOpt->value2  = mPower;
+
+        delImgOptList(imgOpt);
     }
     else if (QObject::sender() == ui->checkBox_show_defect)
     {
@@ -2215,6 +2302,417 @@ void MainWindow::exeDefectImg()
     }).detach();
 }
 
+
+void MainWindow::transforImg()
+{
+    if (!dmfile.IsValid())
+        return ;
+
+    mDelImgLock.lock();
+    mBDelImging = false;
+    mDelImgLock.unlock();
+
+    DWORD dReturn = WaitForSingleObject(hEvent,INFINITE);
+
+    if (WAIT_OBJECT_0 == dReturn)
+    {
+        ResetEvent(hEvent);
+
+        mDelImgLock.lock();
+        mBDelImging = true;
+        mDelImgLock.unlock();
+    }
+
+    std::thread([=] {
+        SDelImgOpt *imgOpt = mDelImgOptList.last();
+
+        if (NULL != imgOpt->pImg)
+        {
+            mCurImgWidth  = mSrcImgWidth;
+            mCurImgHeight = mSrcImgHeight;
+
+            mImgProLock.lock();
+            //删除
+            if (nullptr != m_pImgPro)
+            {
+                delete []m_pImgPro;
+                m_pImgPro = NULL;
+            }
+            mImgProLock.unlock();
+
+            mDelImgLock.lock();
+            if (!mBDelImging)
+            {
+                mDelImgLock.unlock();
+                SetEvent(hEvent);
+                SetEvent(hEventTrans);
+                return ;
+            }
+            mDelImgLock.unlock();
+
+            mImgProLock.lock();
+            //拷贝
+            m_pImgPro = new unsigned short[mSrcImgWidth * mSrcImgHeight];
+            memcpy(m_pImgPro, imgOpt->pImg, mSrcImgWidth*mSrcImgHeight*sizeof(unsigned short));
+
+            mImgProLock.unlock();
+
+
+            //镜像
+            if (mBMirror)
+            {
+                mImgProLock.lock();
+                Mirror(m_pImgPro, mCurImgWidth, mCurImgHeight);
+                mImgProLock.unlock();
+            }
+
+            mDelImgLock.lock();
+            if (!mBDelImging)
+            {
+                mDelImgLock.unlock();
+                SetEvent(hEvent);
+                SetEvent(hEventTrans);
+                return ;
+            }
+            mDelImgLock.unlock();
+
+            //翻转
+            if (mBFlip)
+            {
+                mImgProLock.lock();
+                Flip(m_pImgPro, mCurImgWidth, mCurImgHeight);
+                mImgProLock.unlock();
+            }
+
+            mDelImgLock.lock();
+            if (!mBDelImging)
+            {
+                mDelImgLock.unlock();
+                SetEvent(hEvent);
+                SetEvent(hEventTrans);
+                return ;
+            }
+            mDelImgLock.unlock();
+
+
+            //resize
+            reSize(mScale);
+
+            mDelImgLock.lock();
+            if (!mBDelImging)
+            {
+                mDelImgLock.unlock();
+                SetEvent(hEvent);
+                SetEvent(hEventTrans);
+                return ;
+            }
+            mDelImgLock.unlock();
+
+
+            mImgProLock.lock();
+
+            //旋转
+            if (mNeedRotate == 90)
+                Rotate90(m_pImgPro, mCurImgWidth, mCurImgHeight);
+            else if (mNeedRotate == 180)
+                Rotate180(m_pImgPro, mCurImgWidth, mCurImgHeight);
+            else if (mNeedRotate == 270)
+                Rotate270(m_pImgPro, mCurImgWidth, mCurImgHeight);
+
+            mImgProLock.unlock();
+
+            mDelImgLock.lock();
+            if (!mBDelImging)
+            {
+                mDelImgLock.unlock();
+                SetEvent(hEvent);
+                SetEvent(hEventTrans);
+                return ;
+            }
+            mDelImgLock.unlock();
+
+
+
+            mImgProLock.lock();
+            shortImgToImage(m_pImgPro, mCurImgWidth, mCurImgHeight, mPaintImg);
+            mImgProLock.unlock();
+
+            mDelImgLock.lock();
+            if (!mBDelImging)
+            {
+                mDelImgLock.unlock();
+                SetEvent(hEvent);
+                SetEvent(hEventTrans);
+                return ;
+            }
+            mDelImgLock.unlock();
+
+            FunctionTransfer::runInMainThread([=]()
+            {
+                //显示
+                showImg(m_pImgPro, mCurImgWidth, mCurImgHeight);
+
+                closeLoading();
+			});
+
+            SetEvent(hEvent);
+            SetEvent(hEventTrans);
+        }
+
+    }).detach();
+}
+
+void MainWindow::delImgList()
+{
+    for (int i=0; i<mDelImgOptList.size(); i++)
+    {
+        SDelImgOpt *imgOpt = mDelImgOptList.at(i);
+
+        if (imgOpt->delType == EDELIMGINVERT)
+        {
+            Invert(imgOpt->pImg, mSrcImgWidth, mSrcImgHeight);
+        }
+        else if (imgOpt->delType == EDELIMGWIND)
+        {
+            if (imgOpt->value1>1 && imgOpt->value2>1)
+            {
+                WindowLevelTransform(imgOpt->pImg, mSrcImgWidth, mSrcImgHeight, imgOpt->value1, imgOpt->value2);
+            }
+        }
+        else if (imgOpt->delType == EDELIMGCONTRAST)
+        {
+            IPFuncMUSICA(imgOpt->pImg, mSrcImgWidth, mSrcImgHeight, imgOpt->value1, imgOpt->value2);
+        }
+
+        mDelTransLock.lock();
+        if (!mBDelTransing)
+        {
+            mDelTransLock.unlock();
+            SetEvent(hEventTrans);
+            return ;
+        }
+        mDelTransLock.unlock();
+    }
+}
+
+void MainWindow::delImg(SDelImgOpt *srcImgOpt, SDelImgOpt *objImgOpt)
+{
+    //拷贝
+    unsigned short *pImg = new unsigned short[mSrcImgWidth * mSrcImgHeight];
+    memcpy(pImg, srcImgOpt->pImg, mSrcImgWidth*mSrcImgHeight*sizeof(unsigned short));
+//    mImgProLock.unlock();
+
+    if (objImgOpt->delType == EDELIMGINVERT)
+    {
+        Invert(pImg, mSrcImgWidth, mSrcImgHeight);
+    }
+    else if (objImgOpt->delType == EDELIMGWIND)
+    {
+        if (objImgOpt->value1>1 && objImgOpt->value2>1)
+        {
+            WindowLevelTransform(pImg, mSrcImgWidth, mSrcImgHeight, objImgOpt->value1, objImgOpt->value2);
+        }
+    }
+    else if (objImgOpt->delType == EDELIMGCONTRAST)
+    {
+        IPFuncMUSICA(pImg, mSrcImgWidth, mSrcImgHeight, objImgOpt->value1, objImgOpt->value2);
+    }
+
+    objImgOpt->pImg = pImg;
+
+    mDelTransLock.lock();
+    if (!mBDelTransing)
+    {
+        mDelTransLock.unlock();
+        SetEvent(hEventTrans);
+        return ;
+    }
+    mDelTransLock.unlock();
+}
+
+void MainWindow::delImgOptList(SDelImgOpt *newImgOpt)
+{
+    if (!dmfile.IsValid())
+        return ;
+
+    if (NULL == newImgOpt)
+        return ;
+
+    showLoading(QStringLiteral("正在处理图像，请稍等"));
+
+    mDelTransLock.lock();
+    mBDelTransing = false;
+    mDelTransLock.unlock();
+
+    DWORD dReturn = WaitForSingleObject(hEventTrans,INFINITE);
+
+    if (WAIT_OBJECT_0 == dReturn)
+    {
+        ResetEvent(hEventTrans);
+
+        mDelTransLock.lock();
+        mBDelTransing = true;
+        mDelTransLock.unlock();
+    }
+
+//    std::thread([=] {
+
+        SDelImgOpt *lastImgOpt = mDelImgOptList.last();
+
+        if (newImgOpt->isOpen == true)
+        {
+            if (NULL != lastImgOpt)
+            {
+                if (lastImgOpt->delType == newImgOpt->delType)
+                {
+                    if (newImgOpt->delType == EDELIMGCONTRAST || newImgOpt->delType == EDELIMGWIND)
+                    {
+                        lastImgOpt->value1 = newImgOpt->value1;
+                        lastImgOpt->value2 = newImgOpt->value2;
+
+                        //释放最后一个操作的图像内容
+                        lastImgOpt->release();
+                    }
+                }
+                else
+                {
+                    mDelImgOptList.push_back(newImgOpt);
+                }
+
+                //处理最后一个操作
+                if (mDelImgOptList.size() >= 2)
+                    delImg(mDelImgOptList.at(mDelImgOptList.size() - 2), mDelImgOptList.last());
+            }
+        }
+        else
+        {
+            if (newImgOpt->delType == EDELIMGINVERT)
+            {
+                if (lastImgOpt->delType == newImgOpt->delType)
+                {
+                    mDelImgOptList.removeLast();
+
+                    //清除
+                    lastImgOpt->release();
+                }
+                else
+                {
+                    //链条里面清除反相操作
+                    for (int i=0; i<mDelImgOptList.size(); i++)
+                    {
+                        if (mDelImgOptList.at(i)->delType == EDELIMGINVERT)
+                        {
+                            mDelImgOptList.removeAt(i);
+                            break;
+                        }
+                    }
+
+                    //合并相同的图像操作
+                    for (int i=0; i < mDelImgOptList.size()-1; )
+                    {
+                        if (mDelImgOptList.at(i)->delType == mDelImgOptList.at(i+1)->delType);
+                        {
+                            mDelImgOptList.removeAt(i);
+                        }
+                    }
+
+                    //列表处理图像
+                    delImgList();
+                }
+            }
+            else if (newImgOpt->delType == EDELIMGWIND)
+            {
+                if (lastImgOpt->delType == newImgOpt->delType)
+                {
+                    mDelImgOptList.removeLast();
+
+                    //清除
+                    lastImgOpt->release();
+                }
+                else
+                {
+                    //链条里面清除窗宽操作
+                    for (int i=0; i< mDelImgOptList.size(); )
+                    {
+                        if (mDelImgOptList.at(i)->delType == EDELIMGWIND)
+                        {
+                            mDelImgOptList.removeAt(i);
+                            continue;
+                        }
+
+                        i++;
+                    }
+
+                    //合并相同的图像操作
+                    for (int i=0; i < mDelImgOptList.size()-1; )
+                    {
+                        if (mDelImgOptList.at(i)->delType == mDelImgOptList.at(i+1)->delType);
+                        {
+                            mDelImgOptList.removeAt(i);
+                        }
+                    }
+
+                    //列表处理图像
+                    delImgList();
+                }
+            }
+            else if (newImgOpt->delType == EDELIMGCONTRAST)
+            {
+                if (lastImgOpt->delType == newImgOpt->delType)
+                {
+                    mDelImgOptList.removeLast();
+
+                    //清除
+                    lastImgOpt->release();
+                }
+                else
+                {
+                    //链条里面清除窗宽操作
+                    for (int i=0; i< mDelImgOptList.size(); )
+                    {
+                        if (mDelImgOptList.at(i)->delType == EDELIMGCONTRAST)
+                        {
+                            mDelImgOptList.removeAt(i);
+                            continue;
+                        }
+
+                        i++;
+                    }
+
+                    //合并相同的图像操作
+                    for (int i=0; i < mDelImgOptList.size()-1; )
+                    {
+                        if (mDelImgOptList.at(i)->delType == mDelImgOptList.at(i+1)->delType);
+                        {
+                            mDelImgOptList.removeAt(i);
+                        }
+                    }
+
+                    //列表处理图像
+                    delImgList();
+                }
+            }
+
+        }
+
+//        FunctionTransfer::runInMainThread([=]()
+//        {
+            //图像变换，并显示
+            transforImg();
+//        });
+
+//            mDelTransLock.lock();
+//            if (!mBDelTransing)
+//            {
+//                mDelTransLock.unlock();
+//                SetEvent(hEventTrans);
+//                return ;
+//            }
+//            mDelTransLock.unlock();
+
+//    }).detach();
+}
+
 void MainWindow::delImg()
 {
     if (!dmfile.IsValid())
@@ -2372,6 +2870,7 @@ void MainWindow::delImg()
         mDelImgLock.unlock();
 
         mImgProLock.lock();
+
         //旋转
         if (mNeedRotate == 90)
             Rotate90(m_pImgPro, mCurImgWidth, mCurImgHeight);
@@ -2379,6 +2878,7 @@ void MainWindow::delImg()
             Rotate180(m_pImgPro, mCurImgWidth, mCurImgHeight);
         else if (mNeedRotate == 270)
             Rotate270(m_pImgPro, mCurImgWidth, mCurImgHeight);
+
         mImgProLock.unlock();
 
         mDelImgLock.lock();
@@ -3881,7 +4381,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
         else if (e->type() == QEvent::Resize)
         {
             if (dmfile.IsValid())
-                delImg();
+                transforImg();
 
 
 //            qDebug() << __FUNCTION__  << "resize.";
@@ -5611,6 +6111,8 @@ MainWindow::~MainWindow()
 {
     CloseHandle(hEvent);
 
+    CloseHandle(hEventTrans);
+
     if (nullptr != mModel)
     {
         delete mModel;
@@ -5665,6 +6167,18 @@ MainWindow::~MainWindow()
 
     mIndexFileOfs.close();
 
+    //清空列表
+    for (int i=0; i<mDelImgOptList.size(); i++)
+    {
+        mDelImgOptList.at(i)->release();
+    }
+    mDelImgOptList.clear();
+
+    //if (NULL != m_pSrcImg)
+    //{
+    //    delete []m_pSrcImg;
+    //    m_pSrcImg = NULL;
+    //}
 
     //save config
     Appconfig::saveConfigFile();

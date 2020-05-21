@@ -65,6 +65,58 @@
 #define MAX_PRE_WIDGET_WIDTH 100
 #define MIN_PRE_WIDGET_WIDTH 50
 
+//处理图像类型
+#ifndef SDEL_IMG_TYPE
+#define SDEL_IMG_TYPE
+enum EDelImgType
+{
+    EDEEDELIMGSRC,
+    EDELIMGINVERT,   //反相
+    EDELIMGWIND,     //窗宽
+    EDELIMGCONTRAST  //对比度
+};
+#endif
+
+//处理图像操作
+#ifndef SDEL_IMG_OPT
+#define SDEL_IMG_OPT
+struct SDelImgOpt
+{
+    EDelImgType delType;
+    bool isOpen;
+    int value1;
+    double value2;
+
+    unsigned short *pImg;  //处理图像
+
+    SDelImgOpt()
+    {
+        pImg = NULL;
+    }
+
+    ~SDelImgOpt()
+    {
+        release();
+    }
+
+    bool isValide()
+    {
+        if (nullptr != pImg)
+            return true;
+
+        return false;
+    }
+
+    void release()
+    {
+        if (NULL != pImg)
+        {
+            delete []pImg;
+            pImg = nullptr;
+        }
+    }
+};
+#endif
 
 namespace Ui {
 class MainWindow;
@@ -113,6 +165,7 @@ public:
     //鼠标移动， 修改滚动条，修改图像位置
     void setScrollBarOffsetValues(int hValue, int vValue);
 
+//----图像处理-----
     //图像转换
     void shortImgToImage(unsigned short *pImg, int nW, int nH, QImage &img);
 
@@ -121,6 +174,17 @@ public:
 
     //批处理图像
     void delImg();
+
+    void delImgOptList(SDelImgOpt *newImgOpt);
+
+    void delImg(SDelImgOpt *srcImgOpt, SDelImgOpt *objImgOpt);
+
+    void delImgList();
+
+    //变换图像
+    void transforImg();
+
+//    void resizeImg(float scale);
 
     //更新鼠标样式
     void updateCursor();
@@ -277,7 +341,7 @@ private:
 
     Loading *m_loadingDlg;
 
-    HANDLE hEvent;
+
 
     //颜色
     ColorWdg *mColorWdg;
@@ -367,8 +431,15 @@ private:
 
 
     bool    mBMeasureOpt;
+
     bool    mBDelImging;
-    QMutex     mDelImgLock;
+    QMutex  mDelImgLock;
+    HANDLE  hEvent;
+
+    bool    mBDelTransing;
+    QMutex  mDelTransLock;
+    HANDLE  hEventTrans;
+
 
     QMutex     mImgProLock;
 
@@ -386,10 +457,16 @@ private:
     QRect   mSourceRect;        //原图需要显示的Rect
     QImage  mPaintImg;
 
+
+    QList<SDelImgOpt*>   mDelImgOptList;
+
     unsigned short *m_pImgPro;  //处理图像
     unsigned short *m_pSrcImg;  //原始图像
     int     mSrcImgWidth;       //原始图像宽
     int     mSrcImgHeight;      //原始图像高
+
+    unsigned short *m_pTransImg;  //原始图像,几何变换
+    unsigned short *m_pDelImg;    //图像调整，不缩放，
 
     //鼠标
     bool            m_bIsPress;

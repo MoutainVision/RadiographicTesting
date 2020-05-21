@@ -512,7 +512,7 @@ QSlider::add-page:horizontal {
           <enum>QTabWidget::West</enum>
          </property>
          <property name="currentIndex">
-          <number>3</number>
+          <number>2</number>
          </property>
          <widget class="QWidget" name="tab">
           <attribute name="title">
@@ -701,8 +701,8 @@ QTableView::indicator {
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>428</width>
-                <height>1004</height>
+                <width>440</width>
+                <height>1002</height>
                </rect>
               </property>
              </widget>
@@ -1383,6 +1383,13 @@ QDoubleSpinBox:!enabled
                   </property>
                   <property name="value">
                    <double>0.600000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="pushButton_contrast_apply">
+                  <property name="text">
+                   <string>应用</string>
                   </property>
                  </widget>
                 </item>
@@ -4362,7 +4369,7 @@ QTableView::indicator {
      <x>0</x>
      <y>0</y>
      <width>1347</width>
-     <height>28</height>
+     <height>30</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_file">
