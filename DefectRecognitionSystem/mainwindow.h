@@ -228,6 +228,8 @@ public:
     //鼠标移动计算灰度值
     void getIntensity(QPoint curPt);
 
+    void getMagImg(QPoint curPt);
+
 
 //----绘几何图形相关------
     ItemOperator *getPreOperator();
@@ -376,6 +378,8 @@ private:
     RectItem    *mRecheckRectItem;
 
     vector<DCMFileIndex> mAIdxList;
+    vector<DCMFileIndexingData> aIndexingData;
+
 
     //检索数据
     DCMFileIndexingData mIndexData;
@@ -456,6 +460,11 @@ private:
     int     mSourceY;
     QRect   mSourceRect;        //原图需要显示的Rect
     QImage  mPaintImg;
+
+    QRect   mMagRect;
+    QImage  mMagImg;
+
+    QMutex     mMagLock;
 
 
     QList<SDelImgOpt*>   mDelImgOptList;

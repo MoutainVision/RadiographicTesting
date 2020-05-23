@@ -282,6 +282,11 @@ MainWindow::MainWindow(QWidget *parent) :
         GetIndexList(mAIdxList, mIndexFilePath.toStdString().c_str());
     }
 
+    if (indexDataFile.exists())
+    {
+        GetIndexingDataList(aIndexingData, mAIdxList, mIndexDataFilePath.toStdString());
+    }
+
     //人工， 初始化有信号
     hEvent = CreateEvent(NULL, TRUE, TRUE, NULL);
 
@@ -536,6 +541,8 @@ void MainWindow::slot_menueToggle()
             //清空列表
             mAIdxList.clear();
             mIndexFileOfs.close();
+
+            aIndexingData.clear();
 
             //删除
             bool bRemoveIndex = QFile::remove(mIndexFilePath);
@@ -1125,6 +1132,9 @@ void MainWindow::reSize(int newW, int newH)
 
 void MainWindow::reSize(float scale)
 {
+    if (NULL == m_pImgPro)
+        return ;
+
     mScale = scale;
 
     mCurImgWidth = scale * mSrcImgWidth;
@@ -1156,19 +1166,6 @@ void  MainWindow::expanded(QModelIndex index)
 
 void MainWindow::showImg(unsigned short *pImg, int nW, int nH)
 {
-//    shortImgToImage(pImg, nW, nH, mPaintImg);
-
-//    mDelImgLock.lock();
-//    if (!mBDelImging)
-//    {
-//        mDelImgLock.unlock();
-//        SetEvent(hEvent);
-//        return ;
-//    }
-//    mDelImgLock.unlock();
-
-//	SetEvent(hEvent);
-
     mPaintRect.setRect(0, 0, nW, nH);
 
     showScrollBar(); 
@@ -1236,8 +1233,8 @@ void MainWindow::showScrollBar(bool status)
 
 void MainWindow::showScrollBar()
 {
-//    qDebug() << __FUNCTION__ << mPaintRect.width() << mPaintRect.height()
-//                 << ui->widget_img_pre->width() << ui->widget_img_pre->height();
+    qDebug() << __FUNCTION__ << mPaintRect.width() << mPaintRect.height()
+                 << ui->widget_img_pre->width() << ui->widget_img_pre->height();
 
     if (mPaintRect.width() > ui->widget_img_pre->width()
             || mPaintRect.height() > ui->widget_img_pre->height())
@@ -1473,9 +1470,6 @@ void MainWindow::calcIntensityCurve(QPoint p1, QPoint p2)
 
     vector<unsigned short> aIntensity;
 
-//    GetIntensityCurve(aIntensity, m_pSrcImg, mSrcImgWidth, mSrcImgHeight, iP1.x() / mScale,
-//                      iP1.y() / mScale, iP2.x() / mScale, iP2.y() / mScale);
-
     GetIntensityCurve(aIntensity, m_pTransImg, mTransImgWidth, mTransImgHeight, iP1.x() / mScale,
                       iP1.y() / mScale, iP2.x() / mScale, iP2.y() / mScale);
 
@@ -1565,16 +1559,86 @@ void MainWindow::closeGreyWdg()
     }
 }
 
+void MainWindow::getMagImg(QPoint curPt)
+{
+    //
+    mMagLock.lock();
+    SDelImgOpt *imgOpt = mDelImgOptList.last();
+
+    unsigned short *pImgSave;  //处理图像
+
+    pImgSave = new unsigned short[mSrcImgWidth * mSrcImgHeight];
+    memcpy(pImgSave, imgOpt->pImg, mSrcImgWidth*mSrcImgHeight*sizeof(unsigned short));
+
+    int     imgWidth  = mSrcImgWidth;       //原始图像宽
+    int     imgHeight = mSrcImgHeight;      //原始图像高
+
+    //镜像
+    if (mBMirror)
+    {
+        Mirror(pImgSave, imgWidth, imgHeight);
+    }
+
+    //翻转
+    if (mBFlip)
+    {
+        Flip(pImgSave, imgWidth, imgHeight);
+    }
+
+    int imgWTemp = mScale * mSrcImgWidth;
+    int imgHTemp = mScale * mSrcImgHeight;
+    Resize(pImgSave, imgWidth, imgHeight, imgWTemp, imgHTemp);
+
+    //旋转
+    if (mNeedRotate == 90)
+        Rotate90(pImgSave, imgWTemp, imgHTemp);
+    else if (mNeedRotate == 180)
+        Rotate180(pImgSave, imgWTemp, imgHTemp);
+    else if (mNeedRotate == 270)
+        Rotate270(pImgSave, imgWTemp, imgHTemp);
+
+    QPoint imgPt = convertImgPt(curPt);
+
+    if (imgPt.x() > 8 && (imgPt.x() ) < imgWTemp - 8
+        && imgPt.y() > 8 && (imgPt.y()) < imgHTemp - 8)
+    {
+        unsigned short *pSubImg;  //处理图像
+        int subW;
+        int subH;
+        int radio = 8;
+        GetSubImage(pSubImg, subW, subH, pImgSave, imgWTemp, imgHTemp, imgPt.x(), imgPt.y(), radio);
+
+		
+        Magnify(pSubImg, subW, subH);
+
+
+        mMagRect = QRect(curPt.x()-subW / 2, curPt.y()-subH / 2, subW, subH);
+
+
+//        Resize(pSubImg, subW, subH, (radio*2)*2, (radio*2)*2);
+
+        shortImgToImage(pSubImg, subW, subH, mMagImg);
+
+        delete []pSubImg;
+        pSubImg = nullptr;
+    }
+
+	delete []pImgSave;
+	pImgSave = nullptr;
+
+    mMagLock.unlock();
+
+	update();
+}
+
 void MainWindow::getIntensity(QPoint curPt)
 {
     if (nullptr != m_pSrcImg && nullptr != m_pTransImg)
 	{
+//        getMagImg(curPt);
+
 		QPoint imgPt = convertImgPt(curPt);
 
-        /*if (imgPt.x() > 0 && imgPt.x()<mPaintRectReal.width()
-                && imgPt.y() > 0 && imgPt.y()<mPaintRectReal.height())*/
-//        if (imgPt.x() > 0 && (imgPt.x() / mScale) < mSrcImgWidth
-//            && imgPt.y() > 0 && (imgPt.y() / mScale) < mSrcImgHeight)
         if (imgPt.x() > 0 && (imgPt.x() / mScale) < mTransImgWidth
             && imgPt.y() > 0 && (imgPt.y() / mScale) < mTransImgHeight)
         {
@@ -1992,23 +2056,44 @@ void MainWindow::slotBtnClick(bool bClick)
             QFileInfo curFile(mCurDcmFileInfo.filePath);
 
             bool isExist = false;
-            int isExistCount = 0;
+            int index;
+//            int isExistCount = 0;
             for (int i=0; i<mAIdxList.size(); i++)
             {
                 QFileInfo idFile(mAIdxList.at(i).strFullPath.c_str());
 
                 if (idFile.fileName() == curFile.fileName())
                 {
+                    index = i;
                     isExist = true;
-                    isExistCount++;
-                   // break;
+//                    isExistCount++;
+                    break;
                 }
             }
 
-            bool needAdd = true;
+            bool bMatchExist = true;
             if (isExist)
             {
-                int result = QMessageBox::information(this, (QStringLiteral("提示")),  (QStringLiteral("数据库中已经存在，是否继续写入？")), QMessageBox::Yes | QMessageBox::No);
+                //文件名字重复
+                std::string matchFilePath;
+                //匹配是否文件内容相同
+                bMatchExist = MatchFileFeature(aIndexingData, dmfile.getFileFeature(), matchFilePath);
+            }
+
+            if (!bMatchExist)
+            {
+                //文件名字重复，且内容不同
+                QMessageBox::information(this, (QStringLiteral("提示")),  (QStringLiteral("数据库中已经存在文件名相同，内容不同，请修改该文件名后再插入。")));
+                return ;
+            }
+
+            std::string matchFilePath;
+            bool bMatch = MatchFileFeature(aIndexingData, dmfile.getFileFeature(), matchFilePath);
+
+            bool needAdd = true;
+            if (bMatch)
+            {
+                int result = QMessageBox::information(this, (QStringLiteral("提示")),  (QStringLiteral("数据库中已经存在相同内容图像，是否继续写入？")), QMessageBox::Yes | QMessageBox::No);
 
                 switch (result)
                 {
@@ -2049,18 +2134,28 @@ void MainWindow::slotBtnClick(bool bClick)
                 }
 
 
-                QString defFileStrT = QString("%1//%2_%3.def").arg(Appconfig::AppFilePath_Img_Online).arg(curFile.fileName()).arg(isExistCount);
+                QString defFileStrT = QString("%1//%2_%3.def").arg(Appconfig::AppFilePath_Img_Online).arg(curFile.fileName()).arg(QDateTime::currentDateTime().toString("yyyy_MM_dd_hh_mm_ss"));
 
                 string strDefFile = defFileStrT.toLocal8Bit().toStdString();
 
                 if (mADefectList.size() > 0)
                 {
                     //保存缺陷文件
-                    SaveDefect(mADefectList, strDefFile.c_str());
+                    if (!SaveDefect(mADefectList, strDefFile.c_str()))
+                    {
+                        QMessageBox::information(this, (QStringLiteral("提示")),  (QStringLiteral("加入数据库失败。")));
+
+                        return ;
+                    }
                 }
 
                 DCMFileIndex idx;
-                DCMIndexingFile::Write(idx, mIndexDataFilePath.toStdString().c_str(), mIndexData);
+                if (!DCMIndexingFile::Write(idx, mIndexDataFilePath.toStdString().c_str(), mIndexData))
+                {
+                    QMessageBox::information(this, (QStringLiteral("提示")),  (QStringLiteral("加入数据库失败。")));
+
+                    return ;
+                }
 
                 //把当前文件的索引信息写入所以文件中
     //            mIndexFileOfs << mCurDcmFileInfo.filePath.toStdString() << "\t" << idx.nOffset << "\t" << idx.nLength << "\n";
@@ -2075,6 +2170,8 @@ void MainWindow::slotBtnClick(bool bClick)
                 idxT.strDefFile = strDefFile;
 
                 mAIdxList.push_back(idxT);
+
+                aIndexingData.push_back(mIndexData);
 
                 QMessageBox::information(this, (QStringLiteral("提示")),  (QStringLiteral("加入数据库成功。")));
             }
@@ -2230,36 +2327,6 @@ void MainWindow::exeDefectImg()
 {
     showLoading(QStringLiteral("正在查找缺陷，请稍等"));
 
-
-//    if (nullptr != m_pImgDefect)
-//    {
-//        delete []m_pImgDefect;
-//        m_pImgDefect = nullptr;
-//    }
-
-//    //拷贝
-//    m_pImgDefect = new unsigned short[mSrcImgWidth * mSrcImgHeight];
-//    memcpy(m_pImgDefect, m_pSrcImg, mSrcImgWidth*mSrcImgHeight*sizeof(unsigned short));
-
-//    int imgW  = mSrcImgWidth;
-//    int imgH = mSrcImgHeight;
-
-//    //镜像
-//    if (mBMirror)
-//        Mirror(m_pImgDefect, imgW, imgH);
-
-//    //翻转
-//    if (mBFlip)
-//        Flip(m_pImgDefect, imgW, imgH);
-
-//    //旋转
-//    if (mNeedRotate == 90)
-//        Rotate90(m_pImgDefect, imgW, imgH);
-//    else if (mNeedRotate == 180)
-//        Rotate180(m_pImgDefect, imgW, imgH);
-//    else if (mNeedRotate == 270)
-//        Rotate270(m_pImgDefect, imgW, imgH);
-
     DetectParam param;
     param.nGreyDiff     = ui->spinBox_GreyDiff->value();
     param.nConnectThr   = ui->spinBox_ConnectThr->value();
@@ -2322,11 +2389,8 @@ void MainWindow::transforImg()
     std::thread([=] {
         SDelImgOpt *imgOpt = mDelImgOptList.last();
 
-        if (NULL != imgOpt->pImg)
+        if (NULL != imgOpt->pImg && nullptr != m_pSrcImg)
         {
-            mCurImgWidth  = mSrcImgWidth;
-            mCurImgHeight = mSrcImgHeight;
-
             mImgProLock.lock();
             //删除
             if (nullptr != m_pImgPro)
@@ -2341,6 +2405,10 @@ void MainWindow::transforImg()
                 delete []m_pTransImg;
                 m_pTransImg = NULL;
             }
+
+            mCurImgWidth  = mSrcImgWidth;
+            mCurImgHeight = mSrcImgHeight;
+
             mImgProLock.unlock();
 
             mDelImgLock.lock();
@@ -2476,8 +2544,11 @@ void MainWindow::transforImg()
 
             FunctionTransfer::runInMainThread([=]()
             {
+                mImgProLock.lock();
                 //显示
                 showImg(m_pImgPro, mCurImgWidth, mCurImgHeight);
+
+                mImgProLock.unlock();
 
                 closeLoading();
 			});
@@ -2584,7 +2655,8 @@ void MainWindow::delImgOptList(SDelImgOpt *newImgOpt)
     if (NULL == newImgOpt)
         return ;
 
-    showLoading(QStringLiteral("正在处理图像，请稍等"));
+    if (!newImgOpt->isOpen && newImgOpt->delType!=EDELIMGWIND)
+        showLoading(QStringLiteral("正在处理图像，请稍等"));
 
     mDelTransLock.lock();
     mBDelTransing = false;
@@ -2776,210 +2848,6 @@ void MainWindow::delImgOptList(SDelImgOpt *newImgOpt)
 
 //    }).detach();
 }
-
-void MainWindow::delImg()
-{
-    if (!dmfile.IsValid())
-        return ;
-
-    mDelImgLock.lock();
-    mBDelImging = false;
-    mDelImgLock.unlock();
-
-    DWORD dReturn = WaitForSingleObject(hEvent,INFINITE);
-
-    if (WAIT_OBJECT_0 == dReturn)
-    {
-        ResetEvent(hEvent);
-
-        mDelImgLock.lock();
-        mBDelImging = true;
-        mDelImgLock.unlock();
-    }
-
-    std::thread([=] {
-
-        mImgProLock.lock();
-        //删除
-        if (nullptr != m_pImgPro)
-        {
-            delete []m_pImgPro;
-            m_pImgPro = NULL;
-        }
-        mImgProLock.unlock();
-
-
-        mDelImgLock.lock();
-        if (!mBDelImging)
-        {
-            mDelImgLock.unlock();
-            SetEvent(hEvent);
-            return ;
-        }
-        mDelImgLock.unlock();
-
-        if (mSrcImgWidth <= 0 || mSrcImgHeight <= 0)
-            return ;
-
-        mImgProLock.lock();
-        //拷贝
-        m_pImgPro = new unsigned short[mSrcImgWidth * mSrcImgHeight];
-        memcpy(m_pImgPro, m_pSrcImg, mSrcImgWidth*mSrcImgHeight*sizeof(unsigned short));
-        mImgProLock.unlock();
-
-
-        mCurImgWidth  = mSrcImgWidth;
-        mCurImgHeight = mSrcImgHeight;
-
-        //镜像
-        if (mBMirror)
-        {
-            mImgProLock.lock();
-            Mirror(m_pImgPro, mCurImgWidth, mCurImgHeight);
-            mImgProLock.unlock();
-        }
-
-        mDelImgLock.lock();
-        if (!mBDelImging)
-        {
-            mDelImgLock.unlock();
-            SetEvent(hEvent);
-            return ;
-        }
-        mDelImgLock.unlock();
-
-        //翻转
-        if (mBFlip)
-        {
-            mImgProLock.lock();
-            Flip(m_pImgPro, mCurImgWidth, mCurImgHeight);
-            mImgProLock.unlock();
-        }
-
-        mDelImgLock.lock();
-        if (!mBDelImging)
-        {
-            mDelImgLock.unlock();
-            SetEvent(hEvent);
-            return ;
-        }
-        mDelImgLock.unlock();
-
-        //窗宽窗位
-        if (mBWind)
-        {
-            if (mWinCentre>1 && mWinWidth>1)
-            {
-                mImgProLock.lock();
-                WindowLevelTransform(m_pImgPro, mCurImgWidth, mCurImgHeight, mWinCentre, mWinWidth);
-                mImgProLock.unlock();
-            }
-        }
-
-        mDelImgLock.lock();
-        if (!mBDelImging)
-        {
-            mDelImgLock.unlock();
-            SetEvent(hEvent);
-            return ;
-        }
-        mDelImgLock.unlock();
-
-        //对比度
-        if (mBContrast)
-        {
-            mImgProLock.lock();
-            IPFuncMUSICA(m_pImgPro, mCurImgWidth, mCurImgHeight, mLevel, mPower);
-            mImgProLock.unlock();
-
-            //ContrastEnhancement(m_pImgPro, mCurImgWidth, mCurImgHeight, mContrast);
-        }
-
-        mDelImgLock.lock();
-        if (!mBDelImging)
-        {
-            mDelImgLock.unlock();
-            SetEvent(hEvent);
-            return ;
-        }
-        mDelImgLock.unlock();
-
-        //反相
-        if (mBInvert)
-        {
-            mImgProLock.lock();
-            Invert(m_pImgPro, mCurImgWidth, mCurImgHeight);
-            mImgProLock.unlock();
-        }
-
-        mDelImgLock.lock();
-        if (!mBDelImging)
-        {
-            mDelImgLock.unlock();
-            SetEvent(hEvent);
-            return ;
-        }
-        mDelImgLock.unlock();
-
-        //resize
-        reSize(mScale);
-
-        mDelImgLock.lock();
-        if (!mBDelImging)
-        {
-            mDelImgLock.unlock();
-            SetEvent(hEvent);
-            return ;
-        }
-        mDelImgLock.unlock();
-
-        mImgProLock.lock();
-
-        //旋转
-        if (mNeedRotate == 90)
-            Rotate90(m_pImgPro, mCurImgWidth, mCurImgHeight);
-        else if (mNeedRotate == 180)
-            Rotate180(m_pImgPro, mCurImgWidth, mCurImgHeight);
-        else if (mNeedRotate == 270)
-            Rotate270(m_pImgPro, mCurImgWidth, mCurImgHeight);
-
-        mImgProLock.unlock();
-
-        mDelImgLock.lock();
-        if (!mBDelImging)
-        {
-            mDelImgLock.unlock();
-            SetEvent(hEvent);
-            return ;
-        }
-        mDelImgLock.unlock();
-
-        mImgProLock.lock();
-        shortImgToImage(m_pImgPro, mCurImgWidth, mCurImgHeight, mPaintImg);
-        mImgProLock.unlock();
-
-        mDelImgLock.lock();
-        if (!mBDelImging)
-        {
-            mDelImgLock.unlock();
-            SetEvent(hEvent);
-            return ;
-        }
-        mDelImgLock.unlock();
-
-
-        FunctionTransfer::runInMainThread([=]()
-        {
-            //显示
-            showImg(m_pImgPro, mCurImgWidth, mCurImgHeight);
-        });
-
-        SetEvent(hEvent);
-
-    }).detach();
-
-}
-
 
 void MainWindow::slot_btnGroupClick(QAbstractButton *btn)
 {
@@ -3227,6 +3095,9 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                     mPaintRectReal.setRect(0, 0, nWidth, nHeight);
                     p.drawImage(mPaintRectReal, mPaintImg, mSourceRect);
                 }
+
+                if (!mMagImg.isNull())
+                    p.drawImage(mMagRect, mMagImg);
 
                 if (mBShowDefect || mBShowCenter)
                 {
@@ -3958,26 +3829,26 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                             QRectF rectTmp = rectItem->getOriRect();
 
                             //--Intensity--
-                            if (nullptr != m_pSrcImg)
+                            if (nullptr != m_pTransImg)
                             {
                                 QPoint topLeft = rectTmp.topLeft().toPoint();
                                 QPoint bottomRight = rectTmp.bottomRight().toPoint();
 
                                 unsigned short intensity = 0;
-                                GetIntensity(intensity, m_pSrcImg, mSrcImgWidth, mSrcImgHeight,
+                                GetIntensity(intensity, m_pTransImg, mTransImgWidth, mTransImgHeight,
                                     topLeft.x(), topLeft.y(), bottomRight.x(), bottomRight.y());
 
                                 rectItem->setIntensity(intensity);
                             }
 
                             //--SNR--
-                            if (nullptr != m_pSrcImg)
+                            if (nullptr != m_pTransImg)
                             {
                                 QPoint topLeft = rectTmp.topLeft().toPoint();
                                 QPoint bottomRight = rectTmp.bottomRight().toPoint();
 
                                 double dMean, dStd, dSNR;
-                                GetSNR(dMean, dStd, dSNR, m_pSrcImg, mSrcImgWidth, mSrcImgHeight,
+                                GetSNR(dMean, dStd, dSNR, m_pTransImg, mTransImgWidth, mTransImgHeight,
                                     topLeft.x(), topLeft.y(), bottomRight.x(), bottomRight.y());
 
                                 rectItem->setSNR(dMean, dStd, dSNR);
@@ -4023,26 +3894,26 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                             QRectF rectTmp = mDefectRectItem->getOriRect();
 
                             //--Intensity--
-                            if (nullptr != m_pSrcImg)
+                            if (nullptr != m_pTransImg)
                             {
                                 QPoint topLeft = rectTmp.topLeft().toPoint();
                                 QPoint bottomRight = rectTmp.bottomRight().toPoint();
 
                                 unsigned short intensity = 0;
-                                GetIntensity(intensity, m_pSrcImg, mSrcImgWidth, mSrcImgHeight,
+                                GetIntensity(intensity, m_pTransImg, mTransImgWidth, mTransImgHeight,
                                     topLeft.x(), topLeft.y(), bottomRight.x(), bottomRight.y());
 
                                 mDefectRectItem->setIntensity(intensity);
                             }
 
                             //--SNR--
-                            if (nullptr != m_pSrcImg)
+                            if (nullptr != m_pTransImg)
                             {
                                 QPoint topLeft = rectTmp.topLeft().toPoint();
                                 QPoint bottomRight = rectTmp.bottomRight().toPoint();
 
                                 double dMean, dStd, dSNR;
-                                GetSNR(dMean, dStd, dSNR, m_pSrcImg, mSrcImgWidth, mSrcImgHeight,
+                                GetSNR(dMean, dStd, dSNR, m_pTransImg, mTransImgWidth, mTransImgHeight,
                                     topLeft.x(), topLeft.y(), bottomRight.x(), bottomRight.y());
 
                                 mDefectRectItem->setSNR(dMean, dStd, dSNR);
@@ -4082,26 +3953,26 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                             QRectF rectTmp = mRecheckRectItem->getOriRect();
 
                             //--Intensity--
-                            if (nullptr != m_pSrcImg)
+                            if (nullptr != m_pTransImg)
                             {
                                 QPoint topLeft = rectTmp.topLeft().toPoint();
                                 QPoint bottomRight = rectTmp.bottomRight().toPoint();
 
                                 unsigned short intensity = 0;
-                                GetIntensity(intensity, m_pSrcImg, mSrcImgWidth, mSrcImgHeight,
+                                GetIntensity(intensity, m_pTransImg, mTransImgWidth, mTransImgHeight,
                                     topLeft.x(), topLeft.y(), bottomRight.x(), bottomRight.y());
 
                                 mRecheckRectItem->setIntensity(intensity);
                             }
 
                             //--SNR--
-                            if (nullptr != m_pSrcImg)
+                            if (nullptr != m_pTransImg)
                             {
                                 QPoint topLeft = rectTmp.topLeft().toPoint();
                                 QPoint bottomRight = rectTmp.bottomRight().toPoint();
 
                                 double dMean, dStd, dSNR;
-                                GetSNR(dMean, dStd, dSNR, m_pSrcImg, mSrcImgWidth, mSrcImgHeight,
+                                GetSNR(dMean, dStd, dSNR, m_pTransImg, mTransImgWidth, mTransImgHeight,
                                     topLeft.x(), topLeft.y(), bottomRight.x(), bottomRight.y());
 
                                 mRecheckRectItem->setSNR(dMean, dStd, dSNR);
@@ -4153,26 +4024,26 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                             QRectF rectTmp = ellipseItem->getOriRect();
 
                             //--Intensity--
-                            if (nullptr != m_pSrcImg)
+                            if (nullptr != m_pTransImg)
                             {
                                 QPoint topLeft = rectTmp.topLeft().toPoint();
                                 QPoint bottomRight = rectTmp.bottomRight().toPoint();
 
                                 unsigned short intensity = 0;
-                                GetIntensity(intensity, m_pSrcImg, mSrcImgWidth, mSrcImgHeight,
+                                GetIntensity(intensity, m_pTransImg, mTransImgWidth, mTransImgHeight,
                                     topLeft.x(), topLeft.y(), bottomRight.x(), bottomRight.y());
 
                                 ellipseItem->setIntensity(intensity);
                             }
 
                             //--SNR--
-                            if (nullptr != m_pSrcImg)
+                            if (nullptr != m_pTransImg)
                             {
                                 QPoint topLeft = rectTmp.topLeft().toPoint();
                                 QPoint bottomRight = rectTmp.bottomRight().toPoint();
 
                                 double dMean, dStd, dSNR;
-                                GetSNR(dMean, dStd, dSNR, m_pSrcImg, mSrcImgWidth, mSrcImgHeight,
+                                GetSNR(dMean, dStd, dSNR, m_pTransImg, mTransImgWidth, mTransImgHeight,
                                     topLeft.x(), topLeft.y(), bottomRight.x(), bottomRight.y());
 
                                 ellipseItem->setSNR(dMean, dStd, dSNR);
@@ -6243,12 +6114,6 @@ MainWindow::~MainWindow()
         mDelImgOptList.at(i)->release();
     }
     mDelImgOptList.clear();
-
-    //if (NULL != m_pSrcImg)
-    //{
-    //    delete []m_pSrcImg;
-    //    m_pSrcImg = NULL;
-    //}
 
     //save config
     Appconfig::saveConfigFile();
