@@ -249,3 +249,13 @@ LIBIMGPROC_API bool CalcWinLevelWidth(unsigned short &nWinLevel, unsigned short 
 
 //多尺度對比度增強
 LIBIMGPROC_API void IPFuncMUSICA(unsigned short *pImage, int nWidth, int nHeight, int nLevel = 6, double dPower = 0.6);
+
+//獲得一個以指定點為中心、指定半徑的圖像子區域
+LIBIMGPROC_API bool GetSubImage(unsigned short *&pSubImg, int &nSubWidth, int &nSubHeight,
+	unsigned short *pImg, int nW, int nH,
+	int iXc, int iYc,
+	int nRadius = 4);
+
+//放大圖像（4倍）
+LIBIMGPROC_API bool Magnify(unsigned short *&pImg, int &nW, int &nH);
+

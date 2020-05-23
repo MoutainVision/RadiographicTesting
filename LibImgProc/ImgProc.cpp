@@ -1780,3 +1780,46 @@ void IPFuncMUSICA(unsigned short *pImage, int nWidth, int nHeight, int nLevel, d
 
 	return;
 }
+
+
+bool GetSubImage(unsigned short *&pSubImg, int &nSubWidth, int &nSubHeight,
+	const unsigned short *pImg, int nW, int nH,
+	int iXc, int iYc,
+	int nRadius)
+{
+	if (NULL == pImg ||
+		0 > (iXc - nRadius) || (iXc - nRadius) > (iXc + nRadius) || (iXc + nRadius) >= nW ||
+		0 > (iYc - nRadius) || (iYc - nRadius) > (iYc + nRadius) || (iYc + nRadius) >= nH)
+	{
+		return false;
+	}
+
+	nSubWidth  = 2 * nRadius + 1;
+	nSubHeight = 2 * nRadius + 1;
+
+	pSubImg = NULL;
+	if (NULL == (pSubImg = new unsigned short[nSubWidth*nSubHeight]))
+	{
+		return false;
+	}
+
+	int xs = iXc - nRadius;
+	int xe = iXc + nRadius;
+	int ys = iYc - nRadius;
+	int ye = iYc + nRadius;
+
+	for (int y = ys; y <= ye; y++)
+	{
+		for (int x = xs; x <= xe; x++)
+		{
+			pSubImg[(y - ys)*nSubWidth + (x - xs)] = pImg[y*nW + x];
+		}
+	}
+
+	return true;
+}
+
+bool Magnify(unsigned short *&pImg, int &nW, int &nH)
+{
+	return Resize(pImg, nW, nH, 4 * nW, 4 * nH);
+}

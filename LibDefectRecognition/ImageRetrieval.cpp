@@ -132,7 +132,6 @@ bool DefectListEqual(vector<Defect> &aDL1, vector<DefectFeat> &aDL2)
 	return false;
 }
 
-
 void Search(vector<RetrievalResult> &aResult, DCMFile &dfile, ImageRect aoi, DetectParam param,
 	const string &strIndexFile, 
 	const string &strIndexDataFile)
@@ -219,6 +218,41 @@ void Search(vector<RetrievalResult> &aResult, DCMFile &dfile, ImageRect aoi, Det
 
 	return;
 }
+
+bool GetIndexingDataList(vector<DCMFileIndexingData> &aIndexingData,
+	const vector<DCMFileIndex> &aIdxList, const string &strIndexDataFile)
+{
+	for (size_t k = 0; k != aIdxList.size(); k++)
+	{
+		DCMFileIndexingData data;
+		if (!DCMIndexingFile::Read(data, strIndexDataFile.c_str(), aIdxList[k]))
+		{
+			return false;
+		}
+
+		aIndexingData.push_back(data);
+	}
+
+	return true;
+}
+
+
+
+bool MatchFileFeature(vector<DCMFileIndexingData> &aFeat, DCMFileFeat f, string &strMatchedFile)
+{
+	for (size_t k = 0; k != aFeat.size(); ++k)
+	{
+		if (FileFeatEqual(aFeat.at(k).fileFeat, f))
+		{
+			strMatchedFile = aFeat.at(k).strFullPath;
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
 
 
 ImageRetrieval::ImageRetrieval()
