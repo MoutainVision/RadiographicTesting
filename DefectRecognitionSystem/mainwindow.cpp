@@ -242,6 +242,8 @@ MainWindow::MainWindow(QWidget *parent) :
     mBContrast = false;
     mBWind = true;
 
+    mBMag = false;
+
     mBShowDefect = true;
     mBShowCenter = true;
 
@@ -359,7 +361,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->pushButton_invert, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_Mirror, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_Flip, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
-//    connect(ui->pushButton_mag, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+    connect(ui->pushButton_mag, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
 
     connect(ui->pushButton_rotate, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
 
@@ -1130,10 +1132,13 @@ void MainWindow::reSize(int newW, int newH)
     mCurImgHeight = srcH;
 }
 
-void MainWindow::reSize(float scale)
+bool MainWindow::reSize(float scale)
 {
     if (NULL == m_pImgPro)
-        return ;
+        return false;
+
+    if (scale<=0 || scale >200)
+        return false;
 
     mScale = scale;
 
@@ -1143,16 +1148,24 @@ void MainWindow::reSize(float scale)
     int srcW = mSrcImgWidth;
     int srcH = mSrcImgHeight;
 
-    qDebug() << "pre:" << mCurImgWidth << mCurImgHeight;
+    qDebug() << "pre:" << mScale << mSrcImgWidth << mSrcImgHeight;
 
-    mImgProLock.lock();
-    Resize(m_pImgPro, srcW, srcH, mCurImgWidth, mCurImgHeight);
-    mImgProLock.unlock();
+//    mImgProLock.lock();
 
-    mCurImgWidth = srcW;
-    mCurImgHeight = srcH;
+    if (Resize(m_pImgPro, srcW, srcH, mCurImgWidth, mCurImgHeight))
+    {
+        mCurImgWidth = srcW;
+        mCurImgHeight = srcH;
 
-    qDebug() << "end:" << mCurImgWidth << mCurImgHeight;
+        qDebug() << "end:" << mCurImgWidth << mCurImgHeight;
+
+        return true;
+    }
+//    mImgProLock.unlock();
+
+
+
+    return false;
 }
 
 void  MainWindow::expanded(QModelIndex index)
@@ -1168,7 +1181,10 @@ void MainWindow::showImg(unsigned short *pImg, int nW, int nH)
 {
     mPaintRect.setRect(0, 0, nW, nH);
 
-    showScrollBar(); 
+    qDebug() << __FUNCTION__ << mPaintRect.width() << mPaintRect.height();
+
+
+    showScrollBar();
 
     update();
 }
@@ -1561,52 +1577,24 @@ void MainWindow::closeGreyWdg()
 
 void MainWindow::getMagImg(QPoint curPt)
 {
+    if (NULL == m_pImgPro)
+        return ;
+
     //
     mMagLock.lock();
-    SDelImgOpt *imgOpt = mDelImgOptList.last();
-
-    unsigned short *pImgSave;  //处理图像
-
-    pImgSave = new unsigned short[mSrcImgWidth * mSrcImgHeight];
-    memcpy(pImgSave, imgOpt->pImg, mSrcImgWidth*mSrcImgHeight*sizeof(unsigned short));
-
-    int     imgWidth  = mSrcImgWidth;       //原始图像宽
-    int     imgHeight = mSrcImgHeight;      //原始图像高
-
-    //镜像
-    if (mBMirror)
-    {
-        Mirror(pImgSave, imgWidth, imgHeight);
-    }
-
-    //翻转
-    if (mBFlip)
-    {
-        Flip(pImgSave, imgWidth, imgHeight);
-    }
-
-    int imgWTemp = mScale * mSrcImgWidth;
-    int imgHTemp = mScale * mSrcImgHeight;
-    Resize(pImgSave, imgWidth, imgHeight, imgWTemp, imgHTemp);
-
-    //旋转
-    if (mNeedRotate == 90)
-        Rotate90(pImgSave, imgWTemp, imgHTemp);
-    else if (mNeedRotate == 180)
-        Rotate180(pImgSave, imgWTemp, imgHTemp);
-    else if (mNeedRotate == 270)
-        Rotate270(pImgSave, imgWTemp, imgHTemp);
 
     QPoint imgPt = convertImgPt(curPt);
 
-    if (imgPt.x() > 8 && (imgPt.x() ) < imgWTemp - 8
-        && imgPt.y() > 8 && (imgPt.y()) < imgHTemp - 8)
+    mImgProLock.lock();
+
+    if (imgPt.x() > 8 && (imgPt.x() ) < mCurImgWidth - 8
+        && imgPt.y() > 8 && (imgPt.y()) < mCurImgHeight - 8)
     {
         unsigned short *pSubImg;  //处理图像
         int subW;
         int subH;
         int radio = 8;
-        GetSubImage(pSubImg, subW, subH, pImgSave, imgWTemp, imgHTemp, imgPt.x(), imgPt.y(), radio);
+        GetSubImage(pSubImg, subW, subH, m_pImgPro, mCurImgWidth, mCurImgHeight, imgPt.x(), imgPt.y(), radio);
 
 		
         Magnify(pSubImg, subW, subH);
@@ -1614,17 +1602,17 @@ void MainWindow::getMagImg(QPoint curPt)
 
         mMagRect = QRect(curPt.x()-subW / 2, curPt.y()-subH / 2, subW, subH);
 
-
-//        Resize(pSubImg, subW, subH, (radio*2)*2, (radio*2)*2);
-
         shortImgToImage(pSubImg, subW, subH, mMagImg);
 
         delete []pSubImg;
         pSubImg = nullptr;
     }
+    else
+    {
+        mMagImg = QImage();
+    }
 
-	delete []pImgSave;
-	pImgSave = nullptr;
+    mImgProLock.unlock();
 
     mMagLock.unlock();
 
@@ -1635,7 +1623,8 @@ void MainWindow::getIntensity(QPoint curPt)
 {
     if (nullptr != m_pSrcImg && nullptr != m_pTransImg)
 	{
-//        getMagImg(curPt);
+        if (mBMag)
+            getMagImg(curPt);
 
 		QPoint imgPt = convertImgPt(curPt);
 
@@ -1860,6 +1849,12 @@ void MainWindow::slotBtnClick(bool bClick)
 
             }).detach();
         }
+    }
+    else if (QObject::sender() == ui->pushButton_mag)
+    {
+        mBMag = ui->pushButton_mag->isChecked();
+
+        update();
     }
     else if (QObject::sender() == ui->pushButton_measure)
     {
@@ -2406,6 +2401,8 @@ void MainWindow::transforImg()
                 m_pTransImg = NULL;
             }
 
+            qDebug() << "dasdfasdfsadfs";
+
             mCurImgWidth  = mSrcImgWidth;
             mCurImgHeight = mSrcImgHeight;
 
@@ -2479,10 +2476,12 @@ void MainWindow::transforImg()
 
 
             //resize
-            reSize(mScale);
+            mImgProLock.lock();
+            bool bResize = reSize(mScale);
+            mImgProLock.unlock();
 
             mDelImgLock.lock();
-            if (!mBDelImging)
+            if (!mBDelImging || !bResize)
             {
                 mDelImgLock.unlock();
                 SetEvent(hEvent);
@@ -2525,8 +2524,6 @@ void MainWindow::transforImg()
                 return ;
             }
             mDelImgLock.unlock();
-
-
 
             mImgProLock.lock();
             shortImgToImage(m_pImgPro, mCurImgWidth, mCurImgHeight, mPaintImg);
@@ -2637,14 +2634,14 @@ void MainWindow::delImg(SDelImgOpt *srcImgOpt, SDelImgOpt *objImgOpt)
 
     objImgOpt->pImg = pImg;
 
-    mDelTransLock.lock();
-    if (!mBDelTransing)
-    {
-        mDelTransLock.unlock();
-        SetEvent(hEventTrans);
-        return ;
-    }
-    mDelTransLock.unlock();
+//    mDelTransLock.lock();
+//    if (!mBDelTransing)
+//    {
+//        mDelTransLock.unlock();
+//        SetEvent(hEventTrans);
+//        return ;
+//    }
+//    mDelTransLock.unlock();
 }
 
 void MainWindow::delImgOptList(SDelImgOpt *newImgOpt)
@@ -2834,6 +2831,9 @@ void MainWindow::delImgOptList(SDelImgOpt *newImgOpt)
 //        FunctionTransfer::runInMainThread([=]()
 //        {
             //图像变换，并显示
+
+        WaitForSingleObject(hEvent,INFINITE);
+
             transforImg();
 //        });
 
@@ -3096,7 +3096,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                     p.drawImage(mPaintRectReal, mPaintImg, mSourceRect);
                 }
 
-                if (!mMagImg.isNull())
+                if (!mMagImg.isNull() && mBMag)
                     p.drawImage(mMagRect, mMagImg);
 
                 if (mBShowDefect || mBShowCenter)

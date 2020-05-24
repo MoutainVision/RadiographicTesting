@@ -144,7 +144,7 @@ public:
 
     void reSize(int newW, int newH);
 
-    void reSize(float scale);
+    bool reSize(float scale);
 
     //正常显示
     void showNomal();
@@ -433,6 +433,8 @@ private:
     int     mRotate;     //角度
     int     mNeedRotate; //需要旋转的角度
 
+    bool    mBMag;    //放大镜
+
 
     bool    mBMeasureOpt;
 
@@ -478,6 +480,7 @@ private:
     int     mTransImgHeight;      //原始图像高
 
     unsigned short *m_pTransImg;  //原始图像,几何变换
+    unsigned short *m_pSaveImg;  //原始图像,几何变换
 
     //鼠标
     bool            m_bIsPress;

@@ -785,6 +785,30 @@ QTableView::indicator {
                </layout>
               </item>
               <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_40">
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QPushButton" name="pushButton_mag">
+                  <property name="text">
+                   <string>放大镜</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_3">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
                <layout class="QHBoxLayout" name="horizontalLayout_26">
                 <property name="bottomMargin">
                  <number>0</number>
