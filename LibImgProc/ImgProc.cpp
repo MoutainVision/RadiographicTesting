@@ -70,16 +70,19 @@ bool Convert(unsigned char *pDst, unsigned short *pSrc, int nW, int nP, int nH, 
 
 	if (maxIntensity == minIntensity)
 	{
-		memset(pDst, 255, nH*nP * sizeof(unsigned char));
+		//memset(pDst, 255, nH*nP * sizeof(unsigned char));
+
+		memset(pDst, (unsigned char)(255.0 / 65535.0*maxIntensity), nH*nP * sizeof(unsigned char));
 	}
 	else
 	{
-		const double dRatio = 255.0 / (maxIntensity - minIntensity);
+		//const double dRatio = 255.0 / (maxIntensity - minIntensity);
+		const double dRatio = 255.0 / 65535.0;
 
 		for (int y = 0; y < nH; y++)
 			for (int x = 0; x < nW; x++)
 			{
-				unsigned char g = (unsigned char)((pSrc[y*nW + x] - minIntensity)*dRatio);
+				unsigned char g = (unsigned char)(pSrc[y*nW + x]*dRatio);
 				//unsigned char g = (unsigned char)((pSrc[y*nW+x]-minIntensity)*255/(maxIntensity-minIntensity)); 
 				pDst[y*nP + x] = g;
 				//if (g != 0)
@@ -652,9 +655,7 @@ bool Resize(unsigned short *&pImg, int &nW, int &nH, int nNewW, int nNewH)
 	delete[]arr_y;
 
 	delete[]pImg;
-	pImg = new unsigned short[h1*p1];
-	memcpy(pImg, pDst, h1*p1 * sizeof(unsigned short));
-	delete[]pDst;
+	pImg = pDst;
 
 	nW = w1;
 	nH = h1;
