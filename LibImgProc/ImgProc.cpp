@@ -1784,7 +1784,7 @@ void IPFuncMUSICA(unsigned short *pImage, int nWidth, int nHeight, int nLevel, d
 
 
 bool GetSubImage(unsigned short *&pSubImg, int &nSubWidth, int &nSubHeight,
-	const unsigned short *pImg, int nW, int nH,
+	unsigned short *pImg, int nW, int nH,
 	int iXc, int iYc,
 	int nRadius)
 {
