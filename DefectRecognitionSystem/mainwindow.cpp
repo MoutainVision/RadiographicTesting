@@ -308,6 +308,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     mBReal = false;
 
+    ui->action_detect_param->setVisible(false);
+    ui->action_recheck_param->setVisible(false);
+
 //    ui->widget_wind->hide();
 
     ui->tableWidget_recognize->setContextMenuPolicy(Qt::CustomContextMenu);

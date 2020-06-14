@@ -712,7 +712,7 @@ QTableView::indicator {
          </widget>
          <widget class="QWidget" name="tab_3">
           <attribute name="title">
-           <string>识别</string>
+           <string>处理</string>
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_9">
            <property name="spacing">
