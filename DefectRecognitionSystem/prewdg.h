@@ -28,6 +28,8 @@ public:
 
     ~PreWdg();
 
+    void setSelectStatus(bool status);
+
 
     void setDCMFileInfo(DcmFileNode info);
 
@@ -37,6 +39,8 @@ public:
 
 signals:
     void sig_clickItem();
+
+    void sig_doubleClickItem();
 
 
 protected:
@@ -50,6 +54,10 @@ private:
     DcmFileNode mInfo;
 
     QPixmap mPreviewPixImg;
+
+    bool    mBHover;
+
+    bool    mBSelect;
 };
 
 #endif // PREWDG_H

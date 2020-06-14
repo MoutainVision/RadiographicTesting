@@ -76,7 +76,8 @@ SOURCES += \
     prewdg.cpp \
     geyimgwdg.cpp \
     colorwdg.cpp \
-    loading.cpp
+    loading.cpp \
+    selectimgdialog.cpp
 
 HEADERS += \
     aboutdlg.h \
@@ -99,7 +100,8 @@ HEADERS += \
     prewdg.h \
     geyimgwdg.h \
     colorwdg.h \
-    loading.h
+    loading.h \
+    selectimgdialog.h
 
 FORMS += \
     aboutdlg.ui \
@@ -109,7 +111,8 @@ FORMS += \
     logindlg.ui \
     prewdg.ui \
     geyimgwdg.ui \
-    colorwdg.ui
+    colorwdg.ui \
+    selectimgdialog.ui
 
 CONFIG(release, debug|release) {
     LIBS += -L"..\Dependencies\dcmtk-3.6.5\lib\Release" -ldcmtk

@@ -218,6 +218,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->label_connectThr->hide();
     ui->spinBox_ConnectThr->hide();
 
+    ui->groupBox_reco->hide();
 
 //   ui->checkBox_contrast->hide();
 //   ui->spinBox_level->hide();
@@ -972,62 +973,64 @@ void MainWindow::setDcmFileInfo()
         mGreyRectItem = NULL;
     }
 
+    reCheck();
+
     //load
-    std::thread([=] {
+//    std::thread([=] {
 
-        dmfile.Load(mCurDcmFileInfo.filePath.toLocal8Bit().toStdString().c_str());
+//        dmfile.Load(mCurDcmFileInfo.filePath.toLocal8Bit().toStdString().c_str());
 
-        mCurDcmFileInfo.winCentre = dmfile.GetWindowCenter();
-        mCurDcmFileInfo.windWidth = dmfile.GetWindowWidth();
+//        mCurDcmFileInfo.winCentre = dmfile.GetWindowCenter();
+//        mCurDcmFileInfo.windWidth = dmfile.GetWindowWidth();
 
-        mCurDcmFileInfo.width = dmfile.GetWidth();
-        mCurDcmFileInfo.height = dmfile.GetHeight();
+//        mCurDcmFileInfo.width = dmfile.GetWidth();
+//        mCurDcmFileInfo.height = dmfile.GetHeight();
 
-        mWinCentre = mCurDcmFileInfo.winCentre;
-        mWinWidth  = mCurDcmFileInfo.windWidth;
+//        mWinCentre = mCurDcmFileInfo.winCentre;
+//        mWinWidth  = mCurDcmFileInfo.windWidth;
 
-        qDebug() << mWinCentre <<":" << mWinWidth;
+//        qDebug() << mWinCentre <<":" << mWinWidth;
 
-        FunctionTransfer::runInMainThread([=]()
-        {
-            m_pSrcImg = dmfile.GetBuffer();
-            mSrcImgWidth = dmfile.GetWidth();
-            mSrcImgHeight = dmfile.GetHeight();
+//        FunctionTransfer::runInMainThread([=]()
+//        {
+//            m_pSrcImg = dmfile.GetBuffer();
+//            mSrcImgWidth = dmfile.GetWidth();
+//            mSrcImgHeight = dmfile.GetHeight();
 
-            mImgProLock.lock();
-            //清空列表
-            for (int i=0; i<mDelImgOptList.size(); i++)
-            {
-                mDelImgOptList.at(i)->release();
-            }
-            mDelImgOptList.clear();
-
-
-            //原始插入到列表
-            //拷贝
-            unsigned short *pImg = new unsigned short[mSrcImgWidth * mSrcImgHeight];
-            memcpy(pImg, m_pSrcImg, mSrcImgWidth*mSrcImgHeight*sizeof(unsigned short));
-
-            //第一个值
-            SDelImgOpt *imgOpt;
-            imgOpt = new SDelImgOpt;
-
-            imgOpt->delType = EDEEDELIMGSRC;
-            imgOpt->pImg = pImg;
-            imgOpt->isOpen = true;
-
-            mDelImgOptList.push_back(imgOpt);
-
-            mImgProLock.unlock();
-
-			ui->verticalSlider_WinCentre->setValue(mCurDcmFileInfo.winCentre);
-			ui->verticalSlider_WindWidth->setValue(mCurDcmFileInfo.windWidth);
+//            mImgProLock.lock();
+//            //清空列表
+//            for (int i=0; i<mDelImgOptList.size(); i++)
+//            {
+//                mDelImgOptList.at(i)->release();
+//            }
+//            mDelImgOptList.clear();
 
 
-            this->showAdapt();
-        });
+//            //原始插入到列表
+//            //拷贝
+//            unsigned short *pImg = new unsigned short[mSrcImgWidth * mSrcImgHeight];
+//            memcpy(pImg, m_pSrcImg, mSrcImgWidth*mSrcImgHeight*sizeof(unsigned short));
 
-    }).detach();
+//            //第一个值
+//            SDelImgOpt *imgOpt;
+//            imgOpt = new SDelImgOpt;
+
+//            imgOpt->delType = EDEEDELIMGSRC;
+//            imgOpt->pImg = pImg;
+//            imgOpt->isOpen = true;
+
+//            mDelImgOptList.push_back(imgOpt);
+
+//            mImgProLock.unlock();
+
+//			ui->verticalSlider_WinCentre->setValue(mCurDcmFileInfo.winCentre);
+//			ui->verticalSlider_WindWidth->setValue(mCurDcmFileInfo.windWidth);
+
+
+//            this->showAdapt();
+//        });
+
+//    }).detach();
 }
 
 void MainWindow::shortImgToImage(unsigned short *pImg, int nW, int nH, QImage &img)
@@ -1327,8 +1330,8 @@ void MainWindow::clicked(QModelIndex index)
     QString outFileName = QString(QStringLiteral("%1/%2.jpg")).arg(Appconfig::AppDataPath_Tmp).arg(dateTimeStr);
 
 
-    mCurDcmFileInfo.filePath = filePath;
-    mCurDcmFileInfo.transFilePath = outFileName;
+    mClickDcmFileInfo.filePath = filePath;
+    mClickDcmFileInfo.transFilePath = outFileName;
 
     setDcmFileInfo();
 }
@@ -1651,6 +1654,201 @@ void MainWindow::getIntensity(QPoint curPt)
             ui->label_intensity->clear();
         }
 	}   
+}
+
+void MainWindow::reCheck()
+{
+    showLoading(QStringLiteral("正在查重，请稍等"));
+
+    std::thread([&] {
+
+        DCMFile dmfileT;
+        dmfileT.Load(mClickDcmFileInfo.filePath.toLocal8Bit().toStdString().c_str());
+
+        //查重
+        vector<RetrievalResult> aRes;
+        ImageRect pRoi;
+        DetectParam param;
+
+        Search(aRes, dmfileT, pRoi, param, mIndexFilePath.toStdString().c_str(), mIndexDataFilePath.toStdString().c_str());
+
+        FunctionTransfer::runInMainThread([=]()
+        {
+            closeLoading();
+
+            bool bAccepted = false;
+
+            if (aRes.size() > 0)
+            {
+                SelectImgDialog selectDlg;
+                selectDlg.setSimilarValues(aRes);
+                selectDlg.setCurrentInfo(mClickDcmFileInfo);
+
+
+                if (selectDlg.exec() == QDialog::Accepted)
+                {
+                    bAccepted = true;
+                    mCurDcmFileInfo = selectDlg.getFileInfo();
+                }
+            }
+            else
+            {
+                bAccepted = true;
+                mCurDcmFileInfo = mClickDcmFileInfo;
+            }
+
+            if (bAccepted)
+            {
+                //load
+                std::thread([=] {
+
+                    dmfile.Load(mCurDcmFileInfo.filePath.toLocal8Bit().toStdString().c_str());
+
+                    mCurDcmFileInfo.winCentre = dmfile.GetWindowCenter();
+                    mCurDcmFileInfo.windWidth = dmfile.GetWindowWidth();
+
+                    mCurDcmFileInfo.width = dmfile.GetWidth();
+                    mCurDcmFileInfo.height = dmfile.GetHeight();
+
+                    mWinCentre = mCurDcmFileInfo.winCentre;
+                    mWinWidth  = mCurDcmFileInfo.windWidth;
+
+                    qDebug() << mWinCentre <<":" << mWinWidth;
+
+                    FunctionTransfer::runInMainThread([=]()
+                    {
+                        m_pSrcImg = dmfile.GetBuffer();
+                        mSrcImgWidth = dmfile.GetWidth();
+                        mSrcImgHeight = dmfile.GetHeight();
+
+                        mImgProLock.lock();
+                        //清空列表
+                        for (int i=0; i<mDelImgOptList.size(); i++)
+                        {
+                            mDelImgOptList.at(i)->release();
+                        }
+                        mDelImgOptList.clear();
+
+
+                        //原始插入到列表
+                        //拷贝
+                        unsigned short *pImg = new unsigned short[mSrcImgWidth * mSrcImgHeight];
+                        memcpy(pImg, m_pSrcImg, mSrcImgWidth*mSrcImgHeight*sizeof(unsigned short));
+
+                        //第一个值
+                        SDelImgOpt *imgOpt;
+                        imgOpt = new SDelImgOpt;
+
+                        imgOpt->delType = EDEEDELIMGSRC;
+                        imgOpt->pImg = pImg;
+                        imgOpt->isOpen = true;
+
+                        mDelImgOptList.push_back(imgOpt);
+
+                        //窗宽窗位
+                        SDelImgOpt *imgOptW;
+                        imgOptW = new SDelImgOpt;
+                        imgOptW->delType = EDELIMGWIND;
+                        imgOptW->isOpen  = mBWind;
+                        imgOptW->value1  = mWinCentre;
+                        imgOptW->value2  = mWinWidth;
+
+                        delImgOptList(imgOptW);
+
+                        mImgProLock.unlock();
+
+                        ui->verticalSlider_WinCentre->setValue(mCurDcmFileInfo.winCentre);
+                        ui->verticalSlider_WindWidth->setValue(mCurDcmFileInfo.windWidth);
+
+
+                        this->showAdapt();
+                    });
+
+                }).detach();
+            }
+
+
+
+//            SelectImgDialog selectDlg;
+//            selectDlg.setSimilarValues(aRes);
+//            selectDlg.setCurrentInfo(mClickDcmFileInfo);
+
+
+//            if (selectDlg.exec() == QDialog::Accepted)
+//            {
+//                mCurDcmFileInfo = selectDlg.getFileInfo();
+
+//                qDebug() << mCurDcmFileInfo.filePath;
+
+//                //load
+//                std::thread([=] {
+
+//                    dmfile.Load(mCurDcmFileInfo.filePath.toLocal8Bit().toStdString().c_str());
+
+//                    mCurDcmFileInfo.winCentre = dmfile.GetWindowCenter();
+//                    mCurDcmFileInfo.windWidth = dmfile.GetWindowWidth();
+
+//                    mCurDcmFileInfo.width = dmfile.GetWidth();
+//                    mCurDcmFileInfo.height = dmfile.GetHeight();
+
+//                    mWinCentre = mCurDcmFileInfo.winCentre;
+//                    mWinWidth  = mCurDcmFileInfo.windWidth;
+
+//                    qDebug() << mWinCentre <<":" << mWinWidth;
+
+//                    FunctionTransfer::runInMainThread([=]()
+//                    {
+//                        m_pSrcImg = dmfile.GetBuffer();
+//                        mSrcImgWidth = dmfile.GetWidth();
+//                        mSrcImgHeight = dmfile.GetHeight();
+
+//                        mImgProLock.lock();
+//                        //清空列表
+//                        for (int i=0; i<mDelImgOptList.size(); i++)
+//                        {
+//                            mDelImgOptList.at(i)->release();
+//                        }
+//                        mDelImgOptList.clear();
+
+
+//                        //原始插入到列表
+//                        //拷贝
+//                        unsigned short *pImg = new unsigned short[mSrcImgWidth * mSrcImgHeight];
+//                        memcpy(pImg, m_pSrcImg, mSrcImgWidth*mSrcImgHeight*sizeof(unsigned short));
+
+//                        //第一个值
+//                        SDelImgOpt *imgOpt;
+//                        imgOpt = new SDelImgOpt;
+
+//                        imgOpt->delType = EDEEDELIMGSRC;
+//                        imgOpt->pImg = pImg;
+//                        imgOpt->isOpen = true;
+
+//                        mDelImgOptList.push_back(imgOpt);
+
+//                        //窗宽窗位
+//                        SDelImgOpt *imgOptW;
+//                        imgOptW = new SDelImgOpt;
+//                        imgOptW->delType = EDELIMGWIND;
+//                        imgOptW->isOpen  = mBWind;
+//                        imgOptW->value1  = mWinCentre;
+//                        imgOptW->value2  = mWinWidth;
+
+//                        delImgOptList(imgOptW);
+
+//                        mImgProLock.unlock();
+
+//                        ui->verticalSlider_WinCentre->setValue(mCurDcmFileInfo.winCentre);
+//                        ui->verticalSlider_WindWidth->setValue(mCurDcmFileInfo.windWidth);
+
+
+//                        this->showAdapt();
+//                    });
+
+//                }).detach();
+//            }
+        });
+    }).detach();
 }
 
 void MainWindow::addRetrievalResultValues(vector<RetrievalResult> aRes)

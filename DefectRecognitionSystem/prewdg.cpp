@@ -9,15 +9,23 @@ PreWdg::PreWdg(QWidget *parent) :
 {
     ui->setupUi(this);
 
-//    FunctionTransfer::init(QThread::currentThreadId());
-
+    mBHover = false;
+    mBSelect = false;
 
     ui->widget_img->installEventFilter(this);
+    ui->widget_img->setMouseTracking(true);
 }
 
 PreWdg::~PreWdg()
 {
     delete ui;
+}
+
+void PreWdg::setSelectStatus(bool status)
+{
+    mBSelect = status;
+
+    update();
 }
 
 void PreWdg::setDCMFileInfo(DcmFileNode info)
@@ -82,12 +90,61 @@ bool PreWdg::eventFilter(QObject *obj, QEvent *e)
 
                 QBrush b(QColor("#000000"));
                 p.setBrush(b);
+
                 p.drawRect(ui->widget_img->rect());
 
                 p.drawPixmap(imgRect, mPreviewPixImg);
 
+
+                if (mBSelect)
+                {
+                    QPen pen(QColor("#2187ef"));
+                    pen.setWidth(4);
+                    p.setPen(pen);
+                }
+
+                if (mBHover)
+                {
+                    QPen pen(QColor("#00ff00"));
+                    pen.setWidth(4);
+                    p.setPen(pen);
+                }
+                p.setBrush(QBrush());
+
+                p.drawRect(ui->widget_img->rect());
+
+
+
                 return true;
             }
+        }
+        else if (e->type() == QEvent::MouseButtonDblClick)
+        {
+            emit sig_doubleClickItem();
+
+            return true;
+        }
+        else if (e->type() == QEvent::Enter)
+        {
+            mBHover = true;
+
+            update();
+
+            return true;
+        }
+        else if (e->type() == QEvent::MouseButtonPress)
+        {
+            emit sig_clickItem();
+
+            return true;
+        }
+        else if (e->type() == QEvent::Leave)
+        {
+            mBHover = false;
+
+            update();
+
+            return true;
         }
         else if (e->type() == QEvent::Resize)
         {

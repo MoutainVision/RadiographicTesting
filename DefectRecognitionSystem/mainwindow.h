@@ -62,6 +62,9 @@
 #include "aboutdlg.h"
 
 
+#include "selectimgdialog.h"
+
+
 #define MAX_PRE_WIDGET_WIDTH 100
 #define MIN_PRE_WIDGET_WIDTH 50
 
@@ -205,6 +208,8 @@ public:
 
     //----查重------
     void addRetrievalResultValues(vector<RetrievalResult> aRes);
+
+    void reCheck();
 
 //----灰度分布图------
     QPoint convertImgPt(QPoint wPt);
@@ -361,6 +366,8 @@ private:
     QStringList   mDcmFileList;
     int mCurIndex;
     int mDcmCount;
+
+    DcmFileNode mClickDcmFileInfo;
 
     DcmFileNode mCurDcmFileInfo;
     QList<PreWdg *> mPreWdgList;

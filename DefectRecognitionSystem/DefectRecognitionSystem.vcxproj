@@ -210,8 +210,10 @@
     <ClCompile Include="readdcmfile.cpp" />
     <ClCompile Include="recheckwdg.cpp" />
     <ClCompile Include="recognizewdg.cpp" />
+    <ClCompile Include="selectimgdialog.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="selectimgdialog.h" />
     <QtMoc Include="Base\FunctionTransfer.h">
     </QtMoc>
     <QtMoc Include="aboutdlg.h" />
@@ -263,6 +265,7 @@
     </QtUic>
     <QtUic Include="recognizewdg.ui">
     </QtUic>
+    <QtUic Include="selectimgdialog.ui" />
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="imgs.qrc" />
