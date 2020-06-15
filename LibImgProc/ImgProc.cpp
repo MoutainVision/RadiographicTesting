@@ -82,6 +82,43 @@ bool AdjustBrightness(unsigned short *pImg, int nW, int nH, int brightnessOffset
 	return true;
 }
 
+bool ComputeGradient(unsigned short *pImg, int nW, int nH)
+{
+	if (NULL == pImg || 0 >= nW || 0 >= nH)
+		return false;
+
+	unsigned short *pBuf = new unsigned short[nW*nH];
+	memset(pBuf, 0, nW*nH * sizeof(unsigned short));
+
+	size_t nOff = nW;
+
+	for (unsigned y = 1; y < nH - 1; y++)
+	{
+		size_t pos = nOff;
+
+		for (unsigned x = 1; x < nW - 1; x++)
+		{
+			int nGradX = abs((pImg[pos - nW + 1] + pImg[pos + 1] * 2 + pImg[pos + nW + 1])
+				- (pImg[pos - nW - 1] + pImg[pos - 1] * 2 + pImg[pos + nW - 1]));
+
+			int nGradY = abs((pImg[pos + nW - 1] + pImg[pos + nW] * 2 + pImg[pos + nW + 1])
+				- (pImg[pos - nW - 1] + pImg[pos - nW] * 2 + pImg[pos - nW + 1]));
+
+			pBuf[pos] = (nGradX + nGradY) > 65535 ? 65535 : (nGradX + nGradY);
+
+			pos++;
+		}
+
+		nOff += nW;
+	}
+
+	delete[]pImg;
+	pImg = pBuf;
+
+	return true;
+}
+
+
 //RAW×ª»Ò¶ÈÍ¼Ïñ
 bool Convert(unsigned char *pDst, unsigned short *pSrc, int nW, int nP, int nH, long &maxIntensity, long &minIntensity)
 {

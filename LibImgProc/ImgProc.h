@@ -243,6 +243,9 @@ LIBIMGPROC_API void GetHist(unsigned aF[256],		//直方圖
 //亮度調節
 bool AdjustBrightness(unsigned short *pImg, int nW, int nH, int brightnessOffset = 0);	//range: [-65535, 65535]
 
+//計算梯度圖像
+bool ComputeGradient(unsigned short *pImg, int nW, int nH);	
+
 //伽馬校正
 LIBIMGPROC_API bool GammaCorrection(unsigned short *pImg, int nW, int nH, double dGamma,
 	unsigned short nDark = 0, unsigned short nBright = 65535);
