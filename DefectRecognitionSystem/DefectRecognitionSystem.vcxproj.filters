@@ -117,6 +117,9 @@
     <ClCompile Include="selectimgdialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="brightclbwdg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Base\FunctionTransfer.h">
@@ -158,6 +161,9 @@
     <QtMoc Include="selectimgdialog.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="brightclbwdg.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="obj\Moc\moc_predefs.h.cbt">
@@ -190,6 +196,9 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="selectimgdialog.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="brightclbwdg.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>

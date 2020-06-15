@@ -141,6 +141,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     mSplitter->setStretchFactor(1, 3);//左右宽度比为4：1
 
+    mLeftWidthTabOne = ui->widget_left->width();
+
     //资源树
     mModel  = new QDirModel;
 
@@ -185,6 +187,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->pushButton_pre_big->installEventFilter(this);
     ui->pushButton_pre_big->setMouseTracking(true);
 
+    ui->pushButton_his->setEnabled(false);
+    ui->checkBox_gradient->setEnabled(false);
+
     //
     mDefectClassColor.push_back(QColor("#f7acbc"));
     mDefectClassColor.push_back(QColor("#f47920"));
@@ -210,6 +215,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->tabWidget->removeTab(1);
     ui->tabWidget->setCurrentIndex(0);
+
+    ui->tabWidget->removeTab(2);
 
 
     ui->label_connectThr_recheck->hide();
@@ -360,6 +367,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->checkBox_ruler_apply, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
 
 
+    connect(ui->pushButton_his, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+
     //调整
     connect(ui->pushButton_reset, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_invert, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
@@ -381,8 +390,40 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->pushButton_add_db, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->pushButton_recheck, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
 
-    connect(ui->pushButton_contrast_apply, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+    mBContrastE = false;
+    ui->widget_contrastE->setVisible(false);
 
+    mBGama = false;
+    ui->widget_gama->setVisible(false);
+
+    mBContrast = false;
+    ui->widget_const->setVisible(false);
+
+    mBEmboss = false;
+    ui->widget_emboss->setVisible(false);
+
+    mBBright = false;
+    ui->widget_bright->setVisible(false);
+
+    mBGradient = false;
+
+    connect(ui->comboBox_emboss, SIGNAL(currentIndexChanged(int)), this, SLOT(slot_currentIndexChanged(int)));
+
+
+    //
+    connect(ui->checkBox_contrastE, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+    connect(ui->checkBox_gama, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+    connect(ui->checkBox_emboss, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+    connect(ui->checkBox_bright, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+    connect(ui->checkBox_gradient, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+
+
+    connect(ui->pushButton_bright_apply, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+    connect(ui->pushButton_contrast_apply, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+    connect(ui->pushButton_contrastE_apply, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+    connect(ui->pushButton_gama_apply, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+
+    //
     connect(ui->pushButton_reset_wind, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
 
     connect(ui->pushButton_aoi_recheck, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
@@ -1946,6 +1987,17 @@ void MainWindow::setRecognizeValue(int index, DefectFeat feat)
 //    ui->tableWidget_recognize->setItem(row, 9, greyContrastItem);
 }
 
+void MainWindow::slot_currentIndexChanged(int index)
+{
+    SDelImgOpt *imgOpt;
+    imgOpt = new SDelImgOpt;
+    imgOpt->delType = EDELIMGEMBOSS;
+    imgOpt->isOpen  = mBEmboss;
+    imgOpt->value1 = ui->comboBox_emboss->currentIndex();
+
+    delImgOptList(imgOpt);
+}
+
 void MainWindow::slotBtnClick(bool bClick)
 {
     if (QObject::sender() == ui->pushButton_next_big)
@@ -2181,6 +2233,104 @@ void MainWindow::slotBtnClick(bool bClick)
 
         delImgOptList(imgOpt);
     }
+    else if (QObject::sender() == ui->checkBox_contrastE)
+    {
+        mBContrastE = ui->checkBox_contrastE->isChecked();
+        ui->widget_contrastE->setVisible(mBContrastE);
+
+        SDelImgOpt *imgOpt;
+        imgOpt = new SDelImgOpt;
+        imgOpt->delType = EDELIMGCONTRASTE;
+        imgOpt->isOpen  = mBContrastE;
+        imgOpt->value1  = ui->horizontalSlider_contrastE->value();
+
+        delImgOptList(imgOpt);
+    }
+    else if (QObject::sender() == ui->pushButton_contrastE_apply)
+    {
+        SDelImgOpt *imgOpt;
+        imgOpt = new SDelImgOpt;
+        imgOpt->delType = EDELIMGCONTRASTE;
+        imgOpt->isOpen  = mBContrastE;
+        imgOpt->value1  = ui->horizontalSlider_contrastE->value();
+
+        delImgOptList(imgOpt);
+    }
+    else if (QObject::sender() == ui->checkBox_gama)
+    {
+        mBGama = ui->checkBox_gama->isChecked();
+        ui->widget_gama->setVisible(mBGama);
+
+        SDelImgOpt *imgOpt;
+        imgOpt = new SDelImgOpt;
+        imgOpt->delType = EDELIMGGAMA;
+        imgOpt->isOpen  = mBGama;
+        imgOpt->value1 = ui->spinBox_gamma_dark->value();
+        imgOpt->value2 = ui->spinBox_gamma_bright->value();
+        imgOpt->value3 = ui->doubleSpinBox_gama->value();
+
+        delImgOptList(imgOpt);
+    }
+    else if (QObject::sender() == ui->pushButton_gama_apply)
+    {
+        SDelImgOpt *imgOpt;
+        imgOpt = new SDelImgOpt;
+        imgOpt->delType = EDELIMGGAMA;
+        imgOpt->isOpen  = mBGama;
+        imgOpt->value1 = ui->spinBox_gamma_dark->value();
+        imgOpt->value2 = ui->spinBox_gamma_bright->value();
+        imgOpt->value3 = ui->doubleSpinBox_gama->value();
+
+        delImgOptList(imgOpt);
+    }
+    else if (QObject::sender() == ui->checkBox_emboss)
+    {
+        mBEmboss = ui->checkBox_emboss->isChecked();
+        ui->widget_emboss->setVisible(mBEmboss);
+
+        SDelImgOpt *imgOpt;
+        imgOpt = new SDelImgOpt;
+        imgOpt->delType = EDELIMGEMBOSS;
+        imgOpt->isOpen  = mBEmboss;
+        imgOpt->value1 = ui->comboBox_emboss->currentIndex();
+
+        delImgOptList(imgOpt);
+
+    }
+    else if (QObject::sender() == ui->checkBox_bright)
+    {
+        mBBright = ui->checkBox_bright->isChecked();
+        ui->widget_bright->setVisible(mBBright);
+
+        SDelImgOpt *imgOpt;
+        imgOpt = new SDelImgOpt;
+        imgOpt->delType = EDELIMGBRIGHT;
+        imgOpt->isOpen  = mBBright;
+        imgOpt->value1 = ui->spinBox_bright->value();
+
+        delImgOptList(imgOpt);
+    }
+    else if (QObject::sender() == ui->pushButton_bright_apply)
+    {
+        SDelImgOpt *imgOpt;
+        imgOpt = new SDelImgOpt;
+        imgOpt->delType = EDELIMGBRIGHT;
+        imgOpt->isOpen  = mBBright;
+        imgOpt->value1 = ui->spinBox_bright->value();
+
+        delImgOptList(imgOpt);
+    }
+    else if (QObject::sender() == ui->checkBox_gradient)
+    {
+        mBGradient = ui->checkBox_gradient->isChecked();
+
+        SDelImgOpt *imgOpt;
+        imgOpt = new SDelImgOpt;
+        imgOpt->delType = EDELIMGGADIENT;
+        imgOpt->isOpen  = mBGradient;
+
+        delImgOptList(imgOpt);
+    }
     else if (QObject::sender() == ui->pushButton_reset_wind)
     {
         ui->verticalSlider_WinCentre->setValue(mCurDcmFileInfo.winCentre);
@@ -2198,6 +2348,8 @@ void MainWindow::slotBtnClick(bool bClick)
     else if (QObject::sender() == ui->checkBox_contrast)
     {
         mBContrast = ui->checkBox_contrast->isChecked();
+        ui->widget_const->setVisible(mBContrast);
+
         mLevel     = ui->spinBox_level->value();
         mPower     = ui->doubleSpinBox_power->value();
 
@@ -2224,6 +2376,29 @@ void MainWindow::slotBtnClick(bool bClick)
         imgOpt->value2  = mPower;
 
         delImgOptList(imgOpt);
+    }
+    else if (QObject::sender() == ui->pushButton_his)
+    {
+        if (NULL == m_pSrcImg)
+            return ;
+
+
+        unsigned aF[65536];
+        GetHist(aF, m_pSrcImg, mSrcImgWidth, mSrcImgHeight);
+
+    ofstream ofs("shortFreq.txt");
+            if (ofs)
+            {
+                for (int n = 0; n < 65536; n++)
+                {
+                    if (aF[n] > 0)
+                        ofs << n << "\t" << aF[n] << endl;
+                }
+            }
+
+        mHisWdg.setHist(aF);
+
+        mHisWdg.show();
     }
     else if (QObject::sender() == ui->checkBox_show_defect)
     {
@@ -2799,6 +2974,39 @@ void MainWindow::delImgList()
             imgOpt->pImg = pImgT;
         }
 
+        else if (imgOpt->delType == EDELIMGGADIENT)
+        {
+            ComputeGradient(pImgT, mSrcImgWidth, mSrcImgHeight);
+            imgOpt->pImg = pImgT;
+        }
+        else if (imgOpt->delType == EDELIMGCONTRASTE)
+        {
+            if (imgOpt->value1>=0)
+            {
+                ContrastEnhancement(pImgT, mSrcImgWidth, mSrcImgHeight, imgOpt->value1);
+                imgOpt->pImg = pImgT;
+            }
+        }
+        else if (imgOpt->delType == EDELIMGEMBOSS)
+        {
+            if (imgOpt->value1>=0)
+            {
+                Emboss(pImgT, mSrcImgHeight, mSrcImgWidth, (EEmbOp)imgOpt->value1);
+
+                imgOpt->pImg = pImgT;
+            }
+        }
+        else if (imgOpt->delType == EDELIMGGAMA)
+        {
+            if (imgOpt->value1>=0 && imgOpt->value2>=0 && imgOpt->value3>=0.01)
+            {
+                GammaCorrection(pImgT, mSrcImgWidth, mSrcImgHeight,imgOpt->value3,
+                                imgOpt->value1, imgOpt->value2);
+
+                imgOpt->pImg = pImgT;
+            }
+        }
+
         mDelTransLock.lock();
         if (!mBDelTransing)
         {
@@ -2831,6 +3039,39 @@ void MainWindow::delImg(SDelImgOpt *srcImgOpt, SDelImgOpt *objImgOpt)
     else if (objImgOpt->delType == EDELIMGCONTRAST)
     {
         IPFuncMUSICA(pImg, mSrcImgWidth, mSrcImgHeight, objImgOpt->value1, objImgOpt->value2);
+    }
+    else if (objImgOpt->delType == EDELIMGGADIENT)
+    {
+        ComputeGradient(pImg, mSrcImgWidth, mSrcImgHeight);
+    }
+    else if (objImgOpt->delType == EDELIMGCONTRASTE)
+    {
+        if (objImgOpt->value1>=0)
+        {
+            ContrastEnhancement(pImg, mSrcImgWidth, mSrcImgHeight, objImgOpt->value1);
+        }
+    }
+    else if (objImgOpt->delType == EDELIMGBRIGHT)
+    {
+        if (objImgOpt->value1>=0)
+        {
+            AdjustBrightness(pImg, mSrcImgWidth, mSrcImgHeight, objImgOpt->value1);
+        }
+    }
+    else if (objImgOpt->delType == EDELIMGEMBOSS)
+    {
+        if (objImgOpt->value1>=0)
+        {
+            Emboss(pImg, mSrcImgHeight, mSrcImgWidth, (EEmbOp)objImgOpt->value1);
+        }
+    }
+    else if (objImgOpt->delType == EDELIMGGAMA)
+    {
+        if (objImgOpt->value1>=0 && objImgOpt->value2>=0 && objImgOpt->value3>=0.01)
+        {
+            GammaCorrection(pImg, mSrcImgWidth, mSrcImgHeight,objImgOpt->value3,
+                            objImgOpt->value1, objImgOpt->value2);
+        }
     }
 
     objImgOpt->pImg = pImg;
@@ -2881,10 +3122,16 @@ void MainWindow::delImgOptList(SDelImgOpt *newImgOpt)
             {
                 if (lastImgOpt->delType == newImgOpt->delType)
                 {
-                    if (newImgOpt->delType == EDELIMGCONTRAST || newImgOpt->delType == EDELIMGWIND)
+                    if (newImgOpt->delType == EDELIMGCONTRAST
+                            || newImgOpt->delType == EDELIMGWIND
+                            || newImgOpt->delType == EDELIMGCONTRASTE
+                            || newImgOpt->delType == EDELIMGGAMA
+                            || newImgOpt->delType == EDELIMGBRIGHT
+							|| newImgOpt->delType == EDELIMGEMBOSS)
                     {
                         lastImgOpt->value1 = newImgOpt->value1;
                         lastImgOpt->value2 = newImgOpt->value2;
+                        lastImgOpt->value3 = newImgOpt->value3;
 
                         //释放最后一个操作的图像内容
                         lastImgOpt->release();
@@ -2921,6 +3168,46 @@ void MainWindow::delImgOptList(SDelImgOpt *newImgOpt)
                     for (int i=0; i<mDelImgOptList.size(); i++)
                     {
                         if (mDelImgOptList.at(i)->delType == EDELIMGINVERT)
+                        {
+                            mDelImgOptList.removeAt(i);
+                            break;
+                        }
+                    }
+
+                    //合并相同的图像操作
+                    for (int j=0; j < mDelImgOptList.size()-1; )
+                    {
+                        if (mDelImgOptList.at(j)->delType == mDelImgOptList.at(j+1)->delType)
+                        {
+                            mDelImgOptList.removeAt(j);
+                        }
+                        else
+                            j++;
+                    }
+
+                    //列表处理图像
+                    delImgList();
+                }
+            }
+            else if (newImgOpt->delType == EDELIMGGADIENT)
+            {
+                if (lastImgOpt->delType == newImgOpt->delType)
+                {
+                    mDelImgOptList.removeLast();
+
+                    //清除
+                    lastImgOpt->release();
+
+                    //处理最后一个操作
+                    if (mDelImgOptList.size() >= 2)
+                        delImg(mDelImgOptList.at(mDelImgOptList.size() - 2), mDelImgOptList.last());
+                }
+                else
+                {
+                    //链条里面清除反相操作
+                    for (int i=0; i<mDelImgOptList.size(); i++)
+                    {
+                        if (mDelImgOptList.at(i)->delType == EDELIMGGADIENT)
                         {
                             mDelImgOptList.removeAt(i);
                             break;
@@ -3003,6 +3290,174 @@ void MainWindow::delImgOptList(SDelImgOpt *newImgOpt)
                     for (int i=0; i< mDelImgOptList.size(); )
                     {
                         if (mDelImgOptList.at(i)->delType == EDELIMGCONTRAST)
+                        {
+                            mDelImgOptList.removeAt(i);
+                            continue;
+                        }
+
+                        i++;
+                    }
+
+                    //合并相同的图像操作
+                    for (int j=0; j < mDelImgOptList.size()-1; )
+                    {
+                        if (mDelImgOptList.at(j)->delType == mDelImgOptList.at(j+1)->delType)
+                        {
+                            mDelImgOptList.removeAt(j);
+                        }
+                        else
+                            j++;
+                    }
+
+                    //列表处理图像
+                    delImgList();
+                }
+            }
+            else if (newImgOpt->delType == EDELIMGBRIGHT)
+            {
+                if (lastImgOpt->delType == newImgOpt->delType)
+                {
+                    mDelImgOptList.removeLast();
+
+                    //清除
+                    lastImgOpt->release();
+
+                    //处理最后一个操作
+                    if (mDelImgOptList.size() >= 2)
+                        delImg(mDelImgOptList.at(mDelImgOptList.size() - 2), mDelImgOptList.last());
+                }
+                else
+                {
+                    //链条里面清除窗宽操作
+                    for (int i=0; i< mDelImgOptList.size(); )
+                    {
+                        if (mDelImgOptList.at(i)->delType == EDELIMGBRIGHT)
+                        {
+                            mDelImgOptList.removeAt(i);
+                            continue;
+                        }
+
+                        i++;
+                    }
+
+                    //合并相同的图像操作
+                    for (int j=0; j < mDelImgOptList.size()-1; )
+                    {
+                        if (mDelImgOptList.at(j)->delType == mDelImgOptList.at(j+1)->delType)
+                        {
+                            mDelImgOptList.removeAt(j);
+                        }
+                        else
+                            j++;
+                    }
+
+                    //列表处理图像
+                    delImgList();
+                }
+            }
+            else if (newImgOpt->delType == EDELIMGCONTRASTE)
+            {
+                if (lastImgOpt->delType == newImgOpt->delType)
+                {
+                    mDelImgOptList.removeLast();
+
+                    //清除
+                    lastImgOpt->release();
+
+                    //处理最后一个操作
+                    if (mDelImgOptList.size() >= 2)
+                        delImg(mDelImgOptList.at(mDelImgOptList.size() - 2), mDelImgOptList.last());
+                }
+                else
+                {
+                    //链条里面清除窗宽操作
+                    for (int i=0; i< mDelImgOptList.size(); )
+                    {
+                        if (mDelImgOptList.at(i)->delType == EDELIMGCONTRASTE)
+                        {
+                            mDelImgOptList.removeAt(i);
+                            continue;
+                        }
+
+                        i++;
+                    }
+
+                    //合并相同的图像操作
+                    for (int j=0; j < mDelImgOptList.size()-1; )
+                    {
+                        if (mDelImgOptList.at(j)->delType == mDelImgOptList.at(j+1)->delType)
+                        {
+                            mDelImgOptList.removeAt(j);
+                        }
+                        else
+                            j++;
+                    }
+
+                    //列表处理图像
+                    delImgList();
+                }
+            }
+            else if (newImgOpt->delType == EDELIMGGAMA)
+            {
+                if (lastImgOpt->delType == newImgOpt->delType)
+                {
+                    mDelImgOptList.removeLast();
+
+                    //清除
+                    lastImgOpt->release();
+
+                    //处理最后一个操作
+                    if (mDelImgOptList.size() >= 2)
+                        delImg(mDelImgOptList.at(mDelImgOptList.size() - 2), mDelImgOptList.last());
+                }
+                else
+                {
+                    //链条里面清除窗宽操作
+                    for (int i=0; i< mDelImgOptList.size(); )
+                    {
+                        if (mDelImgOptList.at(i)->delType == EDELIMGGAMA)
+                        {
+                            mDelImgOptList.removeAt(i);
+                            continue;
+                        }
+
+                        i++;
+                    }
+
+                    //合并相同的图像操作
+                    for (int j=0; j < mDelImgOptList.size()-1; )
+                    {
+                        if (mDelImgOptList.at(j)->delType == mDelImgOptList.at(j+1)->delType)
+                        {
+                            mDelImgOptList.removeAt(j);
+                        }
+                        else
+                            j++;
+                    }
+
+                    //列表处理图像
+                    delImgList();
+                }
+            }
+            else if (newImgOpt->delType == EDELIMGEMBOSS)
+            {
+                if (lastImgOpt->delType == newImgOpt->delType)
+                {
+                    mDelImgOptList.removeLast();
+
+                    //清除
+                    lastImgOpt->release();
+
+                    //处理最后一个操作
+                    if (mDelImgOptList.size() >= 2)
+                        delImg(mDelImgOptList.at(mDelImgOptList.size() - 2), mDelImgOptList.last());
+                }
+                else
+                {
+                    //链条里面清除窗宽操作
+                    for (int i=0; i< mDelImgOptList.size(); )
+                    {
+                        if (mDelImgOptList.at(i)->delType == EDELIMGEMBOSS)
                         {
                             mDelImgOptList.removeAt(i);
                             continue;

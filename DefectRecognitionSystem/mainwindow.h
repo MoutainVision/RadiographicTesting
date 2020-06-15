@@ -26,6 +26,7 @@
 #include <QMenu>
 #include <QAction>
 #include <QPoint>
+#include <QComboBox>
 
 #include <thread>
 
@@ -64,6 +65,8 @@
 
 #include "selectimgdialog.h"
 
+#include "brightclbwdg.h"
+
 
 #define MAX_PRE_WIDGET_WIDTH 100
 #define MIN_PRE_WIDGET_WIDTH 50
@@ -76,7 +79,12 @@ enum EDelImgType
     EDEEDELIMGSRC = 0,
     EDELIMGINVERT,   //反相
     EDELIMGWIND,     //窗宽
-    EDELIMGCONTRAST  //对比度
+    EDELIMGCONTRAST, //多尺度对比度
+    EDELIMGBRIGHT,   //亮度
+    EDELIMGCONTRASTE, //对比度
+    EDELIMGGAMA,      //gama
+    EDELIMGEMBOSS,    //浮雕
+    EDELIMGGADIENT    //梯度图像
 };
 #endif
 
@@ -89,6 +97,7 @@ struct SDelImgOpt
     bool isOpen;
     int value1;
     double value2;
+    double value3;
 
     unsigned short *pImg;  //处理图像
 
@@ -289,6 +298,8 @@ private slots:
 
     void slot_tableCellClicked(int row, int col);
 
+    void slot_currentIndexChanged(int index);
+
     //菜单
     void slot_menueToggle();
     void slot_showManu(QPoint pt);
@@ -372,6 +383,8 @@ private:
     DcmFileNode mCurDcmFileInfo;
     QList<PreWdg *> mPreWdgList;
 
+    BrightClbWdg mHisWdg;
+
     //标尺
     bool    mBReal;
 
@@ -433,6 +446,17 @@ private:
     bool    mBContrast;  //多尺度对比度
     int     mLevel; //对比度
     double  mPower;
+
+    //
+    bool    mBContrastE;    //对比度
+    bool    mBGama;        //ganma
+    bool    mBEmboss;       //浮雕
+    bool    mBBright;     //亮度
+    bool    mBGradient;   //梯度
+
+    //
+    int     mLeftWidthTabOne;
+    int     mLeftWidthTabTwo;
 
     int     mWinCentre; //窗宽
     int     mWinWidth;  //窗位
