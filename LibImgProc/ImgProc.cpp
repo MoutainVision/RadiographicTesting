@@ -49,6 +49,39 @@ void GetHist(unsigned aF[256], unsigned char *pImg, int nW, int nP, int nH)
 }
 
 
+bool AdjustBrightness(unsigned short *pImg, int nW, int nH, int brightnessOffset)
+{
+	if (NULL == pImg || 0 >= nW || 0 >= nH)
+		return false;
+
+	if (brightnessOffset < -65535)
+		brightnessOffset = -65535;
+	else if (brightnessOffset > 65535)
+		brightnessOffset = 65535;
+
+	unsigned short lut[65536] = { 0 };
+
+	for (int i = 0; i < 65536; i++)
+	{
+		int g = brightnessOffset + i;
+		if (g < 0)
+			lut[i] = 0;
+		else if (g > 65535)
+			lut[i] = 65535;
+		else
+			lut[i] = g;
+	}
+
+	size_t nPix = (size_t)nW * nH;
+
+	for (size_t k=0; k<nPix; k++)
+	{
+		pImg[k] = lut[pImg[k]];
+	}
+
+	return true;
+}
+
 //RAW×ª»Ò¶ÈÍ¼Ïñ
 bool Convert(unsigned char *pDst, unsigned short *pSrc, int nW, int nP, int nH, long &maxIntensity, long &minIntensity)
 {
