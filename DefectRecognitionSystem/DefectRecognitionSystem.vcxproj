@@ -191,6 +191,7 @@
     <ClCompile Include="aboutdlg.cpp" />
     <ClCompile Include="Base\FunctionTransfer.cpp" />
     <ClCompile Include="appconfig.cpp" />
+    <ClCompile Include="brightclbwdg.cpp" />
     <ClCompile Include="colorwdg.cpp" />
     <ClCompile Include="geometryItem\dragitem.cpp" />
     <ClCompile Include="geometryItem\ellipseitem.cpp" />
@@ -221,6 +222,7 @@
     <QtMoc Include="mainwindow.h">
     </QtMoc>
     <QtMoc Include="colorwdg.h" />
+    <QtMoc Include="brightclbwdg.h" />
     <ClInclude Include="geometryItem\dragitem.h" />
     <ClInclude Include="geometryItem\ellipseitem.h" />
     <ClInclude Include="geometryItem\geometryitembase.h" />
@@ -255,6 +257,7 @@
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="aboutdlg.ui" />
+    <QtUic Include="brightclbwdg.ui" />
     <QtUic Include="colorwdg.ui" />
     <QtUic Include="geyimgwdg.ui" />
     <QtUic Include="logindlg.ui" />

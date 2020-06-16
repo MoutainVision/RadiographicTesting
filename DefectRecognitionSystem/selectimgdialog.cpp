@@ -12,6 +12,8 @@ SelectImgDialog::SelectImgDialog(QWidget *parent) :
 
     mCurIndex = 0;
 
+    ui->stackedWidget->setCurrentIndex(0);
+
     ui->tableWidget_recheck->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
     connect(ui->tableWidget_recheck, SIGNAL(cellDoubleClicked(int,int)), this, SLOT(slot_tableCellClicked(int, int)));
@@ -28,6 +30,8 @@ void SelectImgDialog::slot_tableCellClicked(int row, int col)
 {
     QString filePath = ui->tableWidget_recheck->item(row, 2)->text();
 
+    QString similarValue = ui->tableWidget_recheck->item(row, 3)->text();
+
     std::thread([=] {
 
         //db file
@@ -43,7 +47,6 @@ void SelectImgDialog::slot_tableCellClicked(int row, int col)
         mDbFileInfo.filePath = filePath;
         mDbFileInfo.transFilePath = outFileName;
 
-
         ReadDCMFile::readDCMFileLib(mCurFileInfo.filePath.toLocal8Bit().toStdString(),
                                     mCurFileInfo.transFilePath.toLocal8Bit().toStdString(),
                                     errorStr);
@@ -54,6 +57,8 @@ void SelectImgDialog::slot_tableCellClicked(int row, int col)
             ui->stackedWidget->setCurrentIndex(1);
 
             setDCMFileInfo(mCurFileInfo, mDbFileInfo);
+
+            ui->label_similar->setText(similarValue);
         });
 
 

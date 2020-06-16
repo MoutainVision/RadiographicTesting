@@ -112,14 +112,14 @@ bool ComputeGradient(unsigned short *pImg, int nW, int nH)
 		nOff += nW;
 	}
 
-	delete[]pImg;
-	pImg = pBuf;
+	memcpy(pImg, pBuf, nW*nH * sizeof(unsigned short));
+	delete[] pBuf;
 
 	return true;
 }
 
 
-//RAW×ª»Ò¶ÈÍ¼Ïñ
+//RAW×ªï¿½Ò¶ï¿½Í¼ï¿½ï¿½
 bool Convert(unsigned char *pDst, unsigned short *pSrc, int nW, int nP, int nH, long &maxIntensity, long &minIntensity)
 {
 	if (NULL == pDst || NULL == pSrc || nW < 0 || nP < 0 || nH < 0)
@@ -153,7 +153,7 @@ bool Convert(unsigned char *pDst, unsigned short *pSrc, int nW, int nP, int nH, 
 			for (int x = 0; x < nW; x++)
 			{
 				unsigned char g = (unsigned char)(pSrc[y*nW + x]*dRatio);
-				//unsigned char g = (unsigned char)((pSrc[y*nW+x]-minIntensity)*255/(maxIntensity-minIntensity)); 
+				//unsigned char g = (unsigned char)((pSrc[y*nW+x]-minIntensity)*255/(maxIntensity-minIntensity));
 				pDst[y*nP + x] = g;
 				//if (g != 0)
 				//{
@@ -208,7 +208,7 @@ void GetKernel(int pKernel[9], EEmbOp eop)
 {
 	switch (eop)
 	{
-		//ÌÝ¶È¼ì²â, ÄÏ£¨´¹Ö±£©
+		//ï¿½Ý¶È¼ï¿½ï¿½ï¿½, ï¿½Ï£ï¿½ï¿½ï¿½Ö±ï¿½ï¿½
 	case EMB_IMAGE_GRADIENT_SOUTH_DETECT:
 	{
 		pKernel[0] = pKernel[2] = -1;  pKernel[1] = -2;
@@ -216,7 +216,7 @@ void GetKernel(int pKernel[9], EEmbOp eop)
 		pKernel[6] = pKernel[8] = 1;   pKernel[7] = 2;
 		break;
 	}
-	//ÌÝ¶È¼ì²â, ¶«(Ë®Æ½)
+	//ï¿½Ý¶È¼ï¿½ï¿½ï¿½, ï¿½ï¿½(Ë®Æ½)
 	case EMB_IMAGE_GRADIENT_EAST_DETECT:
 	{
 		pKernel[0] = pKernel[6] = -1;  pKernel[3] = -2;
@@ -224,7 +224,7 @@ void GetKernel(int pKernel[9], EEmbOp eop)
 		pKernel[2] = pKernel[8] = 1;   pKernel[5] = 2;
 		break;
 	}
-	//ÌÝ¶È¼ì²â, ¶«±±-Î÷ÄÏ
+	//ï¿½Ý¶È¼ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½
 	case EMB_IMAGE_GRADIENT_NORTHEAST_DETECT:
 	{
 		pKernel[1] = pKernel[5] = 1;    pKernel[2] = 2;
@@ -232,7 +232,7 @@ void GetKernel(int pKernel[9], EEmbOp eop)
 		pKernel[3] = pKernel[7] = -1;   pKernel[6] = -2;
 		break;
 	}
-	//ÌÝ¶È¼ì²â, Î÷±±-¶«ÄÏ
+	//ï¿½Ý¶È¼ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½
 	case EMB_IMAGE_GRADIENT_SOUTHEAST_DETECT:
 	{
 		pKernel[0] = -2;  pKernel[1] = pKernel[3] = -1;
@@ -242,7 +242,7 @@ void GetKernel(int pKernel[9], EEmbOp eop)
 	}
 
 
-	//Æ½ÒÆºÍ²î·Ö±ßÔµÔöÇ¿, ¶«£¨Ë®Æ½£©
+	//Æ½ï¿½ÆºÍ²ï¿½ï¿½Ö±ï¿½Ôµï¿½ï¿½Ç¿, ï¿½ï¿½ï¿½ï¿½Ë®Æ½ï¿½ï¿½
 	case EMB_IMAGE_DIFFERENCE_EAST_DETECT:
 	{
 		pKernel[0] = pKernel[1] = pKernel[2] = 0;
@@ -250,7 +250,7 @@ void GetKernel(int pKernel[9], EEmbOp eop)
 		pKernel[6] = pKernel[7] = pKernel[8] = 0;
 		break;
 	}
-	//Æ½ÒÆºÍ²î·Ö±ßÔµÔöÇ¿, ÄÏ£¨´¹Ö±£©
+	//Æ½ï¿½ÆºÍ²ï¿½ï¿½Ö±ï¿½Ôµï¿½ï¿½Ç¿, ï¿½Ï£ï¿½ï¿½ï¿½Ö±ï¿½ï¿½
 	case EMB_IMAGE_DIFFERENCE_SOUTH_DETECT:
 	{
 		pKernel[0] = pKernel[2] = 0; pKernel[1] = -1;
@@ -258,7 +258,7 @@ void GetKernel(int pKernel[9], EEmbOp eop)
 		pKernel[6] = pKernel[7] = pKernel[8] = 0;
 		break;
 	}
-	//Æ½ÒÆºÍ²î·Ö±ßÔµÔöÇ¿, ¶«±±-Î÷ÄÏ
+	//Æ½ï¿½ÆºÍ²ï¿½ï¿½Ö±ï¿½Ôµï¿½ï¿½Ç¿, ï¿½ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½
 	case EMB_IMAGE_DIFFERENCE_NORTHEAST_DETECT:
 	{
 		pKernel[0] = pKernel[1] = pKernel[2] = 0;
@@ -266,7 +266,7 @@ void GetKernel(int pKernel[9], EEmbOp eop)
 		pKernel[6] = -1; pKernel[7] = pKernel[8] = 0;
 		break;
 	}
-	//Æ½ÒÆºÍ²î·Ö±ßÔµÔöÇ¿, Î÷±±-¶«ÄÏ
+	//Æ½ï¿½ÆºÍ²ï¿½ï¿½Ö±ï¿½Ôµï¿½ï¿½Ç¿, ï¿½ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½
 	case EMB_IMAGE_DIFFERENCE_SOUTHEAST_DETECT:
 	{
 		pKernel[0] = -1; pKernel[1] = pKernel[2] = 0;
@@ -276,7 +276,7 @@ void GetKernel(int pKernel[9], EEmbOp eop)
 	}
 
 
-	//Prewitt±ßÔµÔöÇ¿, ¶«£¨Ë®Æ½£©
+	//Prewittï¿½ï¿½Ôµï¿½ï¿½Ç¿, ï¿½ï¿½ï¿½ï¿½Ë®Æ½ï¿½ï¿½
 	case EMB_IMAGE_PREWITT_EAST_DETECT:
 	{
 		pKernel[0] = -1; pKernel[1] = pKernel[2] = 1;
@@ -284,7 +284,7 @@ void GetKernel(int pKernel[9], EEmbOp eop)
 		pKernel[6] = -1; pKernel[7] = pKernel[8] = 1;
 		break;
 	}
-	//Prewitt±ßÔµÔöÇ¿, ÄÏ£¨´¹Ö±£©
+	//Prewittï¿½ï¿½Ôµï¿½ï¿½Ç¿, ï¿½Ï£ï¿½ï¿½ï¿½Ö±ï¿½ï¿½
 	case EMB_IMAGE_PREWITT_SOUTH_DETECT:
 	{
 		pKernel[0] = pKernel[1] = pKernel[2] = -1;
@@ -292,7 +292,7 @@ void GetKernel(int pKernel[9], EEmbOp eop)
 		pKernel[6] = pKernel[7] = pKernel[8] = 1;
 		break;
 	}
-	//Prewitt±ßÔµÔöÇ¿, ¶«±±-Î÷ÄÏ
+	//Prewittï¿½ï¿½Ôµï¿½ï¿½Ç¿, ï¿½ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½
 	case EMB_IMAGE_PREWITT_NORTHEAST_DETECT:
 	{
 		pKernel[0] = pKernel[1] = pKernel[2] = 1;
@@ -300,7 +300,7 @@ void GetKernel(int pKernel[9], EEmbOp eop)
 		pKernel[6] = pKernel[7] = -1; pKernel[8] = 1;
 		break;
 	}
-	//Prewitt±ßÔµÔöÇ¿, Î÷±±-¶«ÄÏ
+	//Prewittï¿½ï¿½Ôµï¿½ï¿½Ç¿, ï¿½ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½
 	case EMB_IMAGE_PREWITT_SOUTHEAST_DETECT:
 	{
 		pKernel[0] = pKernel[1] = -1; pKernel[2] = 1;
@@ -464,11 +464,11 @@ bool MedianFiltering(unsigned short *pImg, int nW, int nH, int nFilterRadius, Im
 	if (0 == nFilterRadius)
 		return true;
 
-	//±¸·ÝÔ´Í¼Ïñ
+	//ï¿½ï¿½ï¿½ï¿½Ô´Í¼ï¿½ï¿½
 	unsigned short *pBuf = new unsigned short[nW*nH];
 	memcpy(pBuf, pImg, nW*nH * sizeof(unsigned short));
 
-	//¶ÔÍ¼ÏñÖÐµÄ¾ØÐÎÇøÓò½øÐÐÖÐÖµÂË²¨
+	//ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ÐµÄ¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½Ë²ï¿½
 	for (int y = ymin; y < ymax; y++)
 		for (int x = xmin; x < xmax; x++)
 		{
@@ -489,7 +489,7 @@ bool MedianFiltering(unsigned short *pImg, int nW, int nH, int nFilterRadius, Im
 			delete []pTemp;
 		}
 
-	//½«ÂË²¨ºóµÄ½á¹û¿½±´ÖÁÔ´Í¼ÏñÖÐ
+	//ï¿½ï¿½ï¿½Ë²ï¿½ï¿½ï¿½ï¿½Ä½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô´Í¼ï¿½ï¿½ï¿½ï¿½
 	memcpy(pImg, pBuf, nW*nH * sizeof(unsigned short));
 
 	delete[]pBuf;
@@ -502,7 +502,7 @@ bool GaussianFiltering(unsigned short *pImg, int nWidth, int nHeight, ImageRect 
 {
 	//3*3 kernel
 	//1  2  1
-	//2  4  2  
+	//2  4  2
 	//1  2  1
 	//
 	int xs, xe, ys, ye;
@@ -559,8 +559,8 @@ bool WindowLevelTransform(unsigned short *pImg, int nW, int nH, int nWinCentre, 
 		return false;
 	}
 
-	int window_center = nWinCentre;      //´°Î»,´°Î»ÊÇÖ¸´°¿íÉÏÏÂÏÞµÄÆ½¾ùÊý,»ò³Æ´°ÖÐÐÄ
-	int window_width = nWindWidth;      //´°¿í,´°¿í¼´ÊÇÖ¸CTÍ¼ÏñÉÏËù°üº¬µÄCTÖµ·¶Î§,¿íµÄ¿íÕ­Ö±½ÓÓ°Ïìµ½Í¼ÏñµÄ¶Ô±È¶ÈºÍÇåÎú¶È
+	int window_center = nWinCentre;      //ï¿½ï¿½Î»,ï¿½ï¿½Î»ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Þµï¿½Æ½ï¿½ï¿½ï¿½ï¿½,ï¿½ï¿½ï¿½Æ´ï¿½ï¿½ï¿½ï¿½ï¿½
+	int window_width = nWindWidth;      //ï¿½ï¿½ï¿½ï¿½,ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸CTÍ¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½CTÖµï¿½ï¿½Î§,ï¿½ï¿½ï¿½Ä¿ï¿½Õ­Ö±ï¿½ï¿½Ó°ï¿½ìµ½Í¼ï¿½ï¿½ï¿½Ä¶Ô±È¶Èºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
 	float f_min = (float)((2 * window_center - window_width) / 2.0 + 0.5);
 	float f_max = (float)((2 * window_center + window_width) / 2.0 + 0.5);
@@ -568,7 +568,7 @@ bool WindowLevelTransform(unsigned short *pImg, int nW, int nH, int nWinCentre, 
 	float dFactor;
 	dFactor = (float)65535.0 / (f_max - f_min);
 
-	//Ñ­»·±äÁ¿
+	//Ñ­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	long i;
 
 	long N = nH * nW;
@@ -889,7 +889,7 @@ bool Rotate180(unsigned short *pImg, int nWidth, int nHeight)
 	if (nullptr == pImg || 0 >= nWidth || 0 >= nHeight)
 		return false;
 
-	
+
 	unsigned short *pStride = new unsigned short[nWidth];
 	unsigned nStride = nWidth * sizeof(unsigned short);
 	unsigned nHalfH = nHeight / 2;
@@ -1074,7 +1074,7 @@ bool GetIntensity(unsigned short &nIntensity, unsigned short *pImg, int nW, int 
 	return true;
 }
 
-//»ñÈ¡Ö¸¶¨…^ÓòÆ½¾ù»Ò¶ÈÖµ
+//ï¿½ï¿½È¡Ö¸ï¿½ï¿½ï¿½^ï¿½ï¿½Æ½ï¿½ï¿½ï¿½Ò¶ï¿½Öµ
 bool GetIntensity(unsigned short &nIntensity, unsigned short *pImg,	int nW,	int nH,	int xs, int ys,	int xe, int ye)
 {
 	if (NULL == pImg ||
@@ -1167,7 +1167,7 @@ bool GetIntensityCurve(vector<unsigned short> &aIntensity, unsigned short *pImg,
 	return true;
 }
 
-//¼ÆËãÐÅÔë±È
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 bool GetSNR(double &dMean, double &dStd, double &dSNR, unsigned short *pImg, int nW, int nH, int xs, int ys, int xe, int ye)
 {
 	if (NULL == pImg ||
@@ -1271,8 +1271,8 @@ bool CalcWinLevelWidth(unsigned short &nWinLevel, unsigned short &nWinWidth, uns
 
 	while (true)
 	{
-		unsigned nCnt = 0;//ÀÛ»ýµãÊý
-		double dCP = 0.0;//ÀÛ»ý¸ÅÂÊ
+		unsigned nCnt = 0;//ï¿½Û»ï¿½ï¿½ï¿½ï¿½ï¿½
+		double dCP = 0.0;//ï¿½Û»ï¿½ï¿½ï¿½ï¿½ï¿½
 		unsigned short nLowerBound=ks, nUpperBound=ke;
 		bool bLowerBoundFound = false;
 		bool bUpperBoundFound = false;
@@ -1304,8 +1304,8 @@ bool CalcWinLevelWidth(unsigned short &nWinLevel, unsigned short &nWinWidth, uns
 			nWinWidth = (nUpperBound - nLowerBound + 1);
 			nWinLevel = (nUpperBound + nLowerBound) / 2;
 		}
-		
-		//ÅÐ¶ÏÕÒµ½µÄ´°¿íºÍ´°Î»ÊÇ·ñÂú×ãÒªÇó
+
+		//ï¿½Ð¶ï¿½ï¿½Òµï¿½ï¿½Ä´ï¿½ï¿½ï¿½ï¿½Í´ï¿½Î»ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½
 		if (nWinWidth >= nMinWidth)
 		{
 			bValidWinFound = true;
@@ -1313,13 +1313,13 @@ bool CalcWinLevelWidth(unsigned short &nWinLevel, unsigned short &nWinWidth, uns
 			break;
 		}
 
-		//±ê¼ÇÒÑÓÃµÄ»Ò¶È¶Î
+		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÃµÄ»Ò¶È¶ï¿½
 		for (int k = nLowerBound; k <= nUpperBound; k++)
 		{
 			used[k] = true;
 		}
 
-		//´ÓÎ´Ñ¡ÓÃµÄ»Ò¶È¶ÎÖÐÕÒ³ö¿ç¶È×î´óµÄÒ»¶Î
+		//ï¿½ï¿½Î´Ñ¡ï¿½ÃµÄ»Ò¶È¶ï¿½ï¿½ï¿½ï¿½Ò³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½
 		bool newSegFound = false;
 		vector<int> aIdxSeg;
 		for (int k = 0; k < 65536; k++)
@@ -1362,7 +1362,7 @@ bool CalcWinLevelWidth(unsigned short &nWinLevel, unsigned short &nWinWidth, uns
 			{
 				nMaxSpan = aIdxSeg[k + 1] - aIdxSeg[k];
 				iMaxSpan = k;
-			}			
+			}
 		}
 		if (-1 == iMaxSpan)
 		{
@@ -1378,12 +1378,12 @@ bool CalcWinLevelWidth(unsigned short &nWinLevel, unsigned short &nWinWidth, uns
 			nPx += hist[k];
 		}
 	}
-		
+
 	return bValidWinFound;
 }
 
 
-void ImageFilter8(double *fliter, int windowWidth, unsigned short *pixels, int w, int h, int stride)   //¶Ôbuffer½øÐÐ¸ßË¹Æ½»¬ÂË²¨
+void ImageFilter8(double *fliter, int windowWidth, unsigned short *pixels, int w, int h, int stride)   //ï¿½ï¿½bufferï¿½ï¿½ï¿½Ð¸ï¿½Ë¹Æ½ï¿½ï¿½ï¿½Ë²ï¿½
 {
 	int i;
 	int ww = windowWidth * windowWidth;
@@ -1411,7 +1411,7 @@ void ImageFilter8(double *fliter, int windowWidth, unsigned short *pixels, int w
 	int m, n;
 	int xx, yy;
 
-	for (y = _top + hw; y < _bottom - hw; y++)   //Í¼Ïñ¾í»ý¹ý³Ì
+	for (y = _top + hw; y < _bottom - hw; y++)   //Í¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		for (x = _letf + hw; x < _right - hw; x++)
 		{
 			double g = 0;
@@ -1436,7 +1436,7 @@ void ImageFilter8(double *fliter, int windowWidth, unsigned short *pixels, int w
 }
 
 
-BOOL MUSICA_ImageSubsample(unsigned short *X, int X_w, int X_h, int X_stride, unsigned short *X_1, int X_1_w, int X_1_h, int X_1_stride)   //buffer¸ôÐÐ³éÑùµÃµ½ÏÂÒ»¼¶µÄ½üËÆÍ¼X+1
+BOOL MUSICA_ImageSubsample(unsigned short *X, int X_w, int X_h, int X_stride, unsigned short *X_1, int X_1_w, int X_1_h, int X_1_stride)   //bufferï¿½ï¿½ï¿½Ð³ï¿½ï¿½ï¿½ï¿½Ãµï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ä½ï¿½ï¿½ï¿½Í¼X+1
 {
 	if (2 * (X_1_w - 1) > X_w - 1 || 2 * (X_1_h - 1) > X_h - 1)
 	{
@@ -1473,7 +1473,7 @@ BOOL MUSICA_ImageSubsample(unsigned short *X, int X_w, int X_h, int X_stride, un
 }
 
 
-BOOL MUSICA_ImageInterpolator(unsigned short *X_1, int X_1_w, int X_1_h, int X_1_stride, unsigned short *X, int X_w, int X_h, int X_stride)   //½üËÆÍ¼X+1¸ôÐÐ²åÖµ0µ½buffer
+BOOL MUSICA_ImageInterpolator(unsigned short *X_1, int X_1_w, int X_1_h, int X_1_stride, unsigned short *X, int X_w, int X_h, int X_stride)   //ï¿½ï¿½ï¿½ï¿½Í¼X+1ï¿½ï¿½ï¿½Ð²ï¿½Öµ0ï¿½ï¿½buffer
 {
 	if (2 * (X_1_w - 1) > X_w - 1 || 2 * (X_1_h - 1) > X_h - 1)
 	{
@@ -1511,7 +1511,7 @@ BOOL MUSICA_ImageInterpolator(unsigned short *X_1, int X_1_w, int X_1_h, int X_1
 }
 
 
-void MUSICA_ImageSub8(unsigned short *pMinuend, unsigned short *pSubtrahend, unsigned short *pResult, int w, int h, int stride)   //X¼õÈ¥Æ½»¬ºóµÄbufferµÃµ½²Ð²îÍ¼Ïñ±£´æÓÚX
+void MUSICA_ImageSub8(unsigned short *pMinuend, unsigned short *pSubtrahend, unsigned short *pResult, int w, int h, int stride)   //Xï¿½ï¿½È¥Æ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½bufferï¿½Ãµï¿½ï¿½Ð²ï¿½Í¼ï¿½ñ±£´ï¿½ï¿½ï¿½X
 {
 	int pixelByte8 = 1;   /////////////////////////////////
 	unsigned short *_pixels_M = pMinuend;
@@ -1549,12 +1549,12 @@ void MUSICA_ImageSub8(unsigned short *pMinuend, unsigned short *pSubtrahend, uns
 
 BOOL MUSICA_Decomposition(unsigned short *pPixelsGrey, unsigned short *pDecomposition, int *matrixInfo)
 {
-	//1) ¶ÔX½øÐÐÒ»¼¶·Ö½â£¬X¿½±´µ½buffer
-	//2) ¶Ôbuffer½øÐÐÆ½»¬ÂË²¨
-	//3) buffer¸ôÐÐ³éÑùµÃµ½ÏÂÒ»¼¶µÄ½üËÆÍ¼X+1
-	//4) ½üËÆÍ¼X+1¸ôÐÐ²åÖµ0µ½buffer
-	//5) ½øÐÐÂË²¨²ÎÊý³Ë4£¨¶ÔÖÃ0ÐÐÁÐµÄ²¹³¥£©µÄÆ½»¬ÂË²¨
-	//6) X¼õÈ¥Æ½»¬ºóµÄbufferµÃµ½²Ð²îÍ¼Ïñ±£´æÓÚX
+	//1) ï¿½ï¿½Xï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ö½â£¬Xï¿½ï¿½ï¿½ï¿½ï¿½ï¿½buffer
+	//2) ï¿½ï¿½bufferï¿½ï¿½ï¿½ï¿½Æ½ï¿½ï¿½ï¿½Ë²ï¿½
+	//3) bufferï¿½ï¿½ï¿½Ð³ï¿½ï¿½ï¿½ï¿½Ãµï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ä½ï¿½ï¿½ï¿½Í¼X+1
+	//4) ï¿½ï¿½ï¿½ï¿½Í¼X+1ï¿½ï¿½ï¿½Ð²ï¿½Öµ0ï¿½ï¿½buffer
+	//5) ï¿½ï¿½ï¿½ï¿½ï¿½Ë²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½4ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½0ï¿½ï¿½ï¿½ÐµÄ²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ½ï¿½ï¿½ï¿½Ë²ï¿½
+	//6) Xï¿½ï¿½È¥Æ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½bufferï¿½Ãµï¿½ï¿½Ð²ï¿½Í¼ï¿½ñ±£´ï¿½ï¿½ï¿½X
 
 	int i;
 	int nLevel = *matrixInfo;
@@ -1563,8 +1563,8 @@ BOOL MUSICA_Decomposition(unsigned short *pPixelsGrey, unsigned short *pDecompos
 		return FALSE;
 	}
 
-	//º¯ÊýÔ­ÐÍÎªvoid *memcpy(void *destin, void *source, unsigned n)
-	//´ÓÔ´ÄÚ´æµØÖ·µÄÆðÊ¼Î»ÖÃ¿ªÊ¼¿½±´Èô¸É¸ö×Ö½Úµ½Ä¿±êÄÚ´æµØÖ·ÖÐ£¬¼´´ÓÔ´sourceÖÐ¿½±´n¸ö×Ö½Úµ½Ä¿±êdestinÖÐ
+	//ï¿½ï¿½ï¿½ï¿½Ô­ï¿½ï¿½Îªvoid *memcpy(void *destin, void *source, unsigned n)
+	//ï¿½ï¿½Ô´ï¿½Ú´ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½Ê¼Î»ï¿½Ã¿ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É¸ï¿½ï¿½Ö½Úµï¿½Ä¿ï¿½ï¿½ï¿½Ú´ï¿½ï¿½ï¿½Ö·ï¿½Ð£ï¿½ï¿½ï¿½ï¿½ï¿½Ô´sourceï¿½Ð¿ï¿½ï¿½ï¿½nï¿½ï¿½ï¿½Ö½Úµï¿½Ä¿ï¿½ï¿½destinï¿½ï¿½
 	memcpy(pDecomposition, pPixelsGrey, matrixInfo[2] * matrixInfo[3] * 2);    //unsigned short*2
 
 	int windowWidth = 5;
@@ -1615,7 +1615,7 @@ BOOL MUSICA_Decomposition(unsigned short *pPixelsGrey, unsigned short *pDecompos
 	}
 
 	delete buffer;
-	//MessageBox("·Ö½âÍê³É¡£");
+	//MessageBox("ï¿½Ö½ï¿½ï¿½ï¿½ï¿½É¡ï¿½");
 
 	return TRUE;
 }
@@ -1669,11 +1669,11 @@ void MUSICA_Mapping(unsigned short *pDecomposition, int *matrixInfo, double powe
 		_pixels++;
 	}
 
-	//MessageBox("Ó³ÉäÍê³É¡£");
+	//MessageBox("Ó³ï¿½ï¿½ï¿½ï¿½ï¿½É¡ï¿½");
 }
 
 
-void MUSICA_ImageAdd8(unsigned short *pOriginal, unsigned short *pDetail, unsigned short *pResult, int w, int h, int stride)    //Ô­Ê¼Í¼Ïñ+Ï¸½Ú
+void MUSICA_ImageAdd8(unsigned short *pOriginal, unsigned short *pDetail, unsigned short *pResult, int w, int h, int stride)    //Ô­Ê¼Í¼ï¿½ï¿½+Ï¸ï¿½ï¿½
 {
 	unsigned short *_pixels_O;
 	_pixels_O = new unsigned short[w*h];
@@ -1720,7 +1720,7 @@ void MUSICA_ImageAdd8(unsigned short *pOriginal, unsigned short *pDetail, unsign
 }
 
 
-BOOL MUSICA_Reconstruction(unsigned short *pPixelsGrey, unsigned short *pDecomposition, int *matrixInfo)   //ÖØ¹¹Í¼Ïñ
+BOOL MUSICA_Reconstruction(unsigned short *pPixelsGrey, unsigned short *pDecomposition, int *matrixInfo)   //ï¿½Ø¹ï¿½Í¼ï¿½ï¿½
 {
 	int i;
 	int nLevel = *matrixInfo;
@@ -1784,7 +1784,7 @@ BOOL MUSICA_Reconstruction(unsigned short *pPixelsGrey, unsigned short *pDecompo
 
 	memcpy(pPixelsGrey, pDecomposition, matrixInfo[2] * matrixInfo[3] * 2);
 
-//	MessageBox("ÖØ¹¹Íê³É¡£");
+//	MessageBox("ï¿½Ø¹ï¿½ï¿½ï¿½ï¿½É¡ï¿½");
 	return TRUE;
 }
 
@@ -1794,7 +1794,7 @@ void IPFuncMUSICA(unsigned short *pImage, int nWidth, int nHeight, int nLevel, d
 {
 	int i;
 
-	//·Ö½â¼¶Êý
+	//ï¿½Ö½â¼¶ï¿½ï¿½
 	//int nLevel = 6;
 
 	if (nLevel < 2)
@@ -1802,7 +1802,7 @@ void IPFuncMUSICA(unsigned short *pImage, int nWidth, int nHeight, int nLevel, d
 		return;
 	}
 
-	//¸÷¼¶³¤¿í
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 //	int* pnMatrixInfo = new int[1+nLevel*3];
 	int pnMatrixInfo[200];
 
@@ -1834,14 +1834,14 @@ void IPFuncMUSICA(unsigned short *pImage, int nWidth, int nHeight, int nLevel, d
 	for (j = 0; j < nWidth*nHeight; j++)
 		pPixelsGrey[j] = pImage[j];
 
-	//·Ö½â
-	MUSICA_Decomposition(pPixelsGrey, pDecomposition, pnMatrixInfo);     //½ð×ÖËþ·Ö½â
+	//ï¿½Ö½ï¿½
+	MUSICA_Decomposition(pPixelsGrey, pDecomposition, pnMatrixInfo);     //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö½ï¿½
 
-	//±ä»»
+	//ï¿½ä»»
 	MUSICA_Mapping(pDecomposition, pnMatrixInfo, dPower);
 
-	//ÖØ¹¹
-	MUSICA_Reconstruction(pPixelsGrey, pDecomposition, pnMatrixInfo);    //½ð×ÖËþÖØ¹¹
+	//ï¿½Ø¹ï¿½
+	MUSICA_Reconstruction(pPixelsGrey, pDecomposition, pnMatrixInfo);    //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ø¹ï¿½
 
 	for (j = 0; j < nWidth*nHeight; j++)
 		pImage[j] = pPixelsGrey[j];

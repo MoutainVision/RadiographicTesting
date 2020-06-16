@@ -7,11 +7,11 @@
     <x>0</x>
     <y>0</y>
     <width>1347</width>
-    <height>1075</height>
+    <height>1415</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>射线检测缺陷识别系统</string>
+   <string>核电焊缝数字射线图像处理与图像查重</string>
   </property>
   <property name="styleSheet">
    <string notr="true">
@@ -701,8 +701,8 @@ QTableView::indicator {
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>442</width>
-                <height>1002</height>
+                <width>428</width>
+                <height>1342</height>
                </rect>
               </property>
              </widget>
@@ -712,7 +712,7 @@ QTableView::indicator {
          </widget>
          <widget class="QWidget" name="tab_3">
           <attribute name="title">
-           <string>处理</string>
+           <string>图像处理</string>
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_9">
            <property name="spacing">
@@ -800,9 +800,12 @@ QTableView::indicator {
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLabel" name="label_3">
+                 <widget class="QPushButton" name="pushButton_his">
                   <property name="text">
-                   <string/>
+                   <string> 直方图</string>
+                  </property>
+                  <property name="checkable">
+                   <bool>false</bool>
                   </property>
                  </widget>
                 </item>
@@ -1260,12 +1263,99 @@ QDoubleSpinBox:!enabled
                </layout>
               </item>
               <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_38">
+               <layout class="QVBoxLayout" name="verticalLayout_29">
                 <property name="bottomMargin">
                  <number>0</number>
                 </property>
                 <item>
-                 <widget class="QCheckBox" name="checkBox_contrast">
+                 <layout class="QHBoxLayout" name="horizontalLayout_41">
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QCheckBox" name="checkBox_bright">
+                    <property name="minimumSize">
+                     <size>
+                      <width>100</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>亮度调节</string>
+                    </property>
+                    <property name="checked">
+                     <bool>false</bool>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <widget class="QWidget" name="widget_bright" native="true">
+                  <layout class="QHBoxLayout" name="horizontalLayout_43">
+                   <property name="leftMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="topMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="bottomMargin">
+                    <number>0</number>
+                   </property>
+                   <item>
+                    <widget class="QSpinBox" name="spinBox_bright">
+                     <property name="minimumSize">
+                      <size>
+                       <width>65</width>
+                       <height>0</height>
+                      </size>
+                     </property>
+                     <property name="minimum">
+                      <number>-65535</number>
+                     </property>
+                     <property name="maximum">
+                      <number>65535</number>
+                     </property>
+                     <property name="value">
+                      <number>0</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="pushButton_bright_apply">
+                     <property name="text">
+                      <string>应用</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <spacer name="horizontalSpacer_33">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>222</width>
+                       <height>20</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_42">
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QCheckBox" name="checkBox_gradient">
                   <property name="minimumSize">
                    <size>
                     <width>100</width>
@@ -1273,7 +1363,7 @@ QDoubleSpinBox:!enabled
                    </size>
                   </property>
                   <property name="text">
-                   <string>多尺度对比度增强：</string>
+                   <string>梯度图像</string>
                   </property>
                   <property name="checked">
                    <bool>false</bool>
@@ -1281,40 +1371,419 @@ QDoubleSpinBox:!enabled
                  </widget>
                 </item>
                 <item>
-                 <widget class="QSpinBox" name="spinBox_level">
+                 <spacer name="horizontalSpacer_34">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout_28">
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QCheckBox" name="checkBox_emboss">
                   <property name="minimumSize">
                    <size>
-                    <width>65</width>
+                    <width>100</width>
                     <height>0</height>
                    </size>
                   </property>
-                  <property name="minimum">
-                   <number>2</number>
+                  <property name="text">
+                   <string>浮雕效果</string>
                   </property>
-                  <property name="maximum">
-                   <number>10</number>
-                  </property>
-                  <property name="value">
-                   <number>2</number>
+                  <property name="checked">
+                   <bool>false</bool>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QDoubleSpinBox" name="doubleSpinBox_power">
+                 <widget class="QWidget" name="widget_emboss" native="true">
+                  <layout class="QHBoxLayout" name="horizontalLayout_53">
+                   <property name="leftMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="topMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="bottomMargin">
+                    <number>0</number>
+                   </property>
+                   <item>
+                    <widget class="QComboBox" name="comboBox_emboss">
+                     <property name="minimumSize">
+                      <size>
+                       <width>200</width>
+                       <height>0</height>
+                      </size>
+                     </property>
+                     <item>
+                      <property name="text">
+                       <string>梯度检测, 南(垂直)</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>梯度检测, 东(水平)</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>梯度检测, 东北-西南</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>梯度检测, 西北-东南</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>平移和差分边缘增强, 东(水平)</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>平移和差分边缘增强, 南(垂直)</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>平移和差分边缘增强, 东北-西南</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>平移和差分边缘增强, 西北-东南</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Prewitt边缘增强, 东(水平)</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Prewitt边缘增强, 南(垂直)</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Prewitt边缘增强, 东北-西南</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Prewitt边缘增强, 西北-东南</string>
+                      </property>
+                     </item>
+                    </widget>
+                   </item>
+                   <item>
+                    <spacer name="horizontalSpacer_35">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>181</width>
+                       <height>20</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout_24">
+                <property name="spacing">
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_44">
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QCheckBox" name="checkBox_contrastE">
+                    <property name="minimumSize">
+                     <size>
+                      <width>100</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>对比度增强</string>
+                    </property>
+                    <property name="checked">
+                     <bool>false</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_36">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <widget class="QWidget" name="widget_contrastE" native="true">
+                  <layout class="QHBoxLayout" name="horizontalLayout_50">
+                   <property name="leftMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="topMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="bottomMargin">
+                    <number>0</number>
+                   </property>
+                   <item>
+                    <widget class="QSlider" name="horizontalSlider_contrastE">
+                     <property name="minimumSize">
+                      <size>
+                       <width>200</width>
+                       <height>0</height>
+                      </size>
+                     </property>
+                     <property name="maximum">
+                      <number>100</number>
+                     </property>
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="label_contrastE">
+                     <property name="text">
+                      <string>0</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="pushButton_contrastE_apply">
+                     <property name="text">
+                      <string>应用</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout_25">
+                <property name="topMargin">
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_45">
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QCheckBox" name="checkBox_gama">
+                    <property name="minimumSize">
+                     <size>
+                      <width>100</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>伽马校正</string>
+                    </property>
+                    <property name="checked">
+                     <bool>false</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_37">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <widget class="QWidget" name="widget_gama" native="true">
                   <property name="minimumSize">
                    <size>
-                    <width>70</width>
-                    <height>0</height>
+                    <width>0</width>
+                    <height>20</height>
                    </size>
                   </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>70</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">/*SpinBox*/
+                  <layout class="QVBoxLayout" name="verticalLayout_27">
+                   <property name="leftMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="topMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="bottomMargin">
+                    <number>0</number>
+                   </property>
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_51">
+                     <property name="rightMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="bottomMargin">
+                      <number>0</number>
+                     </property>
+                     <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_47">
+                       <item>
+                        <widget class="QLabel" name="label_11">
+                         <property name="text">
+                          <string>暗部:</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QSpinBox" name="spinBox_gamma_dark">
+                         <property name="minimumSize">
+                          <size>
+                           <width>65</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                         <property name="minimum">
+                          <number>0</number>
+                         </property>
+                         <property name="maximum">
+                          <number>65535</number>
+                         </property>
+                         <property name="value">
+                          <number>0</number>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </item>
+                     <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_48">
+                       <item>
+                        <widget class="QLabel" name="label_12">
+                         <property name="text">
+                          <string>亮部:</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QSpinBox" name="spinBox_gamma_bright">
+                         <property name="minimumSize">
+                          <size>
+                           <width>65</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                         <property name="minimum">
+                          <number>0</number>
+                         </property>
+                         <property name="maximum">
+                          <number>65535</number>
+                         </property>
+                         <property name="value">
+                          <number>65535</number>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </item>
+                     <item>
+                      <spacer name="horizontalSpacer_39">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>40</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_52">
+                     <property name="bottomMargin">
+                      <number>0</number>
+                     </property>
+                     <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_49">
+                       <item>
+                        <widget class="QLabel" name="label_14">
+                         <property name="text">
+                          <string>伽马:</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QDoubleSpinBox" name="doubleSpinBox_gama">
+                         <property name="minimumSize">
+                          <size>
+                           <width>70</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>70</width>
+                           <height>16777215</height>
+                          </size>
+                         </property>
+                         <property name="styleSheet">
+                          <string notr="true">/*SpinBox*/
 QDoubleSpinBox
 {
     font-family:&quot;Arial&quot;;
@@ -1392,43 +1861,267 @@ QDoubleSpinBox:!enabled
  QDoubleSpinBox::down-button:!enabled {
      border-image: url(:/imgs/Adjust_btn_down_gray.png);
  }</string>
-                  </property>
-                  <property name="decimals">
-                   <number>1</number>
-                  </property>
-                  <property name="minimum">
-                   <double>0.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>1.000000000000000</double>
-                  </property>
-                  <property name="singleStep">
-                   <double>0.100000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>0.600000000000000</double>
-                  </property>
+                         </property>
+                         <property name="decimals">
+                          <number>1</number>
+                         </property>
+                         <property name="minimum">
+                          <double>0.000000000000000</double>
+                         </property>
+                         <property name="maximum">
+                          <double>2.000000000000000</double>
+                         </property>
+                         <property name="singleStep">
+                          <double>0.100000000000000</double>
+                         </property>
+                         <property name="value">
+                          <double>1.000000000000000</double>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="pushButton_gama_apply">
+                       <property name="text">
+                        <string>应用</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <spacer name="horizontalSpacer_38">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>40</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                    </layout>
+                   </item>
+                  </layout>
                  </widget>
                 </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout_26">
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
                 <item>
-                 <widget class="QPushButton" name="pushButton_contrast_apply">
-                  <property name="text">
-                   <string>应用</string>
+                 <layout class="QHBoxLayout" name="horizontalLayout_38">
+                  <property name="bottomMargin">
+                   <number>0</number>
                   </property>
-                 </widget>
+                  <item>
+                   <widget class="QCheckBox" name="checkBox_contrast">
+                    <property name="minimumSize">
+                     <size>
+                      <width>100</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>多尺度对比度增强</string>
+                    </property>
+                    <property name="checked">
+                     <bool>false</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_32">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
                 </item>
                 <item>
-                 <spacer name="horizontalSpacer_32">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
+                 <widget class="QWidget" name="widget_const" native="true">
+                  <property name="minimumSize">
                    <size>
-                    <width>40</width>
+                    <width>0</width>
                     <height>20</height>
                    </size>
                   </property>
-                 </spacer>
+                  <layout class="QHBoxLayout" name="horizontalLayout_46">
+                   <property name="leftMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="topMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="bottomMargin">
+                    <number>0</number>
+                   </property>
+                   <item>
+                    <widget class="QDoubleSpinBox" name="doubleSpinBox_power">
+                     <property name="minimumSize">
+                      <size>
+                       <width>70</width>
+                       <height>0</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>70</width>
+                       <height>16777215</height>
+                      </size>
+                     </property>
+                     <property name="styleSheet">
+                      <string notr="true">/*SpinBox*/
+QDoubleSpinBox
+{
+    font-family:&quot;Arial&quot;;
+    font-size:11pt;
+
+height:25px;
+
+    color:#969799;
+    background-color:#ffffff;
+
+    border-radius:4px;
+
+    border-top:1px solid #969799;
+
+    border-bottom:2px solid qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                            stop:0 #c2c3c5,stop:1 #f7f7f8);
+
+    border-left:1px solid qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                        stop:0 #969799,stop:1 #c2c3c5);
+
+    border-right:1px solid qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                        stop:0 #969799,stop:1 #c2c3c5);
+
+    padding-left:2px;
+    selection-color:white;
+    selection-background-color:#add6ff;
+}
+
+QDoubleSpinBox:!enabled
+{
+    background-color:rgb(230,230,230);
+}
+
+ QDoubleSpinBox::up-button {
+     subcontrol-origin: border;
+     subcontrol-position: top right;
+
+     width: 23px;
+     height:13px;
+     border-image: url(:/imgs/Adjust_btn_up_normal.png);
+ }
+
+ QDoubleSpinBox::up-button:hover {
+     border-image: url(:/imgs/Adjust_btn_up_hover.png);
+ }
+
+ QDoubleSpinBox::up-button:pressed {
+     border-image: url(:/imgs/Adjust_btn_up_active.png);
+ }
+
+ QDoubleSpinBox::up-button:!enabled {
+     border-image: url(:/imgs/Adjust_btn_up_gray.png);
+ }
+
+ QDoubleSpinBox::down-button {
+     subcontrol-origin: border;
+     subcontrol-position: bottom right;
+
+     padding-bottom:2px;
+     margin-bottom:1px;
+
+     width: 23px;
+     height:12px;
+     border-image: url(:/imgs/Adjust_btn_down_normal.png);
+ }
+
+ QDoubleSpinBox::down-button:hover {
+     border-image: url(:/imgs/Adjust_btn_down_hover.png);
+ }
+
+ QDoubleSpinBox::down-button:pressed {
+     border-image: url(:/imgs/Adjust_btn_down_active.png);
+ }
+
+ QDoubleSpinBox::down-button:!enabled {
+     border-image: url(:/imgs/Adjust_btn_down_gray.png);
+ }</string>
+                     </property>
+                     <property name="decimals">
+                      <number>1</number>
+                     </property>
+                     <property name="minimum">
+                      <double>0.000000000000000</double>
+                     </property>
+                     <property name="maximum">
+                      <double>1.000000000000000</double>
+                     </property>
+                     <property name="singleStep">
+                      <double>0.100000000000000</double>
+                     </property>
+                     <property name="value">
+                      <double>0.600000000000000</double>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QSpinBox" name="spinBox_level">
+                     <property name="minimumSize">
+                      <size>
+                       <width>65</width>
+                       <height>0</height>
+                      </size>
+                     </property>
+                     <property name="minimum">
+                      <number>2</number>
+                     </property>
+                     <property name="maximum">
+                      <number>10</number>
+                     </property>
+                     <property name="value">
+                      <number>2</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="pushButton_contrast_apply">
+                     <property name="text">
+                      <string>应用</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <spacer name="horizontalSpacer_40">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>40</width>
+                       <height>20</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                  </layout>
+                 </widget>
                 </item>
                </layout>
               </item>
