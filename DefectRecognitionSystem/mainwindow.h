@@ -387,6 +387,7 @@ private:
 
     //标尺
     bool    mBReal;
+    double  mSpatialResolution;
 
     //查重
     QString mIndexFilePath;
@@ -436,6 +437,8 @@ private:
     int     mCurImgHeight;
 
     float   mScale;     //缩放
+
+    bool    mBShowRuler;
 
     //
     bool    mBInvert;  //反相

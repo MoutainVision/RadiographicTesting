@@ -113,7 +113,8 @@ bool BrightClbWdg::eventFilter(QObject *obj, QEvent *e)
             float heightPer = (float)h / 4.0;
 
 
-            for (int i=0; i<5; i++)
+            //for (int i=0; i<5; i++)
+            for (int i=1; i<4; i++)
             {
                //ver
                painter.drawLine(QPointF(i*widthPer, 0), QPointF(i*widthPer, h));

@@ -712,7 +712,7 @@ QTableView::indicator {
          </widget>
          <widget class="QWidget" name="tab_3">
           <attribute name="title">
-           <string>处理</string>
+           <string>图像处理</string>
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_9">
            <property name="spacing">
@@ -1581,6 +1581,16 @@ QDoubleSpinBox:!enabled
                      </property>
                      <property name="orientation">
                       <enum>Qt::Horizontal</enum>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="label_contrastE">
+                     <property name="text">
+                      <string>0</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
                      </property>
                     </widget>
                    </item>

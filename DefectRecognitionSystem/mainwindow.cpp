@@ -255,6 +255,8 @@ MainWindow::MainWindow(QWidget *parent) :
     mBShowDefect = true;
     mBShowCenter = true;
 
+    mBShowRuler = false;
+
     mSourceX = 0;
     mSourceY = 0;
 
@@ -366,6 +368,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->checkBox_ruler_cali, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
     connect(ui->checkBox_ruler_apply, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
 
+    connect(ui->pushButton_cross, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
+
 
     connect(ui->pushButton_his, SIGNAL(clicked(bool)), this, SLOT(slotBtnClick(bool)));
 
@@ -434,6 +438,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->verticalSlider_WinCentre, SIGNAL(valueChanged(int)), this, SLOT(slot_sliderWinValueChange(int)));
     connect(ui->verticalSlider_WindWidth, SIGNAL(valueChanged(int)), this, SLOT(slot_sliderWinValueChange(int)));
 
+
+    connect(ui->horizontalSlider_contrastE, SIGNAL(valueChanged(int)), this, SLOT(slot_sliderValuechange(int)));
 
     connect(ui->horizontalScrollBar, SIGNAL(valueChanged(int)), this, SLOT(slot_scrollAreaXChange(int)));
     connect(ui->verticalScrollBar, SIGNAL(valueChanged(int)), this, SLOT(slot_scrollAreaYChange(int)));
@@ -848,11 +854,18 @@ void MainWindow::slot_tabCurrentChanged(int index)
 void MainWindow::slot_sliderValuechange(int value)
 {
 //    int value = ui->verticalSlider_diameter->value();
-    mScale = (float)value / 100;
+    if (QObject::sender() == ui->horizontalSlider_contrastE)
+    {
+        ui->label_contrastE->setText(QString("%1").arg(value));
+    }
+    else if (QObject::sender() == ui->verticalSlider_diameter)
+    {
+        mScale = (float)value / 100;
 
-    ui->lineEdit_diameter->setText(QString("%1").arg(value));
+        ui->lineEdit_diameter->setText(QString("%1").arg(value));
 
-    transforImg();
+        transforImg();
+    }
 }
 
 void MainWindow::slot_tableCellClicked(int row, int col)
@@ -2176,6 +2189,7 @@ void MainWindow::slotBtnClick(bool bClick)
         ui->doubleSpinBox_real_mm->setEnabled(!mBReal);
 
         double value = ui->doubleSpinBox_real_mm->value();
+        mSpatialResolution = value;
 
         for (int i=0; i<m_geometryItemList.size(); i++)
         {
@@ -2189,6 +2203,14 @@ void MainWindow::slotBtnClick(bool bClick)
         }
 
         updateMeasureTable();
+
+        update();
+    }
+    else if (QObject::sender() == ui->pushButton_cross)
+    {
+        mBShowRuler = ui->pushButton_cross->isChecked();
+
+        update();
     }
     else if (QObject::sender() == ui->pushButton_adapt || QObject::sender() == ui->pushButton_adapt_recheck)
     {
@@ -4417,6 +4439,86 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *e)
                     break;
                 }
 
+
+                p.save();
+                //----
+                if (mBShowRuler)
+                {
+                    double spatialResolution = mSpatialResolution;
+
+                    float horLength;
+                    float verLength;
+
+                    //0:um  1:mm  2:cm  3:pix
+
+                    double rulerValueMM = 5;
+
+                    horLength = rulerValueMM  / spatialResolution;
+                    verLength = rulerValueMM  / spatialResolution;
+
+
+                    pen.setColor(QColor("#ff0000"));
+                    pen.setWidth(2);
+                    pen.setStyle(Qt::SolidLine);
+
+                    QFont font;
+                    font.setPixelSize(14);
+
+                    p.setPen(pen);
+                    p.setFont(font);
+
+                    if (true)
+                    {
+                        QLineF horLine = QLineF(QPointF(50, ui->widget_img_pre->height() - 90),
+                                                QPointF(50 + horLength*mScale, ui->widget_img_pre->height() - 90));
+
+                        p.drawLine(horLine);
+
+                        int segCount = 5;
+                        float perLen = horLength*mScale / segCount;
+                        float beginP = 50;
+                        for (int i=0; i<=segCount; i++)
+                        {
+                            QLineF perLine = QLineF(QPointF(beginP + perLen*i, ui->widget_img_pre->height() - 95),
+                                                    QPointF(beginP + perLen*i, ui->widget_img_pre->height() - 90));
+
+                            p.drawLine(perLine);
+                        }
+
+                        QRect textRect(30, ui->widget_img_pre->height()-115,
+                                       40+horLength*mScale, 15);
+
+                        p.drawText(textRect,  Qt::AlignCenter, QString("%1%2").arg(rulerValueMM).arg("mm"));
+                    }
+
+                    if (true)
+                    {
+                        QLineF verLine = QLineF(QPointF(50, 90),
+                                                QPointF(50, verLength*mScale + 90));
+
+                        p.drawLine(verLine);
+
+                        int segCount = 5;
+                        float perLen = verLength*mScale / segCount;
+                        float beginP = 90;
+                        for (int i=0; i<=segCount; i++)
+                        {
+                            QLineF perLine = QLineF(QPointF(50, beginP + perLen * i),
+                                                    QPointF(55, beginP + perLen * i));
+
+                            p.drawLine(perLine);
+                        }
+
+                        QRect textRect(QPoint(-115, -75),
+                                       QSize(20+verLength, 15));
+
+                        p.rotate(90);
+
+                        p.drawText(textRect,  Qt::AlignCenter, QString("%1%2").arg(rulerValueMM).arg("mm"));
+                    }
+                }
+
+                p.restore();
 
                 return true;
             }
