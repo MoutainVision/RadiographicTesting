@@ -90,7 +90,7 @@ bool ComputeGradient(unsigned short *pImg, int nW, int nH)
 	unsigned short *pBuf = new unsigned short[nW*nH];
 	memset(pBuf, 0, nW*nH * sizeof(unsigned short));
 
-	size_t nOff = nW;
+	size_t nOff = nW + 1;
 
 	for (unsigned y = 1; y < nH - 1; y++)
 	{
