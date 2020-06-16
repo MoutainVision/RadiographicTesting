@@ -33,7 +33,7 @@ private:
     Ui::BrightClbWdg *ui;
 
 
-    unsigned      m_g[65536];
+    unsigned      m_g[256];
 
 
 };

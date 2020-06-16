@@ -187,8 +187,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->pushButton_pre_big->installEventFilter(this);
     ui->pushButton_pre_big->setMouseTracking(true);
 
-    ui->pushButton_his->setEnabled(false);
-    ui->checkBox_gradient->setEnabled(false);
+//    ui->pushButton_his->setEnabled(false);
+//    ui->checkBox_gradient->setEnabled(false);
 
     //
     mDefectClassColor.push_back(QColor("#f7acbc"));
@@ -919,7 +919,6 @@ void MainWindow::slot_sliderWinValueChange(int value)
         mWinCentre = value;
         ui->label_wincentre->setText(QString("%1").arg(value));
 
-
         SDelImgOpt *imgOpt;
         imgOpt = new SDelImgOpt;
         imgOpt->delType = EDELIMGWIND;
@@ -982,6 +981,25 @@ void MainWindow::setDcmFileInfo()
 
     mRotate = 0;
     mNeedRotate = 0;
+
+    ui->checkBox_contrastE->setChecked(false);
+    mBContrastE = false;
+    ui->widget_contrastE->hide();
+
+    ui->checkBox_gama->setChecked(false);
+    mBGama = false;
+    ui->widget_gama->hide();
+
+    ui->checkBox_emboss->setChecked(false);
+    mBEmboss = false;
+    ui->widget_emboss->hide();
+
+    ui->checkBox_bright->setChecked(false);
+    mBBright = false;
+    ui->widget_bright->hide();
+
+    ui->checkBox_gradient->setChecked(false);
+    mBGradient = false;
 
     //清空缺陷
     clearDefect();
@@ -1134,6 +1152,26 @@ void MainWindow::resetImg()
     ui->checkBox_wind->setChecked(true);
     mBWind = true;
 
+    ui->checkBox_contrastE->setChecked(false);
+    mBContrastE = false;
+    ui->widget_contrastE->hide();
+
+    ui->checkBox_gama->setChecked(false);
+    mBGama = false;
+    ui->widget_gama->hide();
+
+    ui->checkBox_emboss->setChecked(false);
+    mBEmboss = false;
+    ui->widget_emboss->hide();
+
+    ui->checkBox_bright->setChecked(false);
+    mBBright = false;
+    ui->widget_bright->hide();
+
+    ui->checkBox_gradient->setChecked(false);
+    mBGradient = false;
+
+
     //重置窗宽窗外
 
     ui->checkBox_contrast->setChecked(false);
@@ -1149,6 +1187,15 @@ void MainWindow::resetImg()
         mDelImgOptList.removeAt(i);
     }
     mImgProLock.unlock();
+
+    SDelImgOpt *imgOpt;
+    imgOpt = new SDelImgOpt;
+    imgOpt->delType = EDELIMGWIND;
+    imgOpt->isOpen  = mBWind;
+    imgOpt->value1  = mCurDcmFileInfo.winCentre;
+    imgOpt->value2  = mCurDcmFileInfo.windWidth;
+
+    delImgOptList(imgOpt);
 
     //适配显示
     showAdapt();
@@ -1668,6 +1715,7 @@ void MainWindow::getMagImg(QPoint curPt)
 
 void MainWindow::getIntensity(QPoint curPt)
 {
+
     if (nullptr != m_pSrcImg && nullptr != m_pTransImg)
 	{
         if (mBMag)
@@ -1680,9 +1728,11 @@ void MainWindow::getIntensity(QPoint curPt)
         {
           //  mDelImgLock.lock();
 
+            mImgProLock.lock();
             unsigned short intensity = 0;
             GetIntensity(intensity, m_pTransImg, mTransImgWidth, mTransImgHeight,
                 imgPt.x() / mScale, imgPt.y()/ mScale);
+            mImgProLock.unlock();
 
            // mDelImgLock.unlock();
 
@@ -2238,13 +2288,16 @@ void MainWindow::slotBtnClick(bool bClick)
         mBContrastE = ui->checkBox_contrastE->isChecked();
         ui->widget_contrastE->setVisible(mBContrastE);
 
-        SDelImgOpt *imgOpt;
-        imgOpt = new SDelImgOpt;
-        imgOpt->delType = EDELIMGCONTRASTE;
-        imgOpt->isOpen  = mBContrastE;
-        imgOpt->value1  = ui->horizontalSlider_contrastE->value();
+        if (!mBContrastE)
+        {
+            SDelImgOpt *imgOpt;
+            imgOpt = new SDelImgOpt;
+            imgOpt->delType = EDELIMGCONTRASTE;
+            imgOpt->isOpen  = mBContrastE;
+            imgOpt->value1  = ui->horizontalSlider_contrastE->value();
 
-        delImgOptList(imgOpt);
+            delImgOptList(imgOpt);
+        }
     }
     else if (QObject::sender() == ui->pushButton_contrastE_apply)
     {
@@ -2261,15 +2314,18 @@ void MainWindow::slotBtnClick(bool bClick)
         mBGama = ui->checkBox_gama->isChecked();
         ui->widget_gama->setVisible(mBGama);
 
-        SDelImgOpt *imgOpt;
-        imgOpt = new SDelImgOpt;
-        imgOpt->delType = EDELIMGGAMA;
-        imgOpt->isOpen  = mBGama;
-        imgOpt->value1 = ui->spinBox_gamma_dark->value();
-        imgOpt->value2 = ui->spinBox_gamma_bright->value();
-        imgOpt->value3 = ui->doubleSpinBox_gama->value();
+        if (!mBGama)
+        {
+            SDelImgOpt *imgOpt;
+            imgOpt = new SDelImgOpt;
+            imgOpt->delType = EDELIMGGAMA;
+            imgOpt->isOpen  = mBGama;
+            imgOpt->value1 = ui->spinBox_gamma_dark->value();
+            imgOpt->value2 = ui->spinBox_gamma_bright->value();
+            imgOpt->value3 = ui->doubleSpinBox_gama->value();
 
-        delImgOptList(imgOpt);
+            delImgOptList(imgOpt);
+        }
     }
     else if (QObject::sender() == ui->pushButton_gama_apply)
     {
@@ -2295,20 +2351,22 @@ void MainWindow::slotBtnClick(bool bClick)
         imgOpt->value1 = ui->comboBox_emboss->currentIndex();
 
         delImgOptList(imgOpt);
-
     }
     else if (QObject::sender() == ui->checkBox_bright)
     {
         mBBright = ui->checkBox_bright->isChecked();
         ui->widget_bright->setVisible(mBBright);
 
-        SDelImgOpt *imgOpt;
-        imgOpt = new SDelImgOpt;
-        imgOpt->delType = EDELIMGBRIGHT;
-        imgOpt->isOpen  = mBBright;
-        imgOpt->value1 = ui->spinBox_bright->value();
+        if (!mBBright)
+        {
+            SDelImgOpt *imgOpt;
+            imgOpt = new SDelImgOpt;
+            imgOpt->delType = EDELIMGBRIGHT;
+            imgOpt->isOpen  = mBBright;
+            imgOpt->value1 = ui->spinBox_bright->value();
 
-        delImgOptList(imgOpt);
+            delImgOptList(imgOpt);
+        }
     }
     else if (QObject::sender() == ui->pushButton_bright_apply)
     {
@@ -2350,17 +2408,20 @@ void MainWindow::slotBtnClick(bool bClick)
         mBContrast = ui->checkBox_contrast->isChecked();
         ui->widget_const->setVisible(mBContrast);
 
-        mLevel     = ui->spinBox_level->value();
-        mPower     = ui->doubleSpinBox_power->value();
+        if (!mBContrast)
+        {
+            mLevel     = ui->spinBox_level->value();
+            mPower     = ui->doubleSpinBox_power->value();
 
-        SDelImgOpt *imgOpt;
-        imgOpt = new SDelImgOpt;
-        imgOpt->delType = EDELIMGCONTRAST;
-        imgOpt->isOpen  = mBContrast;
-        imgOpt->value1  = mLevel;
-        imgOpt->value2  = mPower;
+            SDelImgOpt *imgOpt;
+            imgOpt = new SDelImgOpt;
+            imgOpt->delType = EDELIMGCONTRAST;
+            imgOpt->isOpen  = mBContrast;
+            imgOpt->value1  = mLevel;
+            imgOpt->value2  = mPower;
 
-        delImgOptList(imgOpt);
+            delImgOptList(imgOpt);
+        }
     }
     else if (QObject::sender() == ui->pushButton_contrast_apply)
     {
@@ -3075,15 +3136,6 @@ void MainWindow::delImg(SDelImgOpt *srcImgOpt, SDelImgOpt *objImgOpt)
     }
 
     objImgOpt->pImg = pImg;
-
-//    mDelTransLock.lock();
-//    if (!mBDelTransing)
-//    {
-//        mDelTransLock.unlock();
-//        SetEvent(hEventTrans);
-//        return ;
-//    }
-//    mDelTransLock.unlock();
 }
 
 void MainWindow::delImgOptList(SDelImgOpt *newImgOpt)
@@ -3094,7 +3146,8 @@ void MainWindow::delImgOptList(SDelImgOpt *newImgOpt)
     if (NULL == newImgOpt)
         return ;
 
-    if (!newImgOpt->isOpen && newImgOpt->delType!=EDELIMGWIND)
+    //if (!newImgOpt->isOpen && newImgOpt->delType!=EDELIMGWIND)
+    if (newImgOpt->delType!=EDELIMGWIND)
         showLoading(QStringLiteral("正在处理图像，请稍等"));
 
     mDelTransLock.lock();

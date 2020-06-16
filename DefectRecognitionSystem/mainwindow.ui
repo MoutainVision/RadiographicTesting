@@ -805,7 +805,7 @@ QTableView::indicator {
                    <string> 直方图</string>
                   </property>
                   <property name="checkable">
-                   <bool>true</bool>
+                   <bool>false</bool>
                   </property>
                  </widget>
                 </item>

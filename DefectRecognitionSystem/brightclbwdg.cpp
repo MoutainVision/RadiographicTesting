@@ -17,9 +17,17 @@ BrightClbWdg::~BrightClbWdg()
 
 void BrightClbWdg::setHist(unsigned aF[], int size)
 {
+    unsigned h[256];
+    memset(h, 0, 256*sizeof(unsigned));
     for (int i=0; i<size; i++)
     {
-        m_g[i] = aF[i];
+        h[i/256] += aF[i];
+    }
+
+    memset(m_g, 0, 256*sizeof(unsigned));
+    for (int i=0; i<256; i++)
+    {
+        m_g[i] = h[i];
     }
 
     update();
@@ -56,7 +64,7 @@ bool BrightClbWdg::eventFilter(QObject *obj, QEvent *e)
 
             unsigned gmin =  10000000;
             unsigned gmax = 0;
-            for (int i=0; i<65536; i++)
+            for (int i=0; i<256; i++)
             {
                if (m_g[i] < gmin)
                    gmin = m_g[i];
@@ -70,7 +78,7 @@ bool BrightClbWdg::eventFilter(QObject *obj, QEvent *e)
                float sx = (float)w / 255;
                float sy = (float)h / (double)(gmax-gmin);
 
-               for (int i=0; i<65536; i++)
+               for (int i=0; i<256; i++)
                {
                     int x = (int)(i * sx);
 
